@@ -1,0 +1,15 @@
+[remap]
+
+importer="font_data_dynamic"
+type="FontFile"
+uid="uid://b04bqkfo63yn"
+path="res://.godot/imported/Gilroy-Bold.ttf-fdc1cbbc268c83e20c8dd3f1f29bcff2.fontdata"
+
+[deps]
+
+source_file="res://resources/Gilroy-Bold.ttf"
+dest_files=["res://.godot/imported/Gilroy-Bold.ttf-fdc1cbbc268c83e20c8dd3f1f29bcff2.fontdata"]
+
+[params]
+
+dummy_value_ignore_me=0

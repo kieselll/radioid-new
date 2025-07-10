@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=4 uid="uid://da8cpsstayw6h"]
+
+[sub_resource type="GDScript" id="GDScript_gwbjs"]
+script/source = "extends Node2D
+
+@export var sprite_texture : Texture
+
+var children = []
+
+func _ready() -> void:
+	$Sprite2D.texture = sprite_texture
+	children = get_children()
+
+func _physics_process(delta: float) -> void:
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			set_linear_velocity(Input.get_last_mouse_velocity())
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed()\\
+		and get_local_mouse_position() <= Vector2(32,32)\\
+		and get_local_mouse_position() >= Vector2(-32,-32):
+			set_linear_velocity(Input.get_last_mouse_velocity())
+		elif not event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
+			set_linear_velocity(Input.get_last_mouse_velocity())
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kv704"]
+size = Vector2(64, 64)
+
+[node name="RigidBody2D" type="RigidBody2D"]
+gravity_scale = 0.0
+script = SubResource("GDScript_gwbjs")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(4, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("RectangleShape2D_kv704")

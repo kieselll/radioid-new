@@ -1,0 +1,40 @@
+GDRE Tools v1.0.0-rc.3
+Windows 10.0.19045, Intel(R) UHD Graphics 630, opengl3
+Opening file: C:/Users/User/Desktop/radioid.exe
+ERROR: Can't find embedded pck file in executable and cannot find pck file in same directory!
+   at: GDRESettings::load_project (modules\gdsdecomp\utility\gdre_settings.cpp:578)
+GDRE Tools v1.0.0-rc.3
+Windows 10.0.19045, Intel(R) UHD Graphics 630, opengl3
+Opening file: C:/Users/User/Desktop/radioid.exe
+WARNING: Could not find embedded pck in EXE, found pck file, loading from: C:/Users/User/Desktop/radioid.exe
+   at: GDRESettings::load_project (modules\gdsdecomp\utility\gdre_settings.cpp:582)
+Verified 351 files, no errors detected!
+Extracted 351 files, no errors detected!
+Saved project config.
+
+
+********************************EXPORT REPORT********************************
+
+Totals:                                 
+Decompiled scripts:                     39
+Failed scripts:                         0
+Imported resources for export session:  172
+Successfully converted:                 172
+Lossy:                                  2
+Rewrote metadata:                       107
+Non-importable conversions:             0
+Not converted:                          0
+Failed conversions:                     0
+-------------
+
+
+
+------------------------------------------------------------------------------------
+
+Use Godot editor version 4.4.1 to edit the project.
+Note: the project may be using a custom version of Godot. Detection for this has not been implemented yet.
+If you find that you have many non-import errors upon opening the project 
+(i.e. scripts or shaders have many errors), use the original game's binary as the export template.
+
+*******************************************************************************
+

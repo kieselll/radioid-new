@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="PawnStats" load_steps=2 format=4 uid="uid://dvevepxj7tif0"]
+
+[ext_resource type="Script" uid="uid://d0jsieodb28b8" path="res://resources/resource_scripts/pawn_stat_resouce.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+personality = 2
+stats = {
+"happiness": 100,
+"health": 100,
+"tiredness": 0
+}
+traits = []
+abilities = {
+&"building": 0
+}

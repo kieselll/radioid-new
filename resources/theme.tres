@@ -1,0 +1,143 @@
+[gd_resource type="Theme" load_steps=11 format=3 uid="uid://qb0c3yxrvyka"]
+
+[ext_resource type="FontFile" uid="uid://b04bqkfo63yn" path="res://resources/Gilroy-Bold.ttf" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ylw2"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.248235, 0, 0.00974905, 0.502)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.165657, 0.165656, 0.165656, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uxm4e"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rkdun"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.125911, 0.125911, 0.12591, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.165657, 0.165656, 0.165656, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stqtg"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.103744, 0.103744, 0.103743, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.165657, 0.165656, 0.165656, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gbe5o"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.203922, 0.203922, 0.203922, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.165657, 0.165656, 0.165656, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eh0e6"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.118582, 0.118581, 0.118581, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.140447, 0.140447, 0.140447, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hl60g"]
+content_margin_bottom = 5.0
+bg_color = Color(0.0745098, 0.0745098, 0.0745098, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.0901961, 0.0901961, 0.0901961, 1)
+border_blend = true
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5v5x7"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.144063, 0.144063, 0.144062, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.187176, 0.187176, 0.187176, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cdpih"]
+content_margin_bottom = 5.0
+bg_color = Color(0.0745098, 0.0745098, 0.0745098, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.0901961, 0.0901961, 0.0901961, 1)
+border_blend = true
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[resource]
+default_font = ExtResource("1")
+Button/styles/disabled = SubResource("StyleBoxFlat_5ylw2")
+Button/styles/focus = SubResource("StyleBoxEmpty_uxm4e")
+Button/styles/hover = SubResource("StyleBoxFlat_rkdun")
+Button/styles/normal = SubResource("StyleBoxFlat_stqtg")
+Button/styles/pressed = SubResource("StyleBoxFlat_gbe5o")
+ItemList/styles/hovered = SubResource("StyleBoxFlat_eh0e6")
+ItemList/styles/panel = SubResource("StyleBoxFlat_hl60g")
+ItemList/styles/selected = SubResource("StyleBoxFlat_5v5x7")
+Panel/styles/panel = SubResource("StyleBoxFlat_cdpih")

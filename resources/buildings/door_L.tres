@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildableData" load_steps=4 format=4 uid="uid://by5mbpa3bocdf"]
+
+[ext_resource type="Script" uid="uid://c8t57xl2baepa" path="res://resources/resource_scripts/BuildableInteractionData.gd" id="1"]
+[ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="2"]
+
+[sub_resource type="Resource" id="Resource_3wyck"]
+script = ExtResource("1")
+flags = null
+interaction_coords = [Vector2i(0, -1), Vector2i(1, -1), Vector2i(0, 1), Vector2i(1, 1)]
+interaction_name = "Open"
+metadata/_custom_type_script = "uid://c8t57xl2baepa"
+
+[resource]
+script = ExtResource("2")
+id = 3
+display_name = "Large Door"
+layer = NodePath("TileMap/walls")
+passable = true
+build_time = 9.0
+max_health = 160
+queued_layer = NodePath("TileMap/walls_queued")
+resource_cost = {}
+valid_building_tile_id = []
+flammable_params = null
+interation_params = SubResource("Resource_3wyck")
+type_params = null
+metadata/_custom_type_script = "uid://cnq8sq58jipws"
