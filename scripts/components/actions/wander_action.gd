@@ -1,2 +1,5 @@
 class_name WanderAction
-extends Node
+extends BaseAction
+
+func start() -> void:
+	

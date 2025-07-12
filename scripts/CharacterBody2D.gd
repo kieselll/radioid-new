@@ -258,10 +258,3 @@ func _input(event: InputEvent) -> void :
 	elif Input.is_physical_key_pressed(KEY_KP_SUBTRACT):
 		characteristics.abilities["building"] = clampi(characteristics.abilities["building"] - 1, 0, 9)
 		print(characteristics.abilities["building"])
-
-func _on_state_changed(state) -> void :
-	match state:
-		state_machine.states.IDLE:
-			movement_component.speed = 50
-		_:
-			movement_component.speed = 75
