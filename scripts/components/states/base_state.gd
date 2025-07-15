@@ -1,4 +1,4 @@
-class_name BaseAction
+class_name BaseState
 extends Node
 
 func start(args = {}) -> void:

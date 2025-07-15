@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b46j0js042i4q"]
+[gd_scene load_steps=15 format=3 uid="uid://b46j0js042i4q"]
 
 [ext_resource type="Script" uid="uid://6c7xkrnwj04x" path="res://scripts/CharacterBody2D.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://supgli3ajes5" path="res://man.png" id="2"]
@@ -7,10 +7,11 @@
 [ext_resource type="Script" uid="uid://dfbrbyd3o8hij" path="res://scripts/components/node_builder.gd" id="6"]
 [ext_resource type="Script" uid="uid://1yujcdfforo4" path="res://scripts/components/node_movement.gd" id="7"]
 [ext_resource type="Script" uid="uid://cvf7cyvmsnhhf" path="res://scripts/components/states/move_state.gd" id="7_ojbo2"]
+[ext_resource type="Script" uid="uid://mlsuy8iy31ye" path="res://scripts/components/action_machine.gd" id="8_otoq7"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_taskf"]
-radius = 150.0
-height = 445.0
+radius = 122.0
+height = 244.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bqii1"]
 bg_color = Color(0, 0, 0, 1)
@@ -47,6 +48,7 @@ width = 1
 [node name="test_pawn" type="CharacterBody2D" groups=["teammates"]]
 scale = Vector2(0.5, 0.5)
 input_pickable = true
+motion_mode = 1
 slide_on_ceiling = false
 script = ExtResource("1")
 
@@ -59,7 +61,7 @@ script = ExtResource("7")
 metadata/_custom_type_script = "uid://1yujcdfforo4"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -0.5)
+position = Vector2(0, 70)
 shape = SubResource("CapsuleShape2D_taskf")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -127,5 +129,9 @@ metadata/_custom_type_script = "uid://coyult43c47ei"
 [node name="MoveState" type="Node" parent="state_machine"]
 script = ExtResource("7_ojbo2")
 metadata/_custom_type_script = "uid://cvf7cyvmsnhhf"
+
+[node name="ActionMachine" type="Node" parent="."]
+script = ExtResource("8_otoq7")
+metadata/_custom_type_script = "uid://mlsuy8iy31ye"
 
 [connection signal="timeout" from="alert_timer" to="." method="_on_alert_timer_timeout"]

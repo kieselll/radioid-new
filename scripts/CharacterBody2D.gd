@@ -13,7 +13,6 @@ extends CharacterBody2D
 var moving: bool = false
 @export var characteristics: PawnStats
 @onready var raycast: RayCast2D = $RayCast2D
-@onready var current_state = state_machine.states.IDLE
 @onready var movement_component = $Movement_component
 @onready var building_component = $BuildingComponent
 
@@ -205,42 +204,6 @@ func rotate_sprite(direction: Vector2):
 		$Sprite2D.texture = back_texture
 	elif direction.angle() > -1.16937 and direction.angle() < -0.3839724:
 		$Sprite2D.texture = right_back_texture
-
-func _physics_process(delta):
-	local_position = $"../TileMap/walls".local_to_map(position)
-	match current_state:
-		state_machine.states.IDLE:
-			idle_process()
-		state_machine.states.REST:
-			rest_process()
-
-
-
-
-
-
-
-			pass
-func _on_alert_timer_timeout():
-	current_state = state_machine.states.IDLE
-func _process(delta: float) -> void :
-	if $"../TileMap/walls".get_cell_tile_data($"../TileMap/walls".local_to_map(position)) and \
-$"../TileMap/walls".get_cell_tile_data($"../TileMap/walls".local_to_map(position)).get_custom_data("can_rest") == true and \
-current_state == state_machine.states.REST:
-		characteristics.stats["tiredness"] = clamp((characteristics.stats["tiredness"] - delta / 5), 0, 100)
-		characteristics.stats["health"] = clamp((characteristics.stats["health"] + delta / 50), 0, 100)
-	elif $"../TileMap/walls".get_cell_tile_data($"../TileMap/walls".local_to_map(position)) and \
-$"../TileMap/walls".get_cell_tile_data($"../TileMap/walls".local_to_map(position)).get_custom_data("can_heal") == true and \
-current_state == state_machine.states.UNCONCIOUS:
-		characteristics.stats["tiredness"] = clamp((characteristics.stats["tiredness"] - delta / 20), 65, 100)
-		characteristics.stats["health"] = clamp((characteristics.stats["health"] + delta / 15), 0, 100)
-	elif current_state == state_machine.states.UNCONCIOUS:
-		characteristics.stats["tiredness"] = clamp((characteristics.stats["tiredness"] - delta / 20), 65, 100)
-	else:
-		characteristics.stats["tiredness"] = clamp((characteristics.stats["tiredness"] + delta / 10), 0, 100)
-		characteristics.stats["health"] = clamp((characteristics.stats["health"] + delta / 50), 0, 100)
-
-
 
 func _input(event: InputEvent) -> void :
 	if event is InputEventKey and Input.is_physical_key_pressed(KEY_P):
