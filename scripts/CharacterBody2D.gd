@@ -1,19 +1,12 @@
-
-
-
-
-
-
-
-
 extends CharacterBody2D
 
 @export var speed = 50
-@onready var state_machine = $state_machine
+@onready var state_machine = $StateMachine
+@onready var action_machine = $ActionMachine
 var moving: bool = false
 @export var characteristics: PawnStats
 @onready var raycast: RayCast2D = $RayCast2D
-@onready var movement_component = $Movement_component
+@onready var movement_component = $MovementComponent
 @onready var building_component = $BuildingComponent
 
 var random_pos = null

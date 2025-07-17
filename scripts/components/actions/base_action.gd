@@ -3,6 +3,7 @@ extends Node
 
 func _ready() -> void:
 	await owner.ready
+	_late_ready()
 
 func _late_ready() -> void:
 	pass

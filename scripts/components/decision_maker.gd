@@ -12,3 +12,10 @@ class QueuedAction:
 
 
 var action_queue : Array[QueuedAction] = []
+var current_action : QueuedAction = QueuedAction.new(&"wander_action")
+
+func add_action_to_queue(action_name : StringName, priority : int):
+	pass
+
+func calculate_action_priority_modifier(action : QueuedAction) -> float:
+	return 0
