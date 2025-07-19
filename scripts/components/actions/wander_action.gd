@@ -17,14 +17,16 @@ func _late_ready() -> void:
 func start(args : Dictionary = {}) -> void:
 	_active = true
 	new_pos()
+	print("As action, I recieved the start")
 
 func new_pos():
+	print("New pos is called")
 	if _active:
 		if not _random_pos:
-			_random_pos = Vector2i(randi_range(_movement_component._local_position.x - 5, _movement_component._local_position.x + 5), randi_range(_movement_component._local_position.y - 5, _movement_component._local_position.y + 5))
-		else:
+			print("LOCAL::::::: ", _movement_component.get_local_position())
+			_random_pos = Vector2i(randi_range(_movement_component.get_local_position().x - 5, _movement_component.get_local_position().x + 5), randi_range(_movement_component.get_local_position().y - 5, _movement_component.get_local_position().y + 5))
 			_state_machine.change_state(&"move_state",{"target" = _random_pos})
-	
+			print("Asked state to move")
 	await _move_state.arrived_at_target
 	_random_pos = null
 	new_pos()

@@ -16,11 +16,13 @@ func start(args : Dictionary = {}) -> void :
 	assert(args.has("target"), "MoveState of %s recieved start(), but has no argument \"target\", therefore nowhere to move.")
 	assert(args["target"] is Vector2i, "MoveState of %s recieved start(), but the argument \"target\" is not a Vector2i, therefore cannot process it.")
 	
+	print("Started moving yay ", args["target"])
 	var _move_target = args["target"]
-	if _movement_component.get_local_coords() != _move_target and not _movement_component.is_moving():
+	if _movement_component.get_local_position() != _move_target and not _movement_component.is_moving():
 		_movement_component.move_to_coord(_move_target)
-	elif _movement_component.get_local_coords() == _move_target:
+	elif _movement_component.get_local_position() == _move_target:
 		arrived_at_target.emit(_move_target)
+		print("movement completed wow")
 
 func stop():
 	_movement_component.stop_moving()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://b46j0js042i4q"]
+[gd_scene load_steps=18 format=3 uid="uid://b46j0js042i4q"]
 
 [ext_resource type="Script" uid="uid://6c7xkrnwj04x" path="res://scripts/CharacterBody2D.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://supgli3ajes5" path="res://man.png" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://mlsuy8iy31ye" path="res://scripts/components/action_machine.gd" id="8_otoq7"]
 [ext_resource type="Script" uid="uid://cyml8tsc5rk7i" path="res://scripts/components/states/idle_state.gd" id="8_ycofb"]
 [ext_resource type="Script" uid="uid://ronrx335gx2j" path="res://scripts/components/actions/wander_action.gd" id="9_vvra3"]
+[ext_resource type="Script" uid="uid://bhsj43xf8ynaq" path="res://scripts/components/decision_maker.gd" id="11_lgtdx"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_taskf"]
 radius = 122.0
@@ -115,10 +116,14 @@ scale = Vector2(40, 40)
 texture = SubResource("GradientTexture1D_bgilg")
 
 [node name="Label" type="Label" parent="."]
-offset_left = -134.0
-offset_top = -340.0
-offset_right = 139.0
-offset_bottom = -289.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -136.5
+offset_top = -196.0
+offset_right = 136.5
+offset_bottom = -145.0
+grow_horizontal = 2
 theme_override_colors/font_color = Color(0.686624, 0.686624, 0.686624, 1)
 theme_override_font_sizes/font_size = 50
 text = "Чюпеп"
@@ -143,5 +148,9 @@ metadata/_custom_type_script = "uid://mlsuy8iy31ye"
 [node name="WanderAction" type="Node" parent="ActionMachine"]
 script = ExtResource("9_vvra3")
 metadata/_custom_type_script = "uid://ronrx335gx2j"
+
+[node name="DecisionMaker" type="Node" parent="."]
+script = ExtResource("11_lgtdx")
+metadata/_custom_type_script = "uid://bhsj43xf8ynaq"
 
 [connection signal="timeout" from="alert_timer" to="." method="_on_alert_timer_timeout"]
