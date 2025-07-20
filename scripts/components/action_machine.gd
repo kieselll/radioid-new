@@ -15,4 +15,3 @@ func start_action(action_name : String, args = {}) -> void:
 	if current_action: current_action.stop()
 	current_action = actions[action_name]
 	actions[action_name].start(args)
-	print("Started action")

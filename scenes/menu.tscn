@@ -399,6 +399,9 @@ text = "Radioid"
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_04cki")
 
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+volume_db = -30.0
+
 [connection signal="mouse_entered" from="Node2D/RigidBody2D" to="." method="_on_rigid_body_2d_mouse_entered"]
 [connection signal="mouse_exited" from="Node2D/RigidBody2D" to="." method="_on_rigid_body_2d_mouse_exited"]
 [connection signal="mouse_entered" from="Node2D/RigidBody2D2" to="." method="_on_rigid_body_2d_2_mouse_entered"]

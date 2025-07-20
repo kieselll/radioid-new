@@ -17,18 +17,20 @@ func _late_ready() -> void:
 func start(args : Dictionary = {}) -> void:
 	_active = true
 	new_pos()
-	print("As action, I recieved the start")
 
 func new_pos():
-	print("New pos is called")
 	if _active:
 		if not _random_pos:
-			print("LOCAL::::::: ", _movement_component.get_local_position())
-			_random_pos = Vector2i(randi_range(_movement_component.get_local_position().x - 5, _movement_component.get_local_position().x + 5), randi_range(_movement_component.get_local_position().y - 5, _movement_component.get_local_position().y + 5))
-			_state_machine.change_state(&"move_state",{"target" = _random_pos})
-			print("Asked state to move")
+			_random_pos = Vector2i(randi_range(-5, 5), randi_range(-5, 5))
+			if _random_pos == Vector2i.ZERO:
+				print("FUCKED UP, TRYING AGAIN")
+				_random_pos = null
+				new_pos()
+				return
+			_state_machine.change_state(&"move_state",{&"target" : _movement_component.get_local_position() + _random_pos, &"partial" : true})
 	await _move_state.arrived_at_target
 	_random_pos = null
+	await get_tree().create_timer(randf_range(0.3, 4)).timeout
 	new_pos()
 
 func stop() -> void:
