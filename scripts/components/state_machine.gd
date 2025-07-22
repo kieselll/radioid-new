@@ -1,3 +1,4 @@
+@icon("res://textures/editor_icons/cog.svg")
 class_name StateMachine
 extends Node
 

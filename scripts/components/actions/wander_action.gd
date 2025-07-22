@@ -1,13 +1,12 @@
+@icon("res://textures/editor_icons/misdirection.svg")
 class_name WanderAction
 extends BaseAction
 
 const action_name : StringName = &"wander_action"
 
 var _movement_component : MovementComponent
-var _state_machine : StateMachine
 var _move_state : BaseState
 var _random_pos
-var _active
 
 func _late_ready() -> void:
 	_movement_component = owner.movement_component
@@ -23,7 +22,6 @@ func new_pos():
 		if not _random_pos:
 			_random_pos = Vector2i(randi_range(-5, 5), randi_range(-5, 5))
 			if _random_pos == Vector2i.ZERO:
-				print("FUCKED UP, TRYING AGAIN")
 				_random_pos = null
 				new_pos()
 				return
@@ -32,6 +30,7 @@ func new_pos():
 	_random_pos = null
 	await get_tree().create_timer(randf_range(0.3, 4)).timeout
 	new_pos()
+	done.emit()
 
 func stop() -> void:
 	_active = false

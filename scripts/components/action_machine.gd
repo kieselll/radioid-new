@@ -1,3 +1,4 @@
+@icon("res://textures/editor_icons/pokecog.svg")
 class_name ActionMachine
 extends Node
 

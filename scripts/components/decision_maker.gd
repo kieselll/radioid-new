@@ -1,3 +1,4 @@
+@icon("res://textures/editor_icons/brain.svg")
 class_name DecisionMaker
 extends Node
 

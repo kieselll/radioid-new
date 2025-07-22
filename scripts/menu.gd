@@ -85,37 +85,37 @@ func _process_button_anims_and_sounds(button: Button, entered: bool):
 
 
 func _on_rigid_body_2d_mouse_entered() -> void :
-	_modulate_body($Node2D / RigidBody2D, Color(1.5, 1.5, 1.5))
+	_modulate_body($Node2D/RigidBody2D, Color(1.5, 1.5, 1.5))
 
 func _on_rigid_body_2d_mouse_exited() -> void :
-	_modulate_body($Node2D / RigidBody2D, Color(0.65, 0.65, 0.65))
+	_modulate_body($Node2D/RigidBody2D, Color(0.65, 0.65, 0.65))
 
 func _on_rigid_body_2d_2_mouse_entered() -> void :
-	_modulate_body($Node2D / RigidBody2D2, Color(1.5, 1.5, 1.5))
+	_modulate_body($Node2D/RigidBody2D2, Color(1.5, 1.5, 1.5))
 
 func _on_rigid_body_2d_2_mouse_exited() -> void :
-	_modulate_body($Node2D / RigidBody2D2, Color(0.65, 0.65, 0.65))
+	_modulate_body($Node2D/RigidBody2D2, Color(0.65, 0.65, 0.65))
 
 func _on_rigid_body_2d_3_mouse_entered() -> void :
-	_modulate_body($Node2D / RigidBody2D3, Color(1.5, 1.5, 1.5))
+	_modulate_body($Node2D/RigidBody2D3, Color(1.5, 1.5, 1.5))
 
 func _on_rigid_body_2d_3_mouse_exited() -> void :
-	_modulate_body($Node2D / RigidBody2D3, Color(0.65, 0.65, 0.65))
+	_modulate_body($Node2D/RigidBody2D3, Color(0.65, 0.65, 0.65))
 
 func _on_rigid_body_2d_4_mouse_entered() -> void :
-	_modulate_body($Node2D / RigidBody2D4, Color(1.3, 1.3, 1.3))
+	_modulate_body($Node2D/RigidBody2D4, Color(1.3, 1.3, 1.3))
 
 func _on_rigid_body_2d_4_mouse_exited() -> void :
-	_modulate_body($Node2D / RigidBody2D4, Color(0.65, 0.65, 0.65))
+	_modulate_body($Node2D/RigidBody2D4, Color(0.65, 0.65, 0.65))
 
 func _on_rigid_body_2d_5_mouse_entered() -> void :
-	_modulate_body($Node2D / RigidBody2D5, Color(1.5, 1.5, 1.5))
+	_modulate_body($Node2D/RigidBody2D5, Color(1.5, 1.5, 1.5))
 
 func _on_rigid_body_2d_5_mouse_exited() -> void :
-	_modulate_body($Node2D / RigidBody2D5, Color(0.65, 0.65, 0.65))
+	_modulate_body($Node2D/RigidBody2D5, Color(0.65, 0.65, 0.65))
 
 func _on_rigid_body_2d_6_mouse_entered() -> void :
-	_modulate_body($Node2D / RigidBody2D6, Color(1.5, 1.5, 1.5))
+	_modulate_body($Node2D/RigidBody2D6, Color(1.5, 1.5, 1.5))
 
 func _on_rigid_body_2d_6_mouse_exited() -> void :
-	_modulate_body($Node2D / RigidBody2D6, Color(0.65, 0.65, 0.65))
+	_modulate_body($Node2D/RigidBody2D6, Color(0.65, 0.65, 0.65))

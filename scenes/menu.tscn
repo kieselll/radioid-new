@@ -37,9 +37,6 @@ normal = Vector2(-1, 0)
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_n6mdn"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_70i5f"]
-size = Vector2(111, 120)
-
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_v257j"]
 noise_type = 0
 frequency = 0.0766
@@ -116,6 +113,9 @@ corner_radius_top_left = 1
 corner_radius_top_right = 1
 corner_radius_bottom_right = 1
 corner_radius_bottom_left = 1
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_70i5f"]
+size = Vector2(111, 120)
 
 [sub_resource type="Environment" id="Environment_04cki"]
 background_mode = 3
@@ -274,12 +274,6 @@ position = Vector2(966, 623)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/bottom_border"]
 shape = SubResource("WorldBoundaryShape2D_n6mdn")
 
-[node name="StaticBody2D" type="StaticBody2D" parent="Node2D"]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/StaticBody2D"]
-position = Vector2(550.5, 300)
-shape = SubResource("RectangleShape2D_70i5f")
-
 [node name="ColorRect" type="ColorRect" parent="."]
 z_index = -1
 material = SubResource("ShaderMaterial_5tdbv")
@@ -373,6 +367,13 @@ offset_bottom = 1.91998
 mouse_filter = 2
 color = Color(0, 0, 0, 0)
 metadata/_edit_use_anchors_ = true
+
+[node name="StaticBody2D" type="StaticBody2D" parent="MarginContainer"]
+position = Vector2(-494.5, -240)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MarginContainer/StaticBody2D"]
+position = Vector2(550.5, 300)
+shape = SubResource("RectangleShape2D_70i5f")
 
 [node name="Label" type="Label" parent="."]
 modulate = Color(1.3, 1.3, 1.3, 1)

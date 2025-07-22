@@ -2,36 +2,37 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b0esr0j4ojelp"
-path="res://.godot/imported/path-distance.svg-5d4494cbdbfbf472cea58b45d303d638.ctex"
+uid="uid://wrt1gg1o4653"
+path="res://.godot/imported/boot-prints.svg-f7f50ad585cc8394015a8f01a152fe8e.ctex"
 metadata={
+"has_editor_variant": true,
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://textures/editor_icons/path-distance.svg"
-dest_files=["res://.godot/imported/path-distance.svg-5d4494cbdbfbf472cea58b45d303d638.ctex"]
+source_file="res://textures/editor_icons/boot-prints.svg"
+dest_files=["res://.godot/imported/boot-prints.svg-f7f50ad585cc8394015a8f01a152fe8e.ctex"]
 
 [params]
 
 compress/mode=0
 compress/high_quality=false
-compress/lossy_quality=1.0
-compress/hdr_compression=0
+compress/lossy_quality=0.7
+compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
-process/fix_alpha_border=false
+process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1
 svg/scale=1.0
 editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false
+editor/convert_colors_with_editor_theme=true

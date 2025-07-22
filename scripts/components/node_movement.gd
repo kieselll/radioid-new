@@ -1,4 +1,4 @@
-@icon("res://textures/editor_icons/path-distance.svg")
+@icon("res://textures/editor_icons/walking-boot.svg")
 class_name MovementComponent
 extends Node
 

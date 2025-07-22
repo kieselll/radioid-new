@@ -1,10 +1,11 @@
+@icon("res://textures/editor_icons/cancel.svg")
 class_name IdleState
 extends BaseState
 
 var state_name = &"idle_state"
 
 func start(args = {}) -> void:
-	pass
+	_active = true
 
 func stop() -> void:
-	pass
+	_active = false
