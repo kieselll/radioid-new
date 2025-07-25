@@ -1,3 +1,4 @@
+@icon("res://textures/editor_icons/trail.svg")
 class_name GlobalPathfinder
 extends Node
 
@@ -21,7 +22,6 @@ func _ready() -> void :
 				tile_data = _walls_layer.get_cell_tile_data(Vector2(i, j))
 				if tile_data:
 
-					print(i, " ", j)
 					if %BuildableDB.get_tile(tile_data.get_custom_data("id")):
 						astar.set_point_solid(Vector2(i, j), not %BuildableDB.get_tile(tile_data.get_custom_data("id")).passable)
 					else: astar.set_point_solid(Vector2(i, j), false)
@@ -33,7 +33,6 @@ func request_path(from: Vector2i, to: Vector2i, partial: bool) -> Array[Vector2i
 		"Error in {name}: coordinate out of bounds".format({"name": name}))
 
 	path = astar.get_id_path(from, to, partial)
-	print(path)
 	return path
 
 func mark_tile_solid(coords: Vector2i, solid: bool = true) -> void :

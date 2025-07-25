@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=6 format=4 uid="uid://db5ynut3g4h5a"]
+[gd_resource type="Resource" script_class="BuildableData" load_steps=6 format=3 uid="uid://db5ynut3g4h5a"]
 
 [ext_resource type="Script" uid="uid://c8t57xl2baepa" path="res://resources/resource_scripts/BuildableInteractionData.gd" id="1"]
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="2"]
@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="Resource_ubewt"]
 script = ExtResource("1")
 flags = null
-interaction_coords = [Vector2i(0, -1), Vector2i(0, 1)]
+interaction_coords = Array[Vector2i]([Vector2i(0, -1), Vector2i(0, 1)])
 interaction_name = "Open"
 metadata/_custom_type_script = "uid://c8t57xl2baepa"
 
@@ -15,7 +15,7 @@ metadata/_custom_type_script = "uid://c8t57xl2baepa"
 script = ExtResource("3")
 source_id = 2
 atlas_coords = Vector2i(0, 0)
-rotations = []
+rotations = Array[Vector2i]([])
 rad_per_rotation = 0.0
 metadata/_custom_type_script = "uid://cxs8gfk33l6nq"
 
@@ -29,8 +29,7 @@ build_time = 7.5
 max_health = 75
 queued_layer = NodePath("TileMap/walls_queued")
 resource_cost = {}
-valid_building_tile_id = []
-flammable_params = null
+valid_building_tile_id = Array[int]([])
 interation_params = SubResource("Resource_ubewt")
 type_params = SubResource("Resource_60wn3")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

@@ -1,10 +1,12 @@
-[gd_scene load_steps=121 format=4 uid="uid://b2icuxwl41o5e"]
+[gd_scene load_steps=123 format=4 uid="uid://b2icuxwl41o5e"]
 
 [ext_resource type="Script" uid="uid://c5vsugtempgka" path="res://scripts/Mainscene.gd" id="1"]
 [ext_resource type="Script" uid="uid://bw83dbudhegaq" path="res://scripts/Camera2D.gd" id="2"]
 [ext_resource type="Script" uid="uid://dj0wruqt5sxs2" path="res://scripts/BuildableDB.gd" id="3"]
+[ext_resource type="Script" uid="uid://b2myoxdakn8wk" path="res://scripts/objects/handlers.gd" id="3_gst0j"]
 [ext_resource type="Script" uid="uid://bli8x6yqxnh1d" path="res://scripts/handlers/input_handler.gd" id="4"]
 [ext_resource type="Script" uid="uid://or0wot3jhfux" path="res://scripts/handlers/ui_manager.gd" id="5"]
+[ext_resource type="Script" uid="uid://ckmevbxefyhf4" path="res://scripts/objects/fancy_thing.gd" id="5_wi3jo"]
 [ext_resource type="Script" uid="uid://cv1mrmaw3p6pd" path="res://scripts/handlers/building_agent.gd" id="6"]
 [ext_resource type="Script" uid="uid://cel1egt4300a" path="res://scripts/handlers/paused_process_handler.gd" id="7"]
 [ext_resource type="Script" uid="uid://dfp1l6s4qr8nr" path="res://scripts/handlers/process_handler.gd" id="8"]
@@ -34,6 +36,7 @@
 [ext_resource type="Texture2D" uid="uid://hm5h16w6fohb" path="res://textures/ui/save_icon.png" id="32"]
 [ext_resource type="Texture2D" uid="uid://dfjy36vg8cx26" path="res://textures/ui/delete_save_icon.png" id="33"]
 [ext_resource type="Texture2D" uid="uid://dhq6ejmpibuub" path="res://textures/ui/resume_icon.png" id="34"]
+[ext_resource type="Texture2D" uid="uid://carjeto3jj3nl" path="res://textures/ui/clock.png" id="34_p1ehl"]
 [ext_resource type="Shader" uid="uid://womxiqpnc3p0" path="res://shaders/inverted_blur.gdshader" id="35"]
 [ext_resource type="Texture2D" uid="uid://bodpfkh7f87qh" path="res://textures/tilesets/External.png" id="36"]
 [ext_resource type="Texture2D" uid="uid://bwhr38uxsi4n5" path="res://textures/tilesets/Untitled 08-28-2024 05-48-49 (3) (1).png" id="37"]
@@ -44,7 +47,6 @@
 [ext_resource type="Texture2D" uid="uid://7h36vhdu8h47" path="res://textures/tilesets/pavment.png" id="42"]
 [ext_resource type="Texture2D" uid="uid://cpidsvi5b13n8" path="res://textures/tilesets/water.png" id="43"]
 [ext_resource type="Texture2D" uid="uid://2k8r1hbu7v1j" path="res://textures/tilesets/Selection.png" id="44"]
-[ext_resource type="Script" uid="uid://bstlrdilmffsp" path="res://scripts/TileMap.gd" id="45"]
 [ext_resource type="PackedScene" uid="uid://b46j0js042i4q" path="res://scenes/pawn.tscn" id="46"]
 [ext_resource type="Script" uid="uid://d0jsieodb28b8" path="res://resources/resource_scripts/pawn_stat_resouce.gd" id="47"]
 
@@ -62,6 +64,15 @@ glow_intensity = 2.06
 glow_blend_mode = 0
 glow_hdr_threshold = 0.9
 glow_hdr_scale = 1.02
+
+[sub_resource type="Gradient" id="Gradient_wi3jo"]
+offsets = PackedFloat32Array(0.057554)
+colors = PackedColorArray(1, 1, 1, 0.243137)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_p1ehl"]
+gradient = SubResource("Gradient_wi3jo")
+width = 1
+height = 1
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_1t032"]
 allow_unpress = true
@@ -81,16 +92,6 @@ anti_aliasing = false
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_d0vuo"]
 allow_unpress = true
-
-[sub_resource type="Gradient" id="Gradient_xp75y"]
-offsets = PackedFloat32Array(0.875519, 0.929461, 1)
-colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_l1vw4"]
-gradient = SubResource("Gradient_xp75y")
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(0.5, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cdpih"]
 content_margin_bottom = 5.0
@@ -1619,7 +1620,7 @@ sources/1 = SubResource("TileSetAtlasSource_1j851")
 sources/2 = SubResource("TileSetScenesCollectionSource_qmj53")
 sources/3 = SubResource("TileSetAtlasSource_gst0j")
 
-[sub_resource type="Resource" id="Resource_5nmap"]
+[sub_resource type="Resource" id="Resource_wi3jo"]
 resource_local_to_scene = true
 script = ExtResource("47")
 personality = 2
@@ -1645,27 +1646,32 @@ position_smoothing_speed = 7.0
 script = ExtResource("2")
 
 [node name="handlers" type="Node" parent="."]
+script = ExtResource("3_gst0j")
 
 [node name="BuildableDB" type="Node" parent="handlers"]
 unique_name_in_owner = true
 script = ExtResource("3")
 
 [node name="fancy_thing" type="Node" parent="handlers"]
+script = ExtResource("5_wi3jo")
 
 [node name="CanvasModulate" type="CanvasModulate" parent="handlers/fancy_thing"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="handlers/fancy_thing"]
 environment = SubResource("Environment_64cr1")
 
-[node name="input_handler" type="Node2D" parent="handlers"]
+[node name="input_handler" type="Node2D" parent="handlers" node_paths=PackedStringArray("tilemap")]
 script = ExtResource("4")
+tilemap = NodePath("../../TileMap")
 
-[node name="ui_manager" type="Node" parent="handlers" node_paths=PackedStringArray("elements")]
+[node name="ui_manager" type="Node" parent="handlers" node_paths=PackedStringArray("buttons", "lists")]
 script = ExtResource("5")
-elements = [NodePath("../../Control"), NodePath("../../Control/CanvasLayer/selection_buttons_rect"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/wall_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/floor_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/furniture_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/workbench_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/power_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/plants_selection_list")]
+buttons = [NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/wall_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/floor_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/furniture_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/workbench_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/power_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/plant_selection_button")]
+lists = [NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/wall_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/floor_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/furniture_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/workbench_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/power_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/plants_selection_list")]
 
 [node name="building_agent" type="Node" parent="handlers"]
 script = ExtResource("6")
+selection_texture = SubResource("GradientTexture2D_p1ehl")
 
 [node name="paused_process_handler" type="Node" parent="handlers"]
 process_mode = 2
@@ -1747,6 +1753,7 @@ toggle_mode = true
 button_pressed = true
 button_group = SubResource("ButtonGroup_1t032")
 text = "walls"
+metadata/linked_list = NodePath("../../list_rect/wall_selection_list")
 
 [node name="floor_selection_button" type="Button" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu"]
 layout_mode = 2
@@ -1755,6 +1762,7 @@ theme_override_fonts/font = ExtResource("14")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_1t032")
 text = "floors"
+metadata/linked_list = NodePath("../../list_rect/floor_selection_list")
 
 [node name="furniture_selection_button" type="Button" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu"]
 layout_mode = 2
@@ -1763,6 +1771,7 @@ theme_override_fonts/font = ExtResource("14")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_1t032")
 text = "furniture"
+metadata/linked_list = NodePath("../../list_rect/furniture_selection_list")
 
 [node name="workbench_selection_button" type="Button" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu"]
 layout_mode = 2
@@ -1771,6 +1780,7 @@ theme_override_fonts/font = ExtResource("14")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_1t032")
 text = "workbenches"
+metadata/linked_list = NodePath("../../list_rect/workbench_selection_list")
 
 [node name="power_selection_button" type="Button" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu"]
 layout_mode = 2
@@ -1779,6 +1789,7 @@ theme_override_fonts/font = ExtResource("14")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_1t032")
 text = "power"
+metadata/linked_list = NodePath("../../list_rect/power_selection_list")
 
 [node name="plant_selection_button" type="Button" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu"]
 layout_mode = 2
@@ -1787,6 +1798,7 @@ theme_override_fonts/font = ExtResource("14")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_1t032")
 text = "plants"
+metadata/linked_list = NodePath("../../list_rect/plants_selection_list")
 
 [node name="list_rect" type="ColorRect" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer"]
 custom_minimum_size = Vector2(350, 200)
@@ -1804,7 +1816,6 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
-select_mode = 2
 allow_reselect = true
 allow_search = false
 item_count = 4
@@ -1832,7 +1843,7 @@ offset_bottom = 6.10352e-05
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
-select_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
 allow_reselect = true
 allow_search = false
 item_count = 2
@@ -1856,7 +1867,7 @@ offset_bottom = 6.10352e-05
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
-select_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
 allow_reselect = true
 allow_search = false
 item_count = 8
@@ -1892,7 +1903,7 @@ offset_bottom = 6.10352e-05
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
-select_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
 allow_reselect = true
 allow_search = false
 item_count = 2
@@ -1916,7 +1927,7 @@ offset_bottom = 6.10352e-05
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
-select_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
 allow_reselect = true
 allow_search = false
 max_columns = 5
@@ -1935,7 +1946,7 @@ offset_bottom = 6.10352e-05
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
-select_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
 allow_reselect = true
 allow_search = false
 item_count = 3
@@ -1986,7 +1997,7 @@ grow_horizontal = 2
 
 [node name="Sprite2D" type="Sprite2D" parent="Control/CanvasLayer/clock"]
 position = Vector2(38, 38)
-texture = SubResource("GradientTexture2D_l1vw4")
+texture = ExtResource("34_p1ehl")
 
 [node name="ColorRect2" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
 offset_left = -1.0
@@ -2005,114 +2016,6 @@ offset_bottom = 1.0
 rotation = -1.5708
 pivot_offset = Vector2(1, 1)
 color = Color(0, 0, 0, 0.5)
-
-[node name="ColorRect4" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -1.0
-offset_top = -26.0
-offset_right = 4.0
-offset_bottom = -24.0
-rotation = -1.5708
-pivot_offset = Vector2(1, 1)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect5" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -1.0
-offset_top = 27.0
-offset_right = 4.0
-offset_bottom = 29.0
-rotation = -1.5708
-pivot_offset = Vector2(1, 1)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect6" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = 24.0
-offset_top = -1.0
-offset_right = 26.0
-offset_bottom = 4.0
-rotation = -1.5708
-pivot_offset = Vector2(1, 1)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect7" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -29.0
-offset_top = -1.0
-offset_right = -27.0
-offset_bottom = 4.0
-rotation = -1.5708
-pivot_offset = Vector2(1, 1)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect8" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = 24.0563
-offset_top = -0.945862
-offset_right = 29.0563
-offset_bottom = 1.05414
-rotation = -0.523599
-pivot_offset = Vector2(-24.0552, 1.00104)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect9" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -28.9437
-offset_top = -0.946041
-offset_right = -23.9437
-offset_bottom = 1.05396
-rotation = -0.523599
-pivot_offset = Vector2(28.9448, 1.00122)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect10" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -0.943756
-offset_top = 24.054
-offset_right = 1.05624
-offset_bottom = 29.054
-rotation = -0.523599
-pivot_offset = Vector2(0.944916, -23.9988)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect11" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -0.86927
-offset_top = -28.8716
-offset_right = 1.13073
-offset_bottom = -23.8716
-rotation = -0.523599
-pivot_offset = Vector2(0.870399, 29.0011)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect12" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = 24.0563
-offset_top = -0.945862
-offset_right = 29.0563
-offset_bottom = 1.05414
-rotation = -1.0472
-pivot_offset = Vector2(-24.0552, 1.00104)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect13" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -28.9437
-offset_top = -0.946041
-offset_right = -23.9437
-offset_bottom = 1.05396
-rotation = -1.0472
-pivot_offset = Vector2(28.9448, 1.00122)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect14" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -0.943756
-offset_top = 24.054
-offset_right = 1.05624
-offset_bottom = 29.054
-rotation = -1.0472
-pivot_offset = Vector2(0.944916, -23.9988)
-color = Color(0, 0, 0, 0.329)
-
-[node name="ColorRect15" type="ColorRect" parent="Control/CanvasLayer/clock/Sprite2D"]
-offset_left = -0.86927
-offset_top = -28.8716
-offset_right = 1.13073
-offset_bottom = -23.8716
-rotation = -1.0472
-pivot_offset = Vector2(0.870399, 29.0011)
-color = Color(0, 0, 0, 0.329)
 
 [node name="Label" type="Label" parent="Control/CanvasLayer/clock"]
 custom_minimum_size = Vector2(70, 50)
@@ -2254,7 +2157,6 @@ tile_set = SubResource("TileSet_pruen")
 rendering_quadrant_size = 4
 collision_visibility_mode = 1
 format = 2
-script = ExtResource("45")
 
 [node name="ground" type="TileMapLayer" parent="TileMap"]
 z_index = 1
@@ -2277,19 +2179,10 @@ navigation_enabled = false
 
 [node name="walls" type="TileMapLayer" parent="TileMap"]
 z_index = 2
-tile_map_data = PackedByteArray("AAAFAAsAAgAAAAAAAQDx/xoABQAAAAIAAwAYAAQABgADAAAAAAAXAAQABgACAAMAAAAWAAQABgACAAMAAAAVAAQABgACAAMAAAAUAAQABgACAAMAAAATAAQABgACAAMAAAASAAQABgACAAMAAAARAAQABgACAAMAAAAQAAQABgACAAMAAAAPAAQABgACAAMAAAAOAAQABgACAAMAAAANAAQABgACAAMAAAAMAAQABgACAAMAAAALAAQABgACAAMAAAAKAAQABgACAAMAAAAJAAQABgACAAAAAAAJAAUABgAAAAEAAAAJAAYABgAAAAEAAAAJAAcABgAAAAEAAAAJAAgABgABAAEAAAAKAAgABgACAAMAAAALAAgABgACAAMAAAAMAAgABgACAAMAAAANAAgABgACAAMAAAAOAAgABgACAAMAAAAPAAgABgACAAMAAAASAAgABgABAAMAAAATAAgABgACAAMAAAAUAAgABgACAAMAAAAVAAgABgACAAMAAAAWAAgABgACAAMAAAAXAAgABgACAAMAAAAYAAgABgADAAIAAAAYAAcABgAAAAEAAAAYAAYABgAAAAEAAAAYAAUABgAAAAEAAAANAAkAAQAAAAEAAAAbAA0AAQAOAAEAAAAbAAcAAQADAAQAAAAXAAoAAQAHAAMAAAALAAkAAQACAAAAAAARAAgAAgAAAAAAAQAIAAQABgACAAMAAAAHAAQABgACAAMAAAAGAAQABgACAAMAAAAFAAQABgACAAMAAAAEAAQABgACAAMAAAADAAQABgACAAMAAAACAAQABgACAAMAAAABAAQABgACAAMAAAAAAAQABgABAAAAAAAAAAUABgAAAAEAAAAAAAYABgAAAAEAAAAAAAcABgAAAAEAAAAAAAgABgAAAAEAAAAAAAkABgAAAAEAAAAAAAoABgAAAAEAAAAAAAsABgABAAIAAAABAAsABgACAAMAAAACAAsABgACAAMAAAADAAsABgADAAMAAAAGAAsABgABAAMAAAAHAAsABgACAAMAAAAIAAsABgACAAMAAAAJAAsABgADAAIAAAAJAAoABgAAAAEAAAAJAAkABgAAAAEAAAAEAAsAAgAAAAAAAQAQAAgABgADAAMAAAAKAAUAAQAHAAEAAAALAAUAAQAHAAMAAAAMAAYAAQADAAIAAAAMAAcAAQADAAAAAAANAAcAAQADAAAAAAAOAAUAAQACAAIAAAAOAAYAAQACAAIAAAAKAAcAAQAEAAAAAAAXAAUAAQANAAAAAAAXAAcAAQANAAEAAAASAAUAAQAJAAEAAAAPAAUAAQAHAAAAAAAaAAMAAQAKAAIAAAAZAAYAAQAOAAEAAAA=")
+tile_map_data = PackedByteArray("AAAFAAsAAgAAAAAAAQDx/xoABQAAAAIAAwAYAAQABgADAAAAAAAXAAQABgACAAMAAAAWAAQABgACAAMAAAAVAAQABgACAAMAAAAUAAQABgACAAMAAAATAAQABgACAAMAAAASAAQABgACAAMAAAARAAQABgACAAMAAAAQAAQABgACAAMAAAAPAAQABgACAAMAAAAOAAQABgACAAMAAAANAAQABgACAAMAAAAMAAQABgACAAMAAAALAAQABgACAAMAAAAKAAQABgACAAMAAAAJAAQABgACAAAAAAAJAAUABgAAAAEAAAAJAAYABgAAAAEAAAAJAAcABgAAAAEAAAAJAAgABgABAAEAAAAKAAgABgACAAMAAAALAAgABgACAAMAAAAMAAgABgACAAMAAAANAAgABgACAAMAAAAOAAgABgACAAMAAAAPAAgABgACAAMAAAASAAgABgABAAMAAAATAAgABgACAAMAAAAUAAgABgACAAMAAAAVAAgABgACAAMAAAAWAAgABgACAAMAAAAXAAgABgACAAMAAAAYAAgABgADAAIAAAAYAAcABgAAAAEAAAAYAAYABgAAAAEAAAAYAAUABgAAAAEAAAANAAkAAQAAAAEAAAAbAA0AAQAOAAEAAAAbAAcAAQADAAQAAAAXAAoAAQAHAAMAAAALAAkAAQACAAAAAAARAAgAAgAAAAAAAQAIAAQABgACAAMAAAAHAAQABgACAAMAAAAGAAQABgACAAMAAAAFAAQABgACAAMAAAAEAAQABgACAAMAAAADAAQABgACAAMAAAACAAQABgACAAMAAAABAAQABgACAAMAAAAAAAQABgABAAAAAAAAAAUABgAAAAEAAAAAAAYABgAAAAEAAAAAAAcABgAAAAEAAAAAAAgABgAAAAEAAAAAAAkABgAAAAEAAAAAAAoABgAAAAEAAAAAAAsABgABAAIAAAABAAsABgACAAMAAAACAAsABgACAAMAAAADAAsABgADAAMAAAAGAAsABgABAAMAAAAHAAsABgACAAMAAAAIAAsABgACAAAAAAAJAAsABgADAAIAAAAJAAoABgAAAAEAAAAJAAkABgAAAAEAAAAEAAsAAgAAAAAAAQAQAAgABgADAAMAAAAKAAUAAQAHAAEAAAALAAUAAQAHAAMAAAAMAAYAAQADAAIAAAAMAAcAAQADAAAAAAANAAcAAQADAAAAAAAOAAUAAQACAAIAAAAOAAYAAQACAAIAAAAKAAcAAQAEAAAAAAAXAAUAAQANAAAAAAAXAAcAAQANAAEAAAASAAUAAQAJAAEAAAAPAAUAAQAHAAAAAAAaAAMAAQAKAAIAAAAZAAYAAQAOAAEAAAAIAAwABgAAAAEAAAAIAA0ABgAAAAEAAAAIAA4ABgAAAAEAAAAIAA8ABgAAAAEAAAAIABAABgAAAAEAAAAIABEABgAAAAEAAAAIABIABgAAAAEAAAAIABMABgABAAIAAAAJABMABgACAAMAAAAKABMABgACAAMAAAALABMABgACAAMAAAAMABMABgACAAMAAAANABMABgACAAMAAAAOABMABgACAAMAAAAPABMABgADAAMAAAA=")
 tile_set = SubResource("TileSet_pruen")
 rendering_quadrant_size = 4
 navigation_enabled = false
-
-[node name="light_masked" type="TileMapLayer" parent="TileMap"]
-modulate = Color(0, 0.752941, 0.980392, 0.435294)
-light_mask = 2
-z_index = 3
-use_parent_material = true
-tile_map_data = PackedByteArray("AADz/xoABQAGAAAAAAA=")
-tile_set = SubResource("TileSet_pruen")
-rendering_quadrant_size = 4
 
 [node name="terrain_queued" type="TileMapLayer" parent="TileMap"]
 modulate = Color(0, 0.752941, 0.980392, 0.435294)
@@ -2309,15 +2202,6 @@ tile_set = SubResource("TileSet_pruen")
 rendering_quadrant_size = 4
 navigation_enabled = false
 
-[node name="light_masked_queued" type="TileMapLayer" parent="TileMap"]
-modulate = Color(0.116393, 0.430466, 1, 0.5)
-light_mask = 2
-z_index = 3
-use_parent_material = true
-tile_map_data = PackedByteArray("AADz/xoABQAGAAAAAAA=")
-tile_set = SubResource("TileSet_pruen")
-rendering_quadrant_size = 4
-
 [node name="terrain_queued_d" type="TileMapLayer" parent="TileMap"]
 modulate = Color(100, 0, 0, 0.5)
 z_index = 1
@@ -2335,22 +2219,16 @@ tile_set = SubResource("TileSet_pruen")
 rendering_quadrant_size = 4
 navigation_enabled = false
 
-[node name="light_masked_queued_d" type="TileMapLayer" parent="TileMap"]
-modulate = Color(100, 0, 0, 0.5)
-light_mask = 2
-z_index = 3
-use_parent_material = true
-tile_set = SubResource("TileSet_pruen")
-rendering_quadrant_size = 4
-
 [node name="test_pawn" parent="." instance=ExtResource("46")]
 z_index = 2
 position = Vector2(594, 301)
 scale = Vector2(0.06, 0.06)
 floor_constant_speed = true
-characteristics = SubResource("Resource_5nmap")
+characteristics = SubResource("Resource_wi3jo")
 
-[connection signal="selection_button_toggled" from="handlers/input_handler" to="handlers/ui_manager" method="_on_input_handler_selection_button_toggled"]
+[connection signal="region_selected" from="handlers/input_handler" to="handlers/building_agent" method="_on_input_handler_region_selected"]
+[connection signal="region_updated" from="handlers/input_handler" to="handlers/building_agent" method="_on_input_handler_region_updated"]
+[connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
 [connection signal="pressed" from="Control/CanvasLayer/exit_button" to="." method="_on_button_pressed"]
 [connection signal="item_selected" from="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/wall_selection_list" to="handlers/building_agent" method="_on_wall_selection_list_item_selected"]
 [connection signal="item_selected" from="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/floor_selection_list" to="handlers/building_agent" method="_on_floor_selection_list_item_selected"]

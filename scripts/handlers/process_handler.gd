@@ -1,3 +1,4 @@
+@icon("res://textures/editor_icons/play-button.svg")
 extends Node2D
 var time = 1600
 enum times_of_day{
@@ -7,6 +8,7 @@ enum times_of_day{
 	NIGHT
 }
 var time_of_day: times_of_day
+var button_hover
 
 func check_mouse_collision(rect: Rect2):
 	if rect.has_point(get_global_mouse_position()):
@@ -37,6 +39,6 @@ func _process(delta: float) -> void :
 	if check_mouse_collision(Rect2($"../../Control/CanvasLayer/selection_buttons_rect".position, $"../../Control/CanvasLayer/selection_buttons_rect".size))\
 or check_mouse_collision(Rect2($"../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect".position, $"../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect".size))\
 or check_mouse_collision(Rect2($"../../Control/CanvasLayer/ui_buttons".position, $"../../Control/CanvasLayer/ui_buttons".size)):
-		Global.button_hover = true
+		button_hover = true
 	else:
-		Global.button_hover = false
+		button_hover = false

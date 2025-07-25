@@ -10,7 +10,7 @@ const state_name = &"build_state"
 func _late_ready():
 	assert (owner.building_component, "%s doesn\'t have a BuildingComponent assigned, which is a mandatory dependency for BuildState." % [owner.name])
 	_building_component = owner.building_component
-	assert (owner.building_component, "%s doesn\'t have a MovementComponent assigned, which is a mandatory dependency for BuildState." % [owner.name])
+	assert (owner.movement_component, "%s doesn\'t have a MovementComponent assigned, which is a mandatory dependency for BuildState." % [owner.name])
 	_movement_component = owner.movement_component
 
 func start(args : Dictionary = {}) -> void:

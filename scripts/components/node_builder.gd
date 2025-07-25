@@ -2,11 +2,10 @@
 class_name BuildingComponent
 extends Node
 
-var building_tile
-var demolition_tile
-
 func build(coords : Vector2i, id : int):
-	pass
+	var _data = %BuildableDB.get_tile(id)
+	assert(_data, "Couldn't build tile with ID %s. (Invalid ID)" %id)
+	
 
 func _build_object():
 	pass

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=6 format=4 uid="uid://g4kvlioffs8h"]
+[gd_resource type="Resource" script_class="BuildableData" load_steps=6 format=3 uid="uid://g4kvlioffs8h"]
 
 [ext_resource type="Script" uid="uid://bl3bxb2n1wk4q" path="res://resources/resource_scripts/BuildableFlammableData.gd" id="1"]
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="2"]
@@ -39,8 +39,7 @@ build_time = 6.0
 max_health = 100
 queued_layer = NodePath("TileMap/walls_queued")
 resource_cost = {}
-valid_building_tile_id = []
+valid_building_tile_id = Array[int]([])
 flammable_params = SubResource("Resource_ay3bn")
-interation_params = null
 type_params = SubResource("Resource_pkvt4")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

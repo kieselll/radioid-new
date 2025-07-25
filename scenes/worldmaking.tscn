@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=4 uid="uid://onk58aw01jan"]
+[gd_scene load_steps=6 format=3 uid="uid://onk58aw01jan"]
 
 [ext_resource type="Script" uid="uid://cjtyjb6f7u6vn" path="res://scripts/worldmaking.gd" id="1"]
 [ext_resource type="Theme" uid="uid://qb0c3yxrvyka" path="res://resources/theme.tres" id="2"]
@@ -57,7 +57,6 @@ grow_vertical = 2
 current_tab = 0
 
 [node name="World options" type="PanelContainer" parent="TabContainer"]
-visible = false
 layout_mode = 2
 theme = ExtResource("2")
 metadata/_tab_index = 0

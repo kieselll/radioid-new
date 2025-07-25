@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://b46j0js042i4q"]
+[gd_scene load_steps=19 format=3 uid="uid://b46j0js042i4q"]
 
 [ext_resource type="Script" uid="uid://6c7xkrnwj04x" path="res://scripts/CharacterBody2D.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://supgli3ajes5" path="res://man.png" id="2"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://cyml8tsc5rk7i" path="res://scripts/components/states/idle_state.gd" id="8_ycofb"]
 [ext_resource type="Script" uid="uid://ronrx335gx2j" path="res://scripts/components/actions/wander_action.gd" id="9_vvra3"]
 [ext_resource type="Script" uid="uid://bhsj43xf8ynaq" path="res://scripts/components/decision_maker.gd" id="11_lgtdx"]
+[ext_resource type="Script" uid="uid://nbiig222rder" path="res://scripts/components/states/build_state.gd" id="11_snu10"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_taskf"]
 radius = 122.0
@@ -148,6 +149,10 @@ metadata/_custom_type_script = "uid://cyml8tsc5rk7i"
 [node name="MoveState" type="Node" parent="StateMachine"]
 script = ExtResource("7_ojbo2")
 metadata/_custom_type_script = "uid://cvf7cyvmsnhhf"
+
+[node name="BuildState" type="Node" parent="StateMachine"]
+script = ExtResource("11_snu10")
+metadata/_custom_type_script = "uid://nbiig222rder"
 
 [node name="DecisionMaker" type="Node" parent="."]
 script = ExtResource("11_lgtdx")

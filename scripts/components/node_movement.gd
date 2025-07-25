@@ -13,17 +13,17 @@ var _current_step: int = 0
 var _target_position: Vector2i
 var _direction: Vector2
 var _local_position = null
-var _is_path_partial: bool
 
 @onready var _parent: CharacterBody2D = get_parent()
 @onready var _tilemap: TileMapLayer = $"/root/Node2D/TileMap/ground"
 @onready var _astar: Node = $"/root/Node2D/handlers/GlobalPathfinder"
 
-func _process(delta: float) -> void :
+func _physics_process(delta: float) -> void:
 	_local_position = _tilemap.local_to_map(_parent.position)
 
 	if _path.is_empty():
 		_parent.velocity = Vector2.ZERO
+		set_physics_process(false)
 		return
 
 	_target_position = _tilemap.map_to_local(_path[_current_step])
@@ -46,11 +46,10 @@ func _process(delta: float) -> void :
 		_parent.move_and_slide()
 		_parent.rotate_sprite(_direction)
 
-func _ready() -> void:
-	_local_position = _tilemap.local_to_map(_parent.position)
-
-func move_to_coord(to: Vector2i, partial_path: bool = false) -> void :
-	_update_path(_local_position, to, partial_path)
+func move_to_coord(to: Vector2i, partial_path: bool = false) -> void:
+	var from = _local_position if _local_position else _tilemap.local_to_map(_parent.position)
+	_update_path(from, to, partial_path)
+	set_physics_process(true)
 
 func move_to_nearest_tile(tiles: Array[Global.BuildableBase], partial_path: bool = false) -> void :
 	var target = $ %grid_utils.find_nearest_tile(
@@ -58,17 +57,18 @@ func move_to_nearest_tile(tiles: Array[Global.BuildableBase], partial_path: bool
 		tiles
 	)
 	_update_path(_local_position, target, partial_path)
-
+	set_physics_process(true)
 
 func stop_moving() -> void :
 	_path = []
 	_parent.velocity = Vector2.ZERO
 
-func get_local_position(): return _local_position
+func get_local_position(): return _tilemap.local_to_map(_parent.position)
 
 func _update_path(from: Vector2i, to: Vector2i, partial: bool) -> void :
 	_path = _astar.request_path(from, to, partial)
 	_current_step = 0
+	if _path.is_empty(): arrived_at_destination.emit()
 
 	if _path.is_empty():
 		push_warning("No path found for %s to %s" % [_parent.name, to])

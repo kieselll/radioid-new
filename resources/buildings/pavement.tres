@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=4 format=4 uid="uid://cetfyn1qhkjck"]
+[gd_resource type="Resource" script_class="BuildableData" load_steps=4 format=3 uid="uid://cetfyn1qhkjck"]
 
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="1"]
 [ext_resource type="Script" uid="uid://dr3x00n7hyvyq" path="res://resources/resource_scripts/BuildableTerrainData.gd" id="2"]
@@ -19,8 +19,6 @@ build_time = 5.0
 max_health = 0
 queued_layer = NodePath("")
 resource_cost = {}
-valid_building_tile_id = []
-flammable_params = null
-interation_params = null
+valid_building_tile_id = Array[int]([])
 type_params = SubResource("Resource_xnlrw")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

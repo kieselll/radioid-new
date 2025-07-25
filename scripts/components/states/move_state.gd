@@ -7,7 +7,7 @@ var _movement_component : MovementComponent
 const state_name = &"move_state"
 
 func _late_ready() -> void:
-	assert (owner.movement_component, "MoveState was added to %s, however %s doesn\'t have a MovementComponent assigned, which is a mandatory dependency." % [owner.name])
+	assert (owner.movement_component, "%s has MoveState but no MovementComponent!" % owner.name)
 	_movement_component = owner.movement_component
 
 func start(args : Dictionary = {}) -> void :
