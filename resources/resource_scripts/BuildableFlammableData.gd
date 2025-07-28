@@ -13,9 +13,9 @@ var burn_flags
 
 @export_subgroup("Explosive related")
 @export var explosion_chances: Dictionary = {
-	"Ignition": 0, 
-	"Burndown": 0, 
-	"Collision": 0, 
+	"Ignition": 0.0, 
+	"Burndown": 0.0, 
+	"Collision": 0.0, 
 }
 @export var explosion_power: float
 @export var explosion_range: float

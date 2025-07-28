@@ -16,8 +16,21 @@ extends Resource
 
 @export_subgroup("Parameters")
 @export var flammable_params: BuildableFlammableData
-@export var interation_params: BuildableInteractionData
+@export var interaction_params: BuildableInteractionData
 @export var type_params: BuildableType
+@export var texture_params: BuildableTextureData
+
+func get_terrain_set() -> int:
+	if is_terrain():
+		return type_params.terrain_set
+	else:
+		return -1
+
+func get_terrain_id() -> int:
+	if is_terrain():
+		return type_params.terrain_id
+	else:
+		return -1
 
 func is_item() -> bool:
 	return type_params is BuildableItemData
@@ -58,32 +71,32 @@ func explodes_on_collision() -> bool:
 	return bool(flammable_params.explosion_flags & flammable_params.EXPLODES_ON_COLLISION)
 
 func is_container() -> bool:
-	if not interation_params: return false
-	return interation_params.flags & interation_params.IS_CONTAINER != 0
+	if not interaction_params: return false
+	return interaction_params.flags & interaction_params.IS_CONTAINER != 0
 
 func is_workstation() -> bool:
-	if not interation_params: return false
-	return interation_params.flags & interation_params.IS_WORKSTATION != 0
+	if not interaction_params: return false
+	return interaction_params.flags & interaction_params.IS_WORKSTATION != 0
 
 func can_sit_on() -> bool:
-	if not interation_params: return false
-	return interation_params.flags & interation_params.CAN_SIT_ON != 0
+	if not interaction_params: return false
+	return interaction_params.flags & interaction_params.CAN_SIT_ON != 0
 
 func can_lie_on() -> bool:
-	if not interation_params: return false
-	return interation_params.flags & interation_params.CAN_LIE_ON != 0
+	if not interaction_params: return false
+	return interaction_params.flags & interaction_params.CAN_LIE_ON != 0
 
 func can_nap_on() -> bool:
-	if not interation_params: return false
-	return interation_params.flags & interation_params.CAN_NAP_ON != 0
+	if not interaction_params: return false
+	return interaction_params.flags & interaction_params.CAN_NAP_ON != 0
 
 func can_sleep_on() -> bool:
-	if not interation_params: return false
-	return interation_params.flags & interation_params.CAN_SLEEP_ON != 0
+	if not interaction_params: return false
+	return interaction_params.flags & interaction_params.CAN_SLEEP_ON != 0
 
 func can_heal_on() -> bool:
-	if not interation_params: return false
-	return interation_params.flags & interation_params.CAN_HEAL_ON != 0
+	if not interaction_params: return false
+	return interaction_params.flags & interaction_params.CAN_HEAL_ON != 0
 
 func get_ignition_explosion_chance() -> float:
 	if not flammable_params: return 0

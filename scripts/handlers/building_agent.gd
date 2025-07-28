@@ -1,8 +1,7 @@
 @icon("res://textures/editor_icons/house.svg")
-extends Node
+extends Node2D
 
-@export var selection_texture : Texture2D
-var _current_item
+var _current_item : BuildableData
 var _click_1 = null
 var _click_2 = null
 var rotate = false
@@ -17,9 +16,10 @@ var filled_array
 	walls_queued = $"../../TileMap/walls_queued", 
 	terrain_queued_d = $"../../TileMap/terrain_queued_d", 
 	walls_queued_d = $"../../TileMap/walls_queued_d", 
+	build_ghost = $"../../TileMap/build_ghost"
 }
 
-func fill_area(pos_1: Vector2i, pos_2: Vector2i, built_object, queued: bool, auto: bool = false):
+func fill_area(pos_1: Vector2i, pos_2: Vector2i, built_object : BuildableData, queued: bool, auto: bool = false):
 	filter_tiles([])
 
 func filter_tiles(tiles: Array):
@@ -40,15 +40,6 @@ func get_rect_border_points(selection_rect : Rect2i) -> Array:
 
 	return points
 
-func create_selection_sprite(position: Vector2) -> void :
-	var sprite = Sprite2D.new()
-	sprite.position = tilemap.map_to_local(position)
-	sprite.texture = selection_texture
-	sprite.scale = Vector2(32, 32)
-	sprite.z_index = 2
-	sprite.add_to_group("selection")
-	add_child(sprite)
-
 func handle_rotation() -> void :
 	var _click = $"../TileMap".local_to_map($"../TileMap".get_global_mouse_position())
 	var tile_data = $"../../TileMap/walls".get_cell_tile_data(_click)
@@ -64,14 +55,14 @@ func reset_clicks() -> void :
 	_click_2 = null
 
 func _on_ui_manager_building_selected(id: int) -> void:
-	_current_item = %BuildableDB
+	_current_item = %BuildableDB.get_tile(id)
 
 func _on_input_handler_region_updated(rect: Rect2i) -> void:
-	for sprite in get_tree().get_nodes_in_group("selection"):
-		sprite.queue_free()
-	for point in get_rect_border_points(rect):
-		create_selection_sprite(point)
+	if _current_item and _current_item.is_terrain():
+		layers.build_ghost.set_cells_terrain_connect(get_rect_border_points(rect),_current_item.get_terrain_set(), _current_item.get_terrain_id())
 
-func _on_input_handler_region_selected(rect: Rect2i) -> void:
-	for sprite in get_tree().get_nodes_in_group("selection"):
-		sprite.queue_free()
+func _on_input_handler_region_selected(rect: Rect2i, click_2: Vector2i) -> void:
+	layers.build_ghost.clear()
+
+func _draw() -> void:
+	draw_texture()
