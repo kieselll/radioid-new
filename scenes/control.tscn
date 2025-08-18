@@ -1,4 +1,4 @@
-[gd_scene load_steps=55 format=4 uid="uid://b2icuxwl41o5e"]
+[gd_scene load_steps=61 format=4 uid="uid://b2icuxwl41o5e"]
 
 [ext_resource type="Script" uid="uid://c5vsugtempgka" path="res://scripts/Mainscene.gd" id="1"]
 [ext_resource type="Script" uid="uid://bw83dbudhegaq" path="res://scripts/Camera2D.gd" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://ckmevbxefyhf4" path="res://scripts/objects/fancy_thing.gd" id="5_wi3jo"]
 [ext_resource type="Script" uid="uid://cv1mrmaw3p6pd" path="res://scripts/handlers/building_agent.gd" id="6"]
 [ext_resource type="Script" uid="uid://cel1egt4300a" path="res://scripts/handlers/paused_process_handler.gd" id="7"]
+[ext_resource type="Texture2D" uid="uid://drf0leohlmueu" path="res://textures/tilesets/walls.png" id="7_136wn"]
 [ext_resource type="Script" uid="uid://dfp1l6s4qr8nr" path="res://scripts/handlers/process_handler.gd" id="8"]
 [ext_resource type="Script" uid="uid://bn4gl6qp36s43" path="res://scripts/handlers/astargrid_2d.gd" id="9"]
 [ext_resource type="Script" uid="uid://gbt8dd5ngoow" path="res://scripts/utility/grid_utils.gd" id="10"]
@@ -56,6 +57,28 @@ glow_intensity = 2.06
 glow_blend_mode = 0
 glow_hdr_threshold = 0.9
 glow_hdr_scale = 1.02
+
+[sub_resource type="Gradient" id="Gradient_hl4in"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(1, 1, 1, 0.392157)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_136wn"]
+gradient = SubResource("Gradient_hl4in")
+width = 32
+height = 32
+fill = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_136wn"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_mgshk"]
+material = SubResource("ShaderMaterial_136wn")
+
+[sub_resource type="MultiMesh" id="MultiMesh_xbjxg"]
+use_custom_data = true
+instance_count = 1
+mesh = SubResource("QuadMesh_mgshk")
+buffer = PackedFloat32Array(9.80909e-45, 8.40779e-45, 1.26117e-44, 1.12104e-44, 0, 0, 0, 0, 0, 0, 0, 0)
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_1t032"]
 allow_unpress = true
@@ -164,7 +187,7 @@ shader_parameter/lod = 1.318
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mp8vi"]
 bg_color = Color(0, 0, 0, 0.876)
 
-[sub_resource type="Resource" id="Resource_hl4in"]
+[sub_resource type="Resource" id="Resource_136wn"]
 resource_local_to_scene = true
 script = ExtResource("47")
 personality = 2
@@ -206,6 +229,11 @@ environment = SubResource("Environment_64cr1")
 
 [node name="building_agent" type="Node2D" parent="handlers"]
 script = ExtResource("6")
+default_selection = SubResource("GradientTexture2D_136wn")
+
+[node name="selectio_multimesh" type="MultiMeshInstance2D" parent="handlers/building_agent"]
+multimesh = SubResource("MultiMesh_xbjxg")
+texture = ExtResource("7_136wn")
 
 [node name="input_handler" type="Node2D" parent="handlers" node_paths=PackedStringArray("tilemap", "ui_manager")]
 script = ExtResource("4")
@@ -769,16 +797,15 @@ tile_set = ExtResource("39_hl4in")
 rendering_quadrant_size = 4
 navigation_enabled = false
 
-[node name="build_ghost" type="TileMapLayer" parent="TileMap"]
-tile_set = ExtResource("39_hl4in")
-
 [node name="test_pawn" parent="." instance=ExtResource("46")]
 z_index = 2
 position = Vector2(594, 301)
 scale = Vector2(0.06, 0.06)
 floor_constant_speed = true
-characteristics = SubResource("Resource_hl4in")
+characteristics = SubResource("Resource_136wn")
 
+[connection signal="region_selected" from="handlers/input_handler" to="handlers/building_agent" method="_on_input_handler_region_selected"]
+[connection signal="region_updated" from="handlers/input_handler" to="handlers/building_agent" method="_on_input_handler_region_updated"]
 [connection signal="pressed" from="Control/CanvasLayer/exit_button" to="." method="_on_button_pressed"]
 [connection signal="button_down" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_down"]
 [connection signal="button_up" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_up"]

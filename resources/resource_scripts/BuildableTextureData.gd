@@ -2,6 +2,7 @@ class_name BuildableTextureData
 extends Resource
 
 @export_category("Base")
+@export var can_autotile: bool
 @export var texture: AtlasTexture
 @export_category("Terrain specific")
 @export var cell_size: Vector2i
@@ -9,9 +10,9 @@ extends Resource
 @export var cell_rect: Rect2i
 
 enum tile_neigbors {
-	TOP_LEFT   =  0b100010000,    TOP = 0b010010000,    TOP_RIGHT = 0b001010000,
-				 LEFT = 0b000110000,                              RIGHT = 0b000011000,
-	BOTTOM_LEFT = 0b000010100, BOTTOM = 0b000010010, BOTTOM_RIGHT = 0b000010001
+	TOP_LEFT   =  0b100000000,    TOP = 0b010000000,    TOP_RIGHT = 0b001000000,
+				 LEFT = 0b000100000, CENTER = 0b000000000,        RIGHT = 0b000001000,
+	BOTTOM_LEFT = 0b000000100, BOTTOM = 0b000000010, BOTTOM_RIGHT = 0b000000001
 	}
 
 const autotile_layout : Dictionary = {
@@ -68,10 +69,8 @@ const autotile_layout : Dictionary = {
 	0b110110000 : Vector2i(11, 3)
 }
 
-
-func get_terrain_bitmask_coord(neighbors : Array[tile_neigbors]):
+func get_terrain_tile_rect(neighbors_mask : int):
+	if not can_autotile: return texture
 	assert(Vector2i(texture.get_size()) % cell_size == Vector2i.ZERO, "Texture size not divisible by cell_size")
-	var key = 0
-	for neighbor in neighbors:
-		key |= neighbor
-	return autotile_layout[key] * cell_size
+	var return_rect = Rect2i(autotile_layout[neighbors_mask] * cell_size, cell_size)
+	return return_rect
