@@ -1,4 +1,4 @@
-[gd_scene load_steps=61 format=4 uid="uid://b2icuxwl41o5e"]
+[gd_scene load_steps=63 format=4 uid="uid://b2icuxwl41o5e"]
 
 [ext_resource type="Script" uid="uid://c5vsugtempgka" path="res://scripts/Mainscene.gd" id="1"]
 [ext_resource type="Script" uid="uid://bw83dbudhegaq" path="res://scripts/Camera2D.gd" id="2"]
@@ -10,7 +10,9 @@
 [ext_resource type="Script" uid="uid://cv1mrmaw3p6pd" path="res://scripts/handlers/building_agent.gd" id="6"]
 [ext_resource type="Script" uid="uid://cel1egt4300a" path="res://scripts/handlers/paused_process_handler.gd" id="7"]
 [ext_resource type="Texture2D" uid="uid://drf0leohlmueu" path="res://textures/tilesets/walls.png" id="7_136wn"]
+[ext_resource type="Shader" uid="uid://durpjnyh253jp" path="res://shaders/multimesh_shader.gdshader" id="7_xbjxg"]
 [ext_resource type="Script" uid="uid://dfp1l6s4qr8nr" path="res://scripts/handlers/process_handler.gd" id="8"]
+[ext_resource type="Script" uid="uid://djfjk12mo6u16" path="res://scenes/selection_multimesh.gd" id="8_mgshk"]
 [ext_resource type="Script" uid="uid://bn4gl6qp36s43" path="res://scripts/handlers/astargrid_2d.gd" id="9"]
 [ext_resource type="Script" uid="uid://gbt8dd5ngoow" path="res://scripts/utility/grid_utils.gd" id="10"]
 [ext_resource type="Script" uid="uid://bjymq7o5gkojm" path="res://scripts/handlers/job_manager.gd" id="11"]
@@ -69,10 +71,11 @@ width = 32
 height = 32
 fill = 2
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_136wn"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xbjxg"]
+shader = ExtResource("7_xbjxg")
 
 [sub_resource type="QuadMesh" id="QuadMesh_mgshk"]
-material = SubResource("ShaderMaterial_136wn")
+size = Vector2(32, 32)
 
 [sub_resource type="MultiMesh" id="MultiMesh_xbjxg"]
 use_custom_data = true
@@ -187,7 +190,7 @@ shader_parameter/lod = 1.318
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mp8vi"]
 bg_color = Color(0, 0, 0, 0.876)
 
-[sub_resource type="Resource" id="Resource_136wn"]
+[sub_resource type="Resource" id="Resource_xbjxg"]
 resource_local_to_scene = true
 script = ExtResource("47")
 personality = 2
@@ -231,9 +234,12 @@ environment = SubResource("Environment_64cr1")
 script = ExtResource("6")
 default_selection = SubResource("GradientTexture2D_136wn")
 
-[node name="selectio_multimesh" type="MultiMeshInstance2D" parent="handlers/building_agent"]
+[node name="selection_multimesh" type="MultiMeshInstance2D" parent="handlers/building_agent"]
+z_index = 200
+material = SubResource("ShaderMaterial_xbjxg")
 multimesh = SubResource("MultiMesh_xbjxg")
 texture = ExtResource("7_136wn")
+script = ExtResource("8_mgshk")
 
 [node name="input_handler" type="Node2D" parent="handlers" node_paths=PackedStringArray("tilemap", "ui_manager")]
 script = ExtResource("4")
@@ -391,8 +397,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
-allow_reselect = true
 allow_search = false
+max_text_lines = 2
 item_count = 4
 max_columns = 5
 same_column_width = true
@@ -419,8 +425,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
-allow_reselect = true
 allow_search = false
+max_text_lines = 2
 item_count = 2
 max_columns = 5
 same_column_width = true
@@ -443,8 +449,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
-allow_reselect = true
 allow_search = false
+max_text_lines = 2
 item_count = 8
 max_columns = 5
 same_column_width = true
@@ -479,8 +485,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
-allow_reselect = true
 allow_search = false
+max_text_lines = 2
 item_count = 2
 max_columns = 5
 same_column_width = true
@@ -503,8 +509,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
-allow_reselect = true
 allow_search = false
+max_text_lines = 2
 max_columns = 5
 same_column_width = true
 icon_mode = 0
@@ -522,8 +528,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13")
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
-allow_reselect = true
 allow_search = false
+max_text_lines = 2
 item_count = 3
 max_columns = 5
 same_column_width = true
@@ -802,10 +808,11 @@ z_index = 2
 position = Vector2(594, 301)
 scale = Vector2(0.06, 0.06)
 floor_constant_speed = true
-characteristics = SubResource("Resource_136wn")
+characteristics = SubResource("Resource_xbjxg")
 
 [connection signal="region_selected" from="handlers/input_handler" to="handlers/building_agent" method="_on_input_handler_region_selected"]
 [connection signal="region_updated" from="handlers/input_handler" to="handlers/building_agent" method="_on_input_handler_region_updated"]
+[connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
 [connection signal="pressed" from="Control/CanvasLayer/exit_button" to="." method="_on_button_pressed"]
 [connection signal="button_down" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_down"]
 [connection signal="button_up" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_up"]

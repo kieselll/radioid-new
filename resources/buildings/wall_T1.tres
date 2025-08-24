@@ -1,8 +1,10 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=6 format=3 uid="uid://g4kvlioffs8h"]
+[gd_resource type="Resource" script_class="BuildableData" load_steps=9 format=3 uid="uid://g4kvlioffs8h"]
 
 [ext_resource type="Script" uid="uid://bl3bxb2n1wk4q" path="res://resources/resource_scripts/BuildableFlammableData.gd" id="1"]
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="2"]
 [ext_resource type="Script" uid="uid://dr3x00n7hyvyq" path="res://resources/resource_scripts/BuildableTerrainData.gd" id="3"]
+[ext_resource type="Script" uid="uid://5wn15k8plabq" path="res://resources/resource_scripts/BuildableTextureData.gd" id="3_7flye"]
+[ext_resource type="Texture2D" uid="uid://drf0leohlmueu" path="res://textures/tilesets/walls.png" id="4_yhoc2"]
 
 [sub_resource type="Resource" id="Resource_ay3bn"]
 script = ExtResource("1")
@@ -23,6 +25,14 @@ explosion_color = Color(0, 0, 0, 1)
 explosion_flags = null
 metadata/_custom_type_script = "uid://bl3bxb2n1wk4q"
 
+[sub_resource type="Resource" id="Resource_ct07d"]
+script = ExtResource("3_7flye")
+can_autotile = true
+texture = ExtResource("4_yhoc2")
+cell_size = Vector2i(32, 32)
+cell_rect = Rect2i(0, 0, 0, 0)
+metadata/_custom_type_script = "uid://5wn15k8plabq"
+
 [sub_resource type="Resource" id="Resource_pkvt4"]
 script = ExtResource("3")
 terrain_set = 1
@@ -35,11 +45,15 @@ id = 1
 display_name = "Wood wall"
 layer = NodePath("TileMap/walls")
 passable = false
+selection_filled = false
 build_time = 6.0
 max_health = 100
 queued_layer = NodePath("TileMap/walls_queued")
 resource_cost = {}
-valid_building_tile_id = Array[int]([])
+valid_ground_id = Array[int]([4])
+valid_terrain_id = Array[int]([5, -1])
+valid_walls_id = Array[int]([-1])
 flammable_params = SubResource("Resource_ay3bn")
 type_params = SubResource("Resource_pkvt4")
+texture_params = SubResource("Resource_ct07d")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

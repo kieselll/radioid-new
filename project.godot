@@ -30,8 +30,12 @@ gdscript/warnings/narrowing_conversion=0
 
 [display]
 
-window/vsync/vsync_mode=0
+window/vsync/vsync_mode=2
 mouse_cursor/custom_image="res://textures/ui/cursor.png"
+
+[editor]
+
+movie_writer/movie_file="C:/Users/Kirill/Desktop/Movie.avi"
 
 [file_customization]
 

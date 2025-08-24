@@ -3,7 +3,7 @@ extends Resource
 
 @export_category("Base")
 @export var can_autotile: bool
-@export var texture: AtlasTexture
+@export var texture: Texture2D
 @export_category("Terrain specific")
 @export var cell_size: Vector2i
 @export_category("Item specific")
@@ -42,7 +42,7 @@ const autotile_layout : Dictionary = {
 	0b000000000 : Vector2i(10, 1),
 	0b110111110 : Vector2i(11, 1),
 
-	0b010000000 : Vector2i(0, 2),
+	0b010010000 : Vector2i(0, 2),
 	0b010011000 : Vector2i(1, 2),
 	0b010111000 : Vector2i(2, 2),
 	0b010110000 : Vector2i(3, 2),
@@ -72,5 +72,5 @@ const autotile_layout : Dictionary = {
 func get_terrain_tile_rect(neighbors_mask : int):
 	if not can_autotile: return texture
 	assert(Vector2i(texture.get_size()) % cell_size == Vector2i.ZERO, "Texture size not divisible by cell_size")
-	var return_rect = Rect2i(autotile_layout[neighbors_mask] * cell_size, cell_size)
+	var return_rect = Rect2(Vector2(autotile_layout[neighbors_mask] * cell_size) / texture.get_size(), Vector2(cell_size) / texture.get_size())
 	return return_rect

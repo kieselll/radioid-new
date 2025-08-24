@@ -5,6 +5,7 @@ var _current_item : BuildableData
 var _click_1 = null
 var _click_2 = null
 var rotate = false
+@onready var multimesh : MultiMeshInstance2D = $selection_multimesh
 @onready var tilemap = $"../../TileMap"
 var filled_array
 @export var default_selection : Texture2D
@@ -48,13 +49,13 @@ func get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : b
 	
 	var min_x := selection_rect.position.x
 	var min_y := selection_rect.position.y
-	var max_x := min_x + w - 1
-	var max_y := min_y + h - 1
+	var max_x := min_x + w
+	var max_y := min_y + h
 	
-	if w == 1 and h == 1:
-		return [Vector2i(min_x,min_y),tile_neigbors.CENTER]
+	if w == 0 and h == 0:
+		return [[Vector2i(min_x,min_y),tile_neigbors.CENTER]]
 	
-	if h == 1:
+	if h == 0:
 		for x in range(min_x, max_x + 1):
 			var mask = tile_neigbors.CENTER
 			if x < max_x: mask |= tile_neigbors.LEFT
@@ -62,7 +63,7 @@ func get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : b
 			points.append([Vector2i(x,min_y), mask])
 		return points
 	
-	if w == 1:
+	if w == 0:
 		for y in range(min_y, max_y + 1):
 			var mask = tile_neigbors.CENTER
 			if y < max_y: mask |= tile_neigbors.BOTTOM
@@ -70,12 +71,12 @@ func get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : b
 			points.append([Vector2i(min_x, y), mask])
 		return points
 	
-	if h == 2 or w == 2 or is_filled:
+	if h == 1 or w == 1 or is_filled:
 		for x in range(min_x, max_x + 1):
 			for y in range(min_y, max_y + 1):
 				var mask = 0b111111111
-				if x == max_x: mask &= ~(tile_neigbors.TOP_RIGHT | tile_neigbors.RIGHT | tile_neigbors.BOTTOM_RIGHT)
-				if x == min_x: mask &= ~(tile_neigbors.TOP_LEFT | tile_neigbors.LEFT | tile_neigbors.BOTTOM_LEFT)
+				if x == min_x: mask &= ~(tile_neigbors.TOP_RIGHT | tile_neigbors.RIGHT | tile_neigbors.BOTTOM_RIGHT)
+				if x == max_x: mask &= ~(tile_neigbors.TOP_LEFT | tile_neigbors.LEFT | tile_neigbors.BOTTOM_LEFT)
 				if y == max_y: mask &= ~(tile_neigbors.BOTTOM_LEFT | tile_neigbors.BOTTOM | tile_neigbors.BOTTOM_RIGHT)
 				if y == min_y: mask &= ~(tile_neigbors.TOP_LEFT | tile_neigbors.TOP | tile_neigbors.TOP_RIGHT)
 				points.append([Vector2i(x, y), mask])
@@ -101,6 +102,13 @@ func get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : b
 	
 	return points
 
+func neighbor_array_to_grect_array(neighbor_array : Array, texture_data : BuildableTextureData) -> Array:
+	var output := []
+	assert(texture_data, "There must be a texture data here!")
+	for pair in neighbor_array:
+		output.append([tilemap.map_to_local(pair[0]), texture_data.get_terrain_tile_rect(pair[1])])
+	return output
+
 
 func handle_rotation() -> void :
 	var _click = $"../TileMap".local_to_map($"../TileMap".get_global_mouse_position())
@@ -116,14 +124,27 @@ func reset_clicks() -> void :
 	_click_1 = null
 	_click_2 = null
 
-func _on_ui_manager_building_selected(id: int) -> void:
-	_current_item = %BuildableDB.get_tile(id)
-
 func _get_selection_texture():
 	if not _current_item.texture_params: return default_selection
 
 func _on_input_handler_region_selected(rect: Rect2i, click_2: Vector2i) -> void:
-	pass # Replace with function body.
+	multimesh.erase_mesh_instances()
+	fill_area(rect.position, rect.position + rect.size, _current_item, true)
 
 func _on_input_handler_region_updated(rect: Rect2i) -> void:
-	pass
+	if _current_item and _current_item.is_terrain():
+		var neighbors = get_rect_border_points_and_neighbors(
+			rect,
+			_current_item.selection_filled
+		)
+		
+		var rects = neighbor_array_to_grect_array(
+			neighbors,
+			_current_item.texture_params
+		)
+		
+		multimesh.create_mesh_instances(rects)
+
+func _on_ui_manager_building_selected(id: int) -> void:
+	_current_item = %BuildableDB.get_tile(id)
+	multimesh.texture = _current_item.texture_params.texture if _current_item.texture_params else default_selection
