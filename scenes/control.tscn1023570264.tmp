@@ -73,7 +73,7 @@ fill = 2
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xbjxg"]
 shader = ExtResource("7_xbjxg")
-shader_parameter/selection_color = Color(0, 0.935307, 0.875102, 1)
+shader_parameter/selection_color = Color(5.77569e-07, 0.657101, 0.665369, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_mgshk"]
 size = Vector2(32, 32)

@@ -14,5 +14,5 @@ func _ready() -> void :
 func get_tile(id: int) -> BuildableData:
 	if tiles.keys().has(id):
 		return tiles[id]
-	push_warning("Tried to get tile by nonexisting ID")
+	push_warning("Tried to get tile by nonexisting ID: %s" % id)
 	return null

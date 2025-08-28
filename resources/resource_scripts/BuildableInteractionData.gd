@@ -15,13 +15,13 @@ extends Resource
 
 
 @export_flags(
-  "Is container", 
-  "Is workstation", 
-  "Can sit on", 
-  "Can lie on", 
-  "Can nap on", 
-  "Can sleep on", 
-  "Can heal on"
+	"Is container", 
+	"Is workstation", 
+	"Can sit on", 
+	"Can lie on", 
+	"Can nap on", 
+	"Can sleep on", 
+	"Can heal on"
 )
 var flags
 

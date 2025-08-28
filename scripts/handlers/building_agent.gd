@@ -26,23 +26,80 @@ enum tile_neigbors {
 	BOTTOM_LEFT = 0b000000100, BOTTOM = 0b000000010, BOTTOM_RIGHT = 0b000000001
 }
 
-func _ready() -> void:
-	print("TESTING RECTS (ALL UNFILLED)")
-	print("TESTING 1x1 rect:\n", get_rect_border_points_and_neighbors(Rect2i(0,0,1,1)))
-	print("TESTING 10x1 rect:\n", get_rect_border_points_and_neighbors(Rect2i(0,0,10,1)))
-	print("TESTING 1x10 rect:\n", get_rect_border_points_and_neighbors(Rect2i(0,0,1,10)))
-	print("TESTING 2x2 rect:\n", get_rect_border_points_and_neighbors(Rect2i(0,0,2,2)))
-	print("TESTING 10x2 rect:\n", get_rect_border_points_and_neighbors(Rect2i(0,0,10,2)))
-	print("TESTING 2x10 rect:\n", get_rect_border_points_and_neighbors(Rect2i(0,0,2,10)))
-	print("TESTING 10x10 rect:\n", get_rect_border_points_and_neighbors(Rect2i(0,0,10,10)))
+func fill_area(tiles : Array, built_object : BuildableData, queued: bool):
+	filter_tiles(tiles, built_object)
 
-func fill_area(pos_1: Vector2i, pos_2: Vector2i, built_object : BuildableData, queued: bool, auto: bool = false):
-	filter_tiles([])
+#region Tile filtering
+#---------------------------------------------------------------------
 
-func filter_tiles(tiles: Array):
-	pass
+func filter_tiles(tiles: Array, built_object : BuildableData) -> Dictionary:
+	var result : Dictionary = {"valid" = [], "invalid" = []}
+	
+	var walls_filtered : Dictionary = filter_walls(tiles, built_object)
+	
+	result.invalid.append(walls_filtered.invalid)
+	
+	var terrain_filtered : Dictionary = filter_terrain(walls_filtered.valid, built_object)
+	
+	result.invalid.append(terrain_filtered.invalid)
+	result.valid.append(terrain_filtered.valid)
+	
+	var ground_filtered : Dictionary = filter_ground(terrain_filtered.empty, built_object)
+	
+	result.invalid.append(ground_filtered.invalid)
+	result.valid.append(ground_filtered.valid)
+	
+	return result
 
-func get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : bool = false) -> Array:
+func filter_walls(tiles : Array, built_object : BuildableData) -> Dictionary:
+	var result : Dictionary = {"valid" = [], "invalid" = []}
+	for tile_coord in tiles:
+		if layers.walls.get_cell_tile_data():
+			if built_object.valid_walls_id.has(layers.walls.get_cell_tile_data().get_custom_data("id")):
+				result.valid.append(tile_coord)
+			else:
+				result.invalid.append(tile_coord)
+		elif built_object.valid_walls_id.has(-1):
+			result.valid.append(tile_coord)
+		else:
+			result.invalid.append(tile_coord)
+	
+	return result
+
+func filter_terrain(tiles : Array, built_object : BuildableData) -> Dictionary:
+	var result : Dictionary = {"valid" = [], "invalid" = [], "empty" = []}
+	for tile_coord in tiles:
+		if layers.terrain.get_cell_tile_data():
+			if built_object.valid_terrain_id.has(layers.terrain.get_cell_tile_data().get_custom_data("id")):
+				result.valid.append(tile_coord)
+			else:
+				result.invalid.append(tile_coord)
+		elif built_object.valid_terrain_id.has(-1):
+			result.empty.append(tile_coord)
+		else:
+			result.invalid.append(tile_coord)
+	
+	return result
+
+func filter_ground(tiles : Array, built_object : BuildableData) -> Dictionary:
+	var result : Dictionary = {"valid" = [], "invalid" = []}
+	for tile_coord in tiles:
+		if layers.ground.get_cell_tile_data():
+			if built_object.valid_ground_id.has(layers.ground.get_cell_tile_data().get_custom_data("id")):
+				result.valid.append(tile_coord)
+			else:
+				result.invalid.append(tile_coord)
+		elif built_object.valid_ground_id.has(-1):
+			result.valid.append(tile_coord)
+		else:
+			result.invalid.append(tile_coord)
+	
+	return result
+
+#---------------------------------------------------------------------
+#endregion
+
+func _get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : bool = false) -> Array:
 	var points = []
 	var w := selection_rect.size.x
 	var h := selection_rect.size.y
@@ -102,7 +159,7 @@ func get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : b
 	
 	return points
 
-func neighbor_array_to_grect_array(neighbor_array : Array, texture_data : BuildableTextureData) -> Array:
+func _neighbor_array_to_grect_array(neighbor_array : Array, texture_data : BuildableTextureData) -> Array:
 	var output := []
 	assert(texture_data, "There must be a texture data here!")
 	for pair in neighbor_array:
@@ -129,19 +186,21 @@ func _get_selection_texture():
 
 func _on_input_handler_region_selected(rect: Rect2i, click_2: Vector2i) -> void:
 	multimesh.erase_mesh_instances()
-	fill_area(rect.position, rect.position + rect.size, _current_item, true)
+	fill_area(filled_array, _current_item, true)
 
 func _on_input_handler_region_updated(rect: Rect2i) -> void:
 	if _current_item and _current_item.is_terrain():
-		var neighbors = get_rect_border_points_and_neighbors(
+		var neighbors = _get_rect_border_points_and_neighbors(
 			rect,
 			_current_item.selection_filled
 		)
 		
-		var rects = neighbor_array_to_grect_array(
+		var rects = _neighbor_array_to_grect_array(
 			neighbors,
 			_current_item.texture_params
 		)
+		
+		filled_array = rects.map(func(element): return element[0])
 		
 		multimesh.create_mesh_instances(rects)
 
