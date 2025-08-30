@@ -1,4 +1,4 @@
-@warning_ignore("unused_parameter")
+@warning_ignore_start("unused_parameter")
 @icon("res://textures/editor_icons/misdirection.svg")
 class_name WanderAction
 extends BaseAction

@@ -24,7 +24,6 @@ func _handle_mouse_motion() -> void :
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and click_1:
 		if prev_mouse_map_pos and prev_mouse_map_pos != tilemap.local_to_map(get_global_mouse_position()):
 			region_updated.emit(Rect2i(tilemap.local_to_map(click_1), tilemap.local_to_map(get_global_mouse_position()) - tilemap.local_to_map(click_1)).abs())
-			print("THE FRENCH ARE TIGANI")
 		prev_mouse_map_pos = tilemap.local_to_map(get_global_mouse_position())
 
 func _handle_mouse_button(event: InputEventMouseButton) -> void :

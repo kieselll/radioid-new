@@ -12,7 +12,7 @@ void fragment() {
     vec2 uv = region.xy + UV * region.zw;
     vec4 tex = texture(TEXTURE, uv);
 
-    tex *= vec4(1.35,1.35,1.35,0.5) * selection_color;
+    tex *= vec4(1.35,1.35,1.35,1.0) * selection_color;
 
     COLOR = tex;
 }

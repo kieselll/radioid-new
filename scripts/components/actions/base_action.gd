@@ -1,3 +1,5 @@
+@warning_ignore_start("unused_parameter")
+@warning_ignore_start("unused_signal")
 class_name BaseAction
 extends Node
 

@@ -1,4 +1,5 @@
 @icon("res://textures/editor_icons/stake-hammer.svg")
+@warning_ignore_start("unused_parameter")
 class_name BuildingComponent
 extends Node
 
