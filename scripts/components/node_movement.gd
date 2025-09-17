@@ -51,7 +51,7 @@ func move_to_coord(to: Vector2i, partial_path: bool = false) -> void:
 	_update_path(from, to, partial_path)
 	set_physics_process(true)
 
-func move_to_nearest_tile(tiles: Array[Global.BuildableBase], partial_path: bool = false) -> void :
+func move_to_nearest_tile(tiles: Array[BuildableData], partial_path: bool = false) -> void :
 	var target = $ %grid_utils.find_nearest_tile(
 		_local_position, 
 		tiles

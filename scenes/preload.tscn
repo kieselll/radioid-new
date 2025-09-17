@@ -1,6 +1,14 @@
-[gd_scene load_steps=2 format=4 uid="uid://dvi4gncxmdfku"]
+[gd_scene load_steps=4 format=3 uid="uid://dmemq1uvfsxyu"]
 
-[ext_resource type="Script" uid="uid://b3bnilbq2kuds" path="res://scripts/Global.gd" id="1"]
+[ext_resource type="Script" uid="uid://b4euopsax1xxu" path="res://scripts/utility/GlobalRef.gd" id="1_gmnvj"]
+[ext_resource type="Script" uid="uid://dt3tn8r1my2fo" path="res://scripts/utility/GlobalCfg.gd" id="2_akpnc"]
+[ext_resource type="Script" uid="uid://cqskunn5a2mce" path="res://scripts/utility/GlobalSaver.gd" id="3_6183s"]
 
-[node name="Node" type="Node"]
-script = ExtResource("1")
+[node name="Refs" type="Node"]
+script = ExtResource("1_gmnvj")
+
+[node name="Config" type="Node" parent="."]
+script = ExtResource("2_akpnc")
+
+[node name="Saver" type="Node" parent="."]
+script = ExtResource("3_6183s")

@@ -24,9 +24,6 @@ enum _tile_neigbors {
 	BOTTOM_LEFT = 0b000000100, BOTTOM = 0b000000010, BOTTOM_RIGHT = 0b000000001
 }
 
-func fill_area(tiles : Array, built_object : BuildableData, queued: bool):
-	var coords_to_fill : Array = filter_tiles(tiles, built_object).valid
-
 #endregion
 
 #region Tile filtering
@@ -169,19 +166,19 @@ func _neighbor_array_to_map_rect_array(neighbor_array : Array, texture_data : Bu
 #endregion
 
 #region Input processing and multimesh parsing
-func handle_rotation() -> void :
-	var _click = $"../TileMap".local_to_map($"../TileMap".get_global_mouse_position())
-	var tile_data = $"../../TileMap/walls".get_cell_tile_data(_click)
-	if tile_data:
-		var current_rot = $"../../TileMap/walls".get_cell_atlas_coords(_click)
-		var next_rot = Global.class_reference[tile_data.get_custom_data("class_reference")].rotations[wrapi(Global.class_reference[tile_data.get_custom_data("class_reference")].rotations.find(current_rot) + 1, 0, Global.class_reference[tile_data.get_custom_data("class_reference")].rotations.size())]
-		$"../../TileMap/walls".set_cell(_click, $"../../TileMap/walls".get_cell_source_id(_click), next_rot)
-		if Global.class_reference[tile_data.get_custom_data("class_reference")] is Global.BuildableLightSource:
-			get_node("../TileMap/%s" % var_to_str(_click)).rotate(Global.class_reference[tile_data.get_custom_data("class_reference")].radians_per_alternative)
+#func handle_rotation() -> void :
+	#var _click = $"../TileMap".local_to_map($"../TileMap".get_global_mouse_position())
+	#var tile_data = $"../../TileMap/walls".get_cell_tile_data(_click)
+	#if tile_data:
+		#var current_rot = $"../../TileMap/walls".get_cell_atlas_coords(_click)
+		#var next_rot = Global.class_reference[tile_data.get_custom_data("class_reference")].rotations[wrapi(Global.class_reference[tile_data.get_custom_data("class_reference")].rotations.find(current_rot) + 1, 0, Global.class_reference[tile_data.get_custom_data("class_reference")].rotations.size())]
+		#$"../../TileMap/walls".set_cell(_click, $"../../TileMap/walls".get_cell_source_id(_click), next_rot)
+		#if Global.class_reference[tile_data.get_custom_data("class_reference")] is Global.BuildableLightSource:
+			#get_node("../TileMap/%s" % var_to_str(_click)).rotate(Global.class_reference[tile_data.get_custom_data("class_reference")].radians_per_alternative)
 
 func _on_input_handler_region_selected(rect: Rect2i, click_2: Vector2i) -> void:
 	_multimesh_manager.erase_mesh_instances()
-	#fill_area(_filled_array, _current_item, true)
+	fill_array(_filled_array, _current_item, true)
 
 func _on_input_handler_region_updated(rect: Rect2i) -> void:
 	if _current_item and _current_item.is_terrain():
@@ -213,4 +210,30 @@ func _on_input_handler_region_updated(rect: Rect2i) -> void:
 func _on_ui_manager_building_selected(id: int) -> void:
 	_current_item = %BuildableDB.get_tile(id)
 	_multimesh_manager.set_multimesh_texture(_current_item.texture_params.texture if _current_item.texture_params else _default_selection_texture)
+#endregion
+
+#region Public functions
+	#region Docs
+	## Fills an area with either terrain tiles or regular tiles,
+	## depending on the given BuildableData configuration. [br][br]
+	##
+	## [param tiles] : List of tile coordinates to fill.[br]
+	## [param built_object] : Data object describing the buildable type and parameters.[br]
+	## [param queued] : If true, places tiles in the queued layer instead of the main one.
+	#endregion
+func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void:
+	var layer: TileMapLayer = (
+		get_node(GlobalRef.get_tilemap_layer_path(built_object.queued_layer)) if queued
+		else get_node(GlobalRef.get_tilemap_layer_path(built_object.layer))
+	)
+	var type_params = built_object.type_params
+	if built_object.is_terrain():
+		layer.set_cells_terrain_connect(
+			tiles,
+			type_params.terrain_set,
+			type_params.terrain_id
+		)
+	else:
+		for coord: Vector2i in tiles:
+			layer.set_cell(coord, type_params.source_id, type_params.atlas_coords)
 #endregion

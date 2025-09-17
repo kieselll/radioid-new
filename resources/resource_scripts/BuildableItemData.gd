@@ -1,14 +1,6 @@
 class_name BuildableItemData
 extends BuildableType
 
-
-
-
-
-
-
-
-
 @export var source_id: int
 
 

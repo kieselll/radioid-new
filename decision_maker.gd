@@ -1,7 +1,6 @@
 @icon("res://textures/editor_icons/brain.svg")
 class_name DecisionMaker
 extends Node
-
 ## Component of a pawn that should be placed as the [CharacterBody2D]'s child in the scene tree.
 ## The [CharacterBody2D] should be the root of the scene, else an error will occur.
 
@@ -25,18 +24,21 @@ func _ready() -> void:
 	_action_machine = owner.action_machine
 	_action_machine.start_action(_current_action.action_name, _current_action.args)
 
+## Adds a new QueuedAction to the [member _action_queue], in the format of a class. Takes in an action_name (must be a valid action_name, like &"wander", a wanted priority for the action,
+## and, optionally, arguments to the action, like the target for [MoveAction]. Doesn't have a [StateMachine] counterpart, because actions ([BaseAction]) already fulfill this need.
 func add_action_to_queue(action_name : StringName, priority : int, action_args : Dictionary = {}):
 	for action_index in _action_queue.size():
 		if _action_queue[action_index].priority > priority:
 			_action_queue.append(QueuedAction.new(action_name, priority, action_args))
 
-## [color=yellow] WARNING, THIS FUNCTION IS NOT DONE AND DOES NOTHING[/color][br]
+## [color=yellow]     WARNING, THIS FUNCTION IS NOT DONE AND DOES NOTHING[/color][br][br]
 ## This function should be called every few seconds to recalculate priorities based on: [br]
 ##     1. Emotions handled and parsed from [EmotionHandler]
 ## [color=red][b] NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color][br]
 ##     2. Outer events recieved via [PerceptionComponent]
 ##  [color=red][b] NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color][br]
-##     3. Manually encouraging the pawn to do said action[br][br]
+##     3. Manually encouraging the pawn to do said action
+## [color=red][b] NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color][br][br]
 ## In cases 2 and 3 the function should be called immediately to make the change feel faster (UX)
 func calculate_action_priority_modifier(action : QueuedAction) -> float:
 	return 0
