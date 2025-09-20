@@ -6,24 +6,12 @@
 [sub_resource type="Resource" id="Resource_uh4iq"]
 script = ExtResource("2")
 source_id = 3
-atlas_coords = Vector2i(0, 0)
-rotations = Array[Vector2i]([])
-rad_per_rotation = 0.0
 metadata/_custom_type_script = "uid://cxs8gfk33l6nq"
 
 [resource]
 script = ExtResource("1")
 id = 4
 display_name = "Ground"
-layer = NodePath("TileMap/ground")
 passable = true
-selection_filled = false
-build_time = 0.0
-max_health = 0
-queued_layer = NodePath("")
-resource_cost = {}
-valid_ground_id = Array[int]([])
-valid_terrain_id = Array[int]([])
-valid_walls_id = Array[int]([])
 type_params = SubResource("Resource_uh4iq")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

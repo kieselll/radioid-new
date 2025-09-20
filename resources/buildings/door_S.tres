@@ -6,24 +6,16 @@
 [sub_resource type="Resource" id="Resource_60wn3"]
 script = ExtResource("3")
 source_id = 2
-atlas_coords = Vector2i(0, 0)
-rotations = Array[Vector2i]([])
-rad_per_rotation = 0.0
 metadata/_custom_type_script = "uid://cxs8gfk33l6nq"
 
 [resource]
 script = ExtResource("2")
 id = 2
 display_name = "Small Door"
-layer = NodePath("TileMap/walls")
+layer = 2
 passable = true
-selection_filled = false
 build_time = 7.5
 max_health = 75
-queued_layer = NodePath("TileMap/walls_queued")
-resource_cost = {}
-valid_ground_id = Array[int]([])
-valid_terrain_id = Array[int]([])
-valid_walls_id = Array[int]([])
+queued_layer = 4
 type_params = SubResource("Resource_60wn3")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

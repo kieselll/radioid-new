@@ -136,30 +136,12 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 shadow_size = 30
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_r7nkn"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tutlg"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w2od6"]
 content_margin_left = 5.0
 content_margin_top = 5.0
 content_margin_right = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.169245, 0.169245, 0.169245, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.140447, 0.140447, 0.140447, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k21hq"]
-content_margin_left = 5.0
-content_margin_top = 5.0
-content_margin_right = 5.0
-content_margin_bottom = 5.0
-bg_color = Color(0.118582, 0.118581, 0.118581, 1)
+bg_color = Color(0.0901961, 0.0901961, 0.0901961, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -186,12 +168,12 @@ corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w2od6"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k21hq"]
 content_margin_left = 5.0
 content_margin_top = 5.0
 content_margin_right = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.0901961, 0.0901961, 0.0901961, 1)
+bg_color = Color(0.118582, 0.118581, 0.118581, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -201,6 +183,24 @@ corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tutlg"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.169245, 0.169245, 0.169245, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.140447, 0.140447, 0.140447, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_r7nkn"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_piek7"]
 shader = ExtResource("35")
@@ -212,13 +212,11 @@ bg_color = Color(0, 0, 0, 0.876)
 [sub_resource type="Resource" id="Resource_mgshk"]
 resource_local_to_scene = true
 script = ExtResource("47")
-personality = 2
 stats = {
 "happiness": 100,
 "health": 100,
 "tiredness": 10
 }
-traits = []
 abilities = {
 "building": 9
 }
@@ -720,11 +718,11 @@ vertical_alignment = 1
 [node name="save_progress" type="Button" parent="Control/popup_layer/save_confirmation_menu/VBoxContainer"]
 layout_mode = 2
 theme = ExtResource("13")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_r7nkn")
-theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_tutlg")
-theme_override_styles/hover = SubResource("StyleBoxFlat_k21hq")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_1hw3c")
 theme_override_styles/normal = SubResource("StyleBoxFlat_w2od6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_1hw3c")
+theme_override_styles/hover = SubResource("StyleBoxFlat_k21hq")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_tutlg")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_r7nkn")
 text = "Yes, and save the progress"
 icon = ExtResource("32")
 
@@ -753,7 +751,7 @@ mouse_filter = 2
 
 [node name="Panel2" type="Panel" parent="Control/popup_layer/Panel3"]
 z_index = 1
-layout_mode = 2
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2

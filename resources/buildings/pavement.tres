@@ -5,7 +5,6 @@
 
 [sub_resource type="Resource" id="Resource_xnlrw"]
 script = ExtResource("2")
-terrain_set = 0
 terrain_id = 1
 metadata/_custom_type_script = "uid://dr3x00n7hyvyq"
 
@@ -13,15 +12,9 @@ metadata/_custom_type_script = "uid://dr3x00n7hyvyq"
 script = ExtResource("1")
 id = 5
 display_name = "Pavement"
-layer = NodePath("TileMap/terrain")
+layer = 1
 passable = true
-selection_filled = false
 build_time = 5.0
-max_health = 0
-queued_layer = NodePath("")
-resource_cost = {}
-valid_ground_id = Array[int]([])
-valid_terrain_id = Array[int]([])
-valid_walls_id = Array[int]([])
+queued_layer = 3
 type_params = SubResource("Resource_xnlrw")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

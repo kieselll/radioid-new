@@ -21,9 +21,10 @@ config/icon="uid://bfygxhwvhxnb6"
 
 [autoload]
 
-GlobalRef="*res://scripts/utility/GlobalRef.gd"
-GlobalCfg="*res://scripts/utility/GlobalCfg.gd"
-GlobalSaver="*res://scripts/utility/GlobalSaver.gd"
+GlobalRef="*res://scripts/utility/ReferenceDB.gd"
+GlobalCfg="*res://scripts/utility/ConfigDB.gd"
+GlobalSaver="*res://scripts/utility/Saver.gd"
+SceneTransition="*res://scenes/scene_transition.tscn"
 
 [debug]
 

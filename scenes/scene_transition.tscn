@@ -265,9 +265,9 @@ fill_from = Vector2(0.6282051, 0.8247863)
 fill_to = Vector2(0.055555556, 0)
 
 [node name="SceneTransition" type="CanvasLayer"]
+visible = false
 
 [node name="ColorRect" type="ColorRect" parent="."]
-visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -283,6 +283,7 @@ libraries = {
 }
 
 [node name="MeshInstance2D" type="MeshInstance2D" parent="."]
+visible = false
 position = Vector2(593, 331)
 rotation = -1.9611821
 scale = Vector2(0.7, 0.7)

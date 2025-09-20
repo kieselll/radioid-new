@@ -4,14 +4,14 @@ extends Resource
 @export_subgroup("Base")
 @export var id: int
 @export var display_name: String
-@export var layer: String
+@export var layer: GlobalRef.tilemap_layers_enum
 @export var passable: bool
 @export var selection_filled: bool
 
 @export_subgroup("Optional")
 @export var build_time: float
 @export var max_health: int
-@export var queued_layer: String
+@export var queued_layer: GlobalRef.tilemap_layers_enum
 @export var resource_cost: Dictionary = {}
 @export var valid_ground_id: Array[int]
 @export var valid_terrain_id: Array[int]

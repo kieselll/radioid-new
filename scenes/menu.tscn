@@ -322,8 +322,8 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 theme = ExtResource("9")
 theme_type_variation = &"FlatButton"
-theme_override_styles/hover = SubResource("StyleBoxFlat_g4qe6")
 theme_override_styles/normal = SubResource("StyleBoxFlat_g4qe6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_g4qe6")
 text = "Load game"
 
 [node name="Button" type="Button" parent="MarginContainer/CanvasLayer/VBoxContainer"]
@@ -331,8 +331,8 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 theme = ExtResource("9")
 theme_type_variation = &"FlatButton"
-theme_override_styles/hover = SubResource("StyleBoxFlat_ikd8v")
 theme_override_styles/normal = SubResource("StyleBoxFlat_ikd8v")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ikd8v")
 text = "New game"
 
 [node name="Button2" type="Button" parent="MarginContainer/CanvasLayer/VBoxContainer"]
@@ -340,8 +340,8 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 theme = ExtResource("9")
 theme_type_variation = &"FlatButton"
-theme_override_styles/hover = SubResource("StyleBoxFlat_7ivqb")
 theme_override_styles/normal = SubResource("StyleBoxFlat_7ivqb")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7ivqb")
 text = "Options"
 
 [node name="Button3" type="Button" parent="MarginContainer/CanvasLayer/VBoxContainer"]
@@ -349,8 +349,8 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 theme = ExtResource("9")
 theme_type_variation = &"FlatButton"
-theme_override_styles/hover = SubResource("StyleBoxFlat_nlby6")
 theme_override_styles/normal = SubResource("StyleBoxFlat_nlby6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_nlby6")
 text = "Quit"
 
 [node name="ColorRect2" type="ColorRect" parent="MarginContainer/CanvasLayer"]
