@@ -39,7 +39,7 @@ var changed_actions = {
 	},
 	
 	"saves" = {
-		"save_path" = $Tabs/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit, 
+		"game_path" = $Tabs/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit, 
 		"autosave_frequency" = $Tabs/Saves/ScrollContainer/VBoxContainer/autosave_frequency_slider, 
 	}
 }
@@ -51,7 +51,8 @@ func erase_key(action: StringName) -> void :
 
 func update_settings() -> void :
 	update_actions()
-	Engine.max_fps = GlobalCfg.get_setting("graphics", "frame_rate_limit")
+	if GlobalCfg.get_setting("graphics", "frame_rate_limit"):
+		Engine.max_fps = GlobalCfg.get_setting("graphics", "frame_rate_limit")
 	match GlobalCfg.get_setting("graphics", "window_type", 0):
 		0:
 			get_window().mode = Window.MODE_EXCLUSIVE_FULLSCREEN
@@ -109,6 +110,10 @@ func _on_music_volume_slider_value_changed(value: float) -> void :
 	GlobalCfg.alter_setting("audio", "music_volume", value)
 
 func _on_path_line_edit_text_changed(new_text: String) -> void :
+	if not new_text.is_absolute_path():
+		$Tabs/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit.add_theme_color_override("font_color", Color.CRIMSON)
+	else:
+		$Tabs/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit.remove_theme_color_override("font_color")
 	GlobalCfg.alter_setting("saves", "save_path", new_text)
 func _on_autosave_frequency_slider_value_changed(value: float) -> void :
 	GlobalCfg.alter_setting("saves", "autosave_frequency", value)

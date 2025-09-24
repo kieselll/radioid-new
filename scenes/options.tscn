@@ -638,7 +638,6 @@ layout_mode = 2
 [node name="save_path_label" type="Label" parent="Tabs/Saves/ScrollContainer/VBoxContainer/WindowType"]
 layout_mode = 2
 text = "Save path"
-horizontal_alignment = 1
 metadata/_edit_group_ = true
 
 [node name="path_line_edit" type="LineEdit" parent="Tabs/Saves/ScrollContainer/VBoxContainer/WindowType"]

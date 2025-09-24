@@ -33,7 +33,7 @@ const _default_settings = {
 	},
 	
 	"saves" = {
-		"save_path" = "user:/",
+		"game_path" = "user:/",
 		"autosave_frequency" = 4
 	}
 }
@@ -41,19 +41,18 @@ const _default_settings = {
 func _ready() -> void:
 	_settings_file = ConfigFile.new()
 	var temp_path
-	if not OS.has_feature("editor"):
-		temp_path = "user:/"
-	else:
-		temp_path = "C:/Users/Kirill/Desktop/Game Files"
+	temp_path = "user:/"
 	_settings_file_path = temp_path + "/settings.cfg"
 	_settings_old_file_path = temp_path + "/settings.old"
 	load_settings()
 
 func write_dict_to_settings() -> void:
 	_settings_file.save(_settings_old_file_path)
-	for section in _cached_settings.keys():
-		for key in _cached_settings[section].keys():
-			_settings_file.set_value(section, key, _cached_settings[section][key])
+	var _settings_to_save = _cached_settings.merged(_default_settings)
+	for section in _settings_to_save.keys():
+		var _section_to_save = _settings_to_save[section].merged(_default_settings[section])
+		for key in _section_to_save.keys():
+			_settings_file.set_value(section, key, _settings_to_save[section][key])
 	_settings_file.save(_settings_file_path)
 
 func load_settings() -> Dictionary:
