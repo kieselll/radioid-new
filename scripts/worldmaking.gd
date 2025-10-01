@@ -17,7 +17,7 @@ func _on_button_pressed():
 	fade_out_tween = create_tween().set_ease(Tween.EASE_OUT)
 	fade_out_tween.tween_property($ColorRect, "color", Color(0, 0, 0, 1), 1.0).from(Color(0, 0, 0, 0))
 	await fade_out_tween.finished
-	get_tree().change_scene_to_file("res://scenes/control.tscn")
+	get_tree().change_scene_to_file("res://scenes/game.tscn")
 
 func animate_button(button: Button, scale: Vector2, position: Vector2, color: Color) -> void :
 	var tween = create_tween().set_parallel(true).set_ease(Tween.EASE_IN_OUT)

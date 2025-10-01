@@ -1,0 +1,2 @@
+extends BaseAction
+class_name HaulAction

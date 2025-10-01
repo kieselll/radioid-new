@@ -27,5 +27,3 @@ func _process(delta: float) -> void :
 	elif time <= 2400:
 		time_of_day = times_of_day.EVENING
 		$"../fancy_thing/CanvasModulate".color = lerp(Color(1, 1, 1), Color(0.1, 0.1, 0.15), (time - 1800) / 600)
-
-	$"../../Control/CanvasLayer/fps".text = str(Engine.get_frames_per_second())

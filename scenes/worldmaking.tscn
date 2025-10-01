@@ -78,8 +78,8 @@ layout_mode = 2
 theme = SubResource("Theme_48nfk")
 theme_type_variation = &"FlatButton"
 theme_override_font_sizes/font_size = 20
-theme_override_styles/hover = SubResource("StyleBoxFlat_1mqb4")
 theme_override_styles/normal = SubResource("StyleBoxFlat_1mqb4")
+theme_override_styles/hover = SubResource("StyleBoxFlat_1mqb4")
 text = "Back"
 
 [node name="Container2" type="Container" parent="."]
@@ -103,14 +103,14 @@ size_flags_vertical = 8
 theme = SubResource("Theme_48nfk")
 theme_type_variation = &"FlatButton"
 theme_override_font_sizes/font_size = 20
-theme_override_styles/hover = SubResource("StyleBoxFlat_hw1ni")
 theme_override_styles/normal = SubResource("StyleBoxFlat_hw1ni")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hw1ni")
 text = "Create world!"
 
 [node name="ColorRect" type="ColorRect" parent="."]
 top_level = true
 z_index = 3
-layout_mode = 2
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2

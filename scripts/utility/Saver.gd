@@ -27,3 +27,12 @@ func save_game() -> void:
 	var save_file = FileAccess.open(save_dir_path + "/save_" + str(Time.get_datetime_string_from_system()), FileAccess.WRITE)
 	save_file.store_string(JSON.stringify(_process_handler.time))
 	save_file.close()
+
+func load_game(path: String) -> void:
+	# CRITICAL IMPLEMENT ASAP
+	push_error("load_game() not implemented yet!")
+
+func get_save_list() -> Array:
+	# CRITICAL IMPLEMENT ASAP
+	push_error("get_save_list() not implemented yet!")
+	return []

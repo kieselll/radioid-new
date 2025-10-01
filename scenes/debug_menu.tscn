@@ -1,0 +1,91 @@
+[gd_scene load_steps=3 format=3 uid="uid://d1e0vsqrxv75h"]
+
+[ext_resource type="Script" uid="uid://blal4p7xco4x8" path="res://scenes/debug_menu.gd" id="1_rta6x"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rta6x"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.05882353, 0.05882353, 0.05882353, 0.6745098)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="DebugMenu" type="CanvasLayer"]
+visible = false
+script = ExtResource("1_rta6x")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 25.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="Panel" type="PanelContainer" parent="Control/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_rta6x")
+
+[node name="fps_counter" type="Label" parent="Control/HBoxContainer/Panel"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Panel4" type="PanelContainer" parent="Control/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_rta6x")
+
+[node name="draw_calls" type="Label" parent="Control/HBoxContainer/Panel4"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Panel5" type="PanelContainer" parent="Control/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_rta6x")
+
+[node name="memory" type="Label" parent="Control/HBoxContainer/Panel5"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Panel2" type="PanelContainer" parent="Control/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_rta6x")
+
+[node name="tile_info" type="Label" parent="Control/HBoxContainer/Panel2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Panel3" type="PanelContainer" parent="Control/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_rta6x")
+
+[node name="VSplitContainer" type="VSplitContainer" parent="Control/HBoxContainer/Panel3"]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Control/HBoxContainer/Panel3/VSplitContainer"]
+custom_minimum_size = Vector2(300, 100)
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="Control/HBoxContainer/Panel3/VSplitContainer"]
+layout_mode = 2
+emoji_menu_enabled = false
+caret_blink = true
+caret_blink_interval = 1.0

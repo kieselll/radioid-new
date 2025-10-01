@@ -11,6 +11,5 @@ func _ready() -> void:
 	for index in indices:
 		mesh.surface_set_uv((polygon[index] + Vector2(1,1))/2)
 		mesh.surface_add_vertex_2d(polygon[index] * 250)
-		print(((polygon[index] + Vector2(1,1))/2)*500)
 	mesh.surface_end()
 	

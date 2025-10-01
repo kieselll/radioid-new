@@ -1,3 +1,7 @@
+@icon("res://textures/editor_icons/BaseState.svg")
+@warning_ignore_start("unused_parameter")
+@warning_ignore_start("unused_signal")
+@abstract
 class_name BaseState
 extends Node
 

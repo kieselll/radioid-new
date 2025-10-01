@@ -1,10 +1,12 @@
 extends CharacterBody2D
 
+@export var characteristics: PawnStats
 @onready var state_machine = $StateMachine
 @onready var action_machine = $ActionMachine
-@export var characteristics: PawnStats
 @onready var movement_component = $MovementComponent
 @onready var building_component = $BuildingComponent
+@onready var ability_manager = $AbilityManager
+@onready var decision_maker = $DecisionMaker
 
 var front_texture = load("res://man.png")
 var left_texture = load("res://man_left.png")

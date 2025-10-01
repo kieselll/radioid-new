@@ -15,8 +15,12 @@ var _direction: Vector2
 var _local_position = null
 
 @onready var _parent: CharacterBody2D = get_parent()
-@onready var _tilemap: TileMapLayer = $"/root/Node2D/TileMap/ground"
-@onready var _astar: Node = $"/root/Node2D/handlers/GlobalPathfinder"
+@onready var _tilemap: TileMapLayer
+@onready var _astar: Node
+
+func _ready() -> void:
+	_tilemap = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.ground))
+	_astar = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
 func _physics_process(delta: float) -> void:
 	_local_position = _tilemap.local_to_map(_parent.position)

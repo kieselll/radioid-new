@@ -1,21 +1,21 @@
 @icon("res://textures/editor_icons/house.svg")
 extends Node2D
 
-#region Private variables
-var _current_item : BuildableData
+#region Private variables & functions
 @onready var _multimesh_manager : Node = $multimesh_manager
 @onready var _tilemap : TileMap = $"../../TileMap"
-var _filled_array : Array
 @export var _default_selection_texture : Texture2D
+var _current_item : BuildableData
+var _filled_array : Array
 
 @onready var _layers: Dictionary = {
-	ground = $"../../TileMap/ground", 
-	terrain = $"../../TileMap/terrain", 
-	walls = $"../../TileMap/walls", 
-	terrain_queued = $"../../TileMap/terrain_queued", 
-	walls_queued = $"../../TileMap/walls_queued", 
-	terrain_queued_d = $"../../TileMap/terrain_queued_d", 
-	walls_queued_d = $"../../TileMap/walls_queued_d", 
+	ground = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.ground)), 
+	terrain = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.terrain)), 
+	walls = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls)), 
+	terrain_queued = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.terrain_queued)), 
+	walls_queued = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls_queued)), 
+	terrain_queued_d = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.terrain_queued_d)), 
+	walls_queued_d = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls_queued_d)), 
 }
 
 enum _tile_neigbors {
@@ -23,6 +23,10 @@ enum _tile_neigbors {
 				 LEFT = 0b000100000, CENTER = 0b000010000,        RIGHT = 0b000001000,
 	BOTTOM_LEFT = 0b000000100, BOTTOM = 0b000000010, BOTTOM_RIGHT = 0b000000001
 }
+
+func _ready() -> void:
+	InputHandler.region_selected.connect(_on_input_handler_region_selected)
+	InputHandler.region_updated.connect(_on_input_handler_region_updated)
 
 #endregion
 
@@ -176,9 +180,10 @@ func _neighbor_array_to_map_rect_array(neighbor_array : Array, texture_data : Bu
 		#if Global.class_reference[tile_data.get_custom_data("class_reference")] is Global.BuildableLightSource:
 			#get_node("../TileMap/%s" % var_to_str(_click)).rotate(Global.class_reference[tile_data.get_custom_data("class_reference")].radians_per_alternative)
 
-func _on_input_handler_region_selected(rect: Rect2i, click_2: Vector2i) -> void:
+func _on_input_handler_region_selected(_rect: Rect2i, _click_2: Vector2i) -> void:
 	_multimesh_manager.erase_mesh_instances()
-	fill_array(_filled_array, _current_item, true)
+	if _current_item:
+		fill_array(_filled_array, _current_item, true)
 
 func _on_input_handler_region_updated(rect: Rect2i) -> void:
 	if _current_item and _current_item.is_terrain():
@@ -208,7 +213,7 @@ func _on_input_handler_region_updated(rect: Rect2i) -> void:
 		_multimesh_manager.create_mesh_instances(filtered_grect_dict)
 
 func _on_ui_manager_building_selected(id: int) -> void:
-	_current_item = %BuildableDB.get_tile(id)
+	_current_item = BuildableDB.get_tile(id)
 	_multimesh_manager.set_multimesh_texture(_current_item.texture_params.texture if _current_item.texture_params else _default_selection_texture)
 #endregion
 
@@ -221,6 +226,9 @@ func _on_ui_manager_building_selected(id: int) -> void:
 	## [param built_object] : Data object describing the buildable type and parameters.[br]
 	## [param queued] : If true, places tiles in the queued layer instead of the main one.
 	#endregion
+
+signal objects_built(object_id : int, coord_array : Array, queued : bool)
+
 func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void:
 	var layer: TileMapLayer = (
 		get_node(GlobalRef.get_tilemap_layer_path(built_object.queued_layer)) if queued
@@ -234,6 +242,7 @@ func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void
 			type_params.terrain_id
 		)
 	else:
-		for coord: Vector2i in tiles:
+		for coord in tiles:
 			layer.set_cell(coord, type_params.source_id, type_params.atlas_coords)
+	objects_built.emit(built_object.id, tiles, queued)
 #endregion

@@ -28,7 +28,6 @@ var changed_actions = {
 		"camera_movement_sensitivity" = $Tabs/Controls/ScrollContainer/VBoxContainer/camera_move_sensitivity_slider,
 		"camera_zoom_sensitivity" = $Tabs/Controls/ScrollContainer/VBoxContainer/camera_zoom_sensitivity_slider, 
 		"invert_camera_movement" = $Tabs/Controls/ScrollContainer/VBoxContainer/invert_camera_movement_toggle, 
-		"invert_camera_zoom_movement" = $Tabs/Controls/ScrollContainer/VBoxContainer/invert_zoom_camera_movement_toggle, 
 		"invert_camera_zoom" = $Tabs/Controls/ScrollContainer/VBoxContainer/invert_camera_zoom_toggle
 	},
 	
@@ -51,13 +50,6 @@ func erase_key(action: StringName) -> void :
 
 func update_settings() -> void :
 	update_actions()
-	if GlobalCfg.get_setting("graphics", "frame_rate_limit"):
-		Engine.max_fps = GlobalCfg.get_setting("graphics", "frame_rate_limit")
-	match GlobalCfg.get_setting("graphics", "window_type", 0):
-		0:
-			get_window().mode = Window.MODE_EXCLUSIVE_FULLSCREEN
-		1:
-			get_window().mode = Window.MODE_WINDOWED
 
 func update_actions() -> void :
 	for i in changed_actions.keys():
@@ -65,6 +57,7 @@ func update_actions() -> void :
 		InputMap.action_add_event(i, changed_actions[i])
 
 func _ready() -> void :
+	SceneTransition.finish_trans()
 	var settings_dict = GlobalCfg.load_settings()
 	for section in settings_dict.keys():
 		for key in settings_dict[section].keys():
@@ -77,6 +70,8 @@ func _ready() -> void :
 func _on_save_button_pressed() -> void :
 	update_settings()
 	GlobalCfg.write_dict_to_settings()
+	SceneTransition.start_trans()
+	await SceneTransition.done
 	get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
 func _on_window_type_selector_item_selected(index: int) -> void :

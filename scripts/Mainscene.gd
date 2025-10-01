@@ -17,3 +17,5 @@ func _input(event: InputEvent) -> void :
 			$Control / CanvasLayer.hide()
 		else:
 			$Control / CanvasLayer.show()
+
+# CRITICAL MOVE ME TO UI_HANDLER

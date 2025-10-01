@@ -25,6 +25,9 @@ GlobalRef="*res://scripts/utility/ReferenceDB.gd"
 GlobalCfg="*res://scripts/utility/ConfigDB.gd"
 GlobalSaver="*res://scripts/utility/Saver.gd"
 SceneTransition="*res://scenes/scene_transition.tscn"
+BuildableDB="*res://scripts/BuildableDB.gd"
+DebugMenu="*res://scenes/debug_menu.tscn"
+InputHandler="*res://scripts/handlers/input_handler.gd"
 
 [debug]
 
@@ -46,6 +49,7 @@ folder_colors={
 "res://scenes/": "blue",
 "res://scripts/": "green",
 "res://shaders/": "purple",
+"res://sounds/": "pink",
 "res://textures/": "red"
 }
 

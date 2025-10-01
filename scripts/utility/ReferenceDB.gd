@@ -1,4 +1,5 @@
 extends Node
+class_name ReferenceDB
 
 enum game_nodes_enum {
 	tilemap,
@@ -54,11 +55,15 @@ var _handlers = [
 	"/ui_manager"
 ]
 
+@onready var pawns = [
+	$test_pawn
+]
+
 func get_tilemap_layer_path(layer_name : tilemap_layers_enum) -> NodePath:
-	return NodePath("/root/Node2D/" + str(get_game_node_path(game_nodes_enum.tilemap)) + _tilemap_layers[layer_name])
+	return NodePath(str(get_game_node_path(game_nodes_enum.tilemap)) + _tilemap_layers[layer_name])
 
 func get_handler(handler_name : handlers_enum) -> NodePath:
-	return NodePath("/root/Node2D/" + str(get_game_node_path(game_nodes_enum.handlers)) + _handlers[handler_name])
+	return NodePath(str(get_game_node_path(game_nodes_enum.handlers)) + _handlers[handler_name])
 
 func get_game_node_path(node_name : game_nodes_enum) -> NodePath:
-	return NodePath("/root/Node2D/" + _game_nodes[node_name])
+	return NodePath("/root/GameRoot/" + _game_nodes[node_name])

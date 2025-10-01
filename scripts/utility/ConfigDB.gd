@@ -45,6 +45,13 @@ func _ready() -> void:
 	_settings_file_path = temp_path + "/settings.cfg"
 	_settings_old_file_path = temp_path + "/settings.old"
 	load_settings()
+	if get_setting("graphics", "frame_rate_limit"):
+		Engine.max_fps = get_setting("graphics", "frame_rate_limit")
+	match get_setting("graphics", "window_type", 0):
+		0:
+			get_window().mode = Window.MODE_EXCLUSIVE_FULLSCREEN
+		1:
+			get_window().mode = Window.MODE_WINDOWED
 
 func write_dict_to_settings() -> void:
 	_settings_file.save(_settings_old_file_path)
@@ -64,9 +71,6 @@ func load_settings() -> Dictionary:
 			_cached_settings[section] = {}
 			for key in _settings_file.get_section_keys(section):
 				_cached_settings[section][key] = _settings_file.get_value(section, key)
-		_cached_settings.merge(_default_settings)
-		for section in _cached_settings.keys():
-			_cached_settings[section].merge(_default_settings[section])
 	return _cached_settings
 
 func get_setting(section: String, key: String, default = null):
