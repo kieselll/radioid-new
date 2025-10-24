@@ -214,8 +214,11 @@ func _on_input_handler_region_updated(rect: Rect2i) -> void:
 
 func _on_ui_manager_building_selected(id: int) -> void:
 	_current_item = BuildableDB.get_tile(id)
+	GlobalLogger.write_to_logs(self, "Selected building with id: %d" %id)
 	_multimesh_manager.set_multimesh_texture(_current_item.texture_params.texture if _current_item.texture_params else _default_selection_texture)
 #endregion
+
+signal objects_built(object_id : int, coord_array : Array, queued : bool)
 
 #region Public functions
 	#region Docs
@@ -227,9 +230,8 @@ func _on_ui_manager_building_selected(id: int) -> void:
 	## [param queued] : If true, places tiles in the queued layer instead of the main one.
 	#endregion
 
-signal objects_built(object_id : int, coord_array : Array, queued : bool)
-
 func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void:
+	GlobalLogger.write_to_logs(self, "Filling array with tile id: %d, on layer: %d, with coord array: %s. Queued: %s" %[built_object.id, built_object.layer, str(tiles), str(queued)])
 	var layer: TileMapLayer = (
 		get_node(GlobalRef.get_tilemap_layer_path(built_object.queued_layer)) if queued
 		else get_node(GlobalRef.get_tilemap_layer_path(built_object.layer))

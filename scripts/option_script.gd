@@ -14,32 +14,32 @@ var changed_actions = {
 
 @onready var settings_nodes = {
 	"graphics" = {
-		"window_type" = $Tabs/Graphics/ScrollContainer/VBoxContainer/window_type/window_type_selector, 
-		"frame_rate_limit" = $Tabs/Graphics/ScrollContainer/VBoxContainer/frame_rate_limit/custom_fps_limit, 
-		"particle_amount" = $Tabs/Graphics/ScrollContainer/VBoxContainer/particle_amount_slider,
-		"brightness" = $Tabs/Graphics/ScrollContainer/VBoxContainer/brightness_slider
+		"window_type" = $Tabs/PanelContainer/Graphics/ScrollContainer/VBoxContainer/window_type/window_type_selector, 
+		"frame_rate_limit" = $Tabs/PanelContainer/Graphics/ScrollContainer/VBoxContainer/frame_rate_limit/custom_fps_limit, 
+		"particle_amount" = $Tabs/PanelContainer/Graphics/ScrollContainer/VBoxContainer/particle_amount_slider,
+		"brightness" = $Tabs/PanelContainer/Graphics/ScrollContainer/VBoxContainer/brightness_slider
 	},
 	
 	"gameplay" = {
-		"default_difficuty" = $Tabs/Gameplay/ScrollContainer/VBoxContainer/default_difficulty/default_difficulty_selector
+		"default_difficuty" = $Tabs/PanelContainer/Gameplay/ScrollContainer/VBoxContainer/default_difficulty/default_difficulty_selector
 	},
 	
 	"controls" = {
-		"camera_movement_sensitivity" = $Tabs/Controls/ScrollContainer/VBoxContainer/camera_move_sensitivity_slider,
-		"camera_zoom_sensitivity" = $Tabs/Controls/ScrollContainer/VBoxContainer/camera_zoom_sensitivity_slider, 
-		"invert_camera_movement" = $Tabs/Controls/ScrollContainer/VBoxContainer/invert_camera_movement_toggle, 
-		"invert_camera_zoom" = $Tabs/Controls/ScrollContainer/VBoxContainer/invert_camera_zoom_toggle
+		"camera_movement_sensitivity" = $Tabs/PanelContainer/Controls/ScrollContainer/VBoxContainer/camera_move_sensitivity_slider,
+		"camera_zoom_sensitivity" = $Tabs/PanelContainer/Controls/ScrollContainer/VBoxContainer/camera_zoom_sensitivity_slider, 
+		"invert_camera_movement" = $Tabs/PanelContainer/Controls/ScrollContainer/VBoxContainer/invert_camera_movement_toggle, 
+		"invert_camera_zoom" = $Tabs/PanelContainer/Controls/ScrollContainer/VBoxContainer/invert_camera_zoom_toggle
 	},
 	
 	"audio" = {
-		"main_volume" = $Tabs/Audio/ScrollContainer/VBoxContainer/main_volume_slider, 
-		"sfx_volume" = $Tabs/Audio/ScrollContainer/VBoxContainer/sfx_volume_slider,
-		"music_volume" = $Tabs/Audio/ScrollContainer/VBoxContainer/music_volume_slider, 
+		"main_volume" = $Tabs/PanelContainer/Audio/ScrollContainer/VBoxContainer/main_volume_slider, 
+		"sfx_volume" = $Tabs/PanelContainer/Audio/ScrollContainer/VBoxContainer/sfx_volume_slider,
+		"music_volume" = $Tabs/PanelContainer/Audio/ScrollContainer/VBoxContainer/music_volume_slider, 
 	},
 	
 	"saves" = {
-		"game_path" = $Tabs/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit, 
-		"autosave_frequency" = $Tabs/Saves/ScrollContainer/VBoxContainer/autosave_frequency_slider, 
+		"game_path" = $Tabs/PanelContainer/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit, 
+		"autosave_frequency" = $Tabs/PanelContainer/Saves/ScrollContainer/VBoxContainer/autosave_frequency_slider, 
 	}
 }
 
@@ -47,9 +47,12 @@ func erase_key(action: StringName) -> void :
 	previous_key = InputMap.action_get_events(action)[0]
 	get_node("Tabs/Keycodes/ScrollContainer/VBoxContainer/%s/keycode_label" % action).text = "Listening for input"
 	current_action = action
+	GlobalLogger.write_to_logs(self, "Updating %s action" %action)
 
 func update_settings() -> void :
+	GlobalLogger.write_to_logs(self, "Updating the settings...")
 	update_actions()
+	GlobalLogger.write_to_logs(self, "Settings updated!")
 
 func update_actions() -> void :
 	for i in changed_actions.keys():
@@ -57,8 +60,10 @@ func update_actions() -> void :
 		InputMap.action_add_event(i, changed_actions[i])
 
 func _ready() -> void :
+	GlobalLogger.write_to_logs(self, "Current scene: Options")
 	SceneTransition.finish_trans()
 	var settings_dict = GlobalCfg.load_settings()
+	GlobalLogger.write_to_logs(self, "Loading settings...")
 	for section in settings_dict.keys():
 		for key in settings_dict[section].keys():
 			var node = settings_nodes[section][key]
@@ -66,6 +71,7 @@ func _ready() -> void :
 			if node is SpinBox or node is Slider: node.value = settings_dict[section][key]
 			if node is Button: node.set_pressed_no_signal(settings_dict[section][key])
 			if node is LineEdit: node.text = settings_dict[section][key]
+	GlobalLogger.write_to_logs(self, "Settings loaded!")
 
 func _on_save_button_pressed() -> void :
 	update_settings()
@@ -106,9 +112,9 @@ func _on_music_volume_slider_value_changed(value: float) -> void :
 
 func _on_path_line_edit_text_changed(new_text: String) -> void :
 	if not new_text.is_absolute_path():
-		$Tabs/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit.add_theme_color_override("font_color", Color.CRIMSON)
+		$Tabs/PanelContainer/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit.add_theme_color_override("font_color", Color.CRIMSON)
 	else:
-		$Tabs/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit.remove_theme_color_override("font_color")
+		$Tabs/PanelContainer/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit.remove_theme_color_override("font_color")
 	GlobalCfg.alter_setting("saves", "save_path", new_text)
 func _on_autosave_frequency_slider_value_changed(value: float) -> void :
 	GlobalCfg.alter_setting("saves", "autosave_frequency", value)
@@ -133,7 +139,9 @@ func _input(event: InputEvent) -> void:
 			if event.keycode != KEY_ESCAPE:
 				get_node("Tabs/Keycodes/ScrollContainer/VBoxContainer/%s/keycode_label" % current_action).text = event.as_text()
 				changed_actions[current_action] = event
+				GlobalLogger.write_to_logs(self, "Recieved key, changed action in dictionary")
 			else:
 				get_node("Tabs/Keycodes/ScrollContainer/VBoxContainer/%s/keycode_label" % current_action).text = previous_key.as_text()
 				changed_actions[current_action] = previous_key
+				GlobalLogger.write_to_logs(self, "Recieved Esc, canceled action change.")
 			current_action = null

@@ -20,6 +20,9 @@ func start(args : Dictionary = {}) -> void:
 	var _diff : Vector2i = abs(_movement_component.get_local_position() - args[&"target"])
 	assert(max(_diff.x, _diff.y) == 1, "%s tried to build a non-adjacent tile" % owner.name)
 	_building_component.build(args[&"target"],args[&"id"])
+	await _building_component.finished_building
+	stop()
+	done.emit()
 
 func stop():
 	_active = false

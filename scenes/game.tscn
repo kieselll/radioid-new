@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://c5vsugtempgka" path="res://scripts/Mainscene.gd" id="1_8ool0"]
 [ext_resource type="Script" uid="uid://bw83dbudhegaq" path="res://scripts/Camera2D.gd" id="2_pr1ej"]
-[ext_resource type="Script" uid="uid://b2myoxdakn8wk" path="res://scripts/objects/handlers.gd" id="3_05nbr"]
-[ext_resource type="Script" uid="uid://ckmevbxefyhf4" path="res://scripts/objects/fancy_thing.gd" id="4_0sl42"]
+[ext_resource type="Script" uid="uid://b2myoxdakn8wk" path="res://scripts/just_for_icons/handlers.gd" id="3_05nbr"]
+[ext_resource type="Script" uid="uid://ckmevbxefyhf4" path="res://scripts/just_for_icons/fancy_thing.gd" id="4_0sl42"]
 [ext_resource type="Script" uid="uid://cv1mrmaw3p6pd" path="res://scripts/handlers/building_agent.gd" id="5_oaba0"]
 [ext_resource type="Script" uid="uid://djfjk12mo6u16" path="res://scripts/selection_multimesh.gd" id="6_458eo"]
 [ext_resource type="Texture2D" uid="uid://drf0leohlmueu" path="res://textures/tilesets/walls.png" id="7_h3rex"]
@@ -281,7 +281,7 @@ script = ExtResource("12_pf7vy")
 script = ExtResource("13_o8ni1")
 buttons = [NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/wall_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/floor_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/furniture_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/workbench_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/power_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/plant_selection_button")]
 lists = [NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/wall_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/floor_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/furniture_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/workbench_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/power_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/plants_selection_list")]
-rects = [NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer"), NodePath("../../Control/CanvasLayer/exit_button"), NodePath("../../Control/CanvasLayer/ui_buttons"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/wall_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/floor_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/furniture_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/workbench_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/power_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/plant_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/wall_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/floor_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/furniture_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/workbench_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/power_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/plants_selection_list"), NodePath("../../Control/CanvasLayer/ui_buttons/build_toggle_button"), NodePath("../../Control/CanvasLayer/ui_buttons/colonists_button_toggle"), NodePath("../../Control/CanvasLayer/clock"), NodePath("../../Control/CanvasLayer/clock/Sprite2D/ColorRect2"), NodePath("../../Control/CanvasLayer/clock/Sprite2D/ColorRect3")]
+rects = [NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer"), NodePath("../../Control/CanvasLayer/ui_buttons"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/wall_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/floor_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/furniture_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/workbench_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/power_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/buildable_type_selection_menu/plant_selection_button"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/wall_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/floor_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/furniture_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/workbench_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/power_selection_list"), NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect/plants_selection_list"), NodePath("../../Control/CanvasLayer/ui_buttons/build_toggle_button"), NodePath("../../Control/CanvasLayer/ui_buttons/colonists_button_toggle"), NodePath("../../Control/CanvasLayer/clock"), NodePath("../../Control/CanvasLayer/clock/Sprite2D/ColorRect2"), NodePath("../../Control/CanvasLayer/clock/Sprite2D/ColorRect3")]
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -295,15 +295,6 @@ mouse_filter = 1
 script = ExtResource("14_3hbvx")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="Control"]
-
-[node name="exit_button" type="Button" parent="Control/CanvasLayer"]
-offset_left = 27.0
-offset_top = 27.0
-offset_right = 111.0
-offset_bottom = 57.0
-theme = ExtResource("15_q8j3a")
-text = "pause"
-metadata/_edit_use_anchors_ = true
 
 [node name="selection_buttons_rect" type="ColorRect" parent="Control/CanvasLayer"]
 custom_minimum_size = Vector2(500, 200)
@@ -816,9 +807,7 @@ floor_constant_speed = true
 characteristics = SubResource("Resource_8ool0")
 
 [connection signal="objects_built" from="handlers/building_agent" to="handlers/job_manager" method="_on_building_agent_objects_built"]
-[connection signal="jobs_updated" from="handlers/job_manager" to="handlers/job_manager" method="_on_jobs_updated"]
 [connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
-[connection signal="pressed" from="Control/CanvasLayer/exit_button" to="." method="_on_button_pressed"]
 [connection signal="button_down" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_down"]
 [connection signal="button_up" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_up"]
 [connection signal="pressed" from="Control/popup_layer/pause_menu/VBoxContainer/resume_button" to="handlers/paused_process_handler" method="_on_resume_button_pressed"]

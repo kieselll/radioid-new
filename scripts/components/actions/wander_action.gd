@@ -32,11 +32,10 @@ func new_pos():
 	await _move_state.done
 	_random_pos = null
 	await get_tree().create_timer(randf_range(0.3, 1.5)).timeout
-	new_pos()
-	done.emit()
+	if _active:
+		done.emit()
 
 func stop() -> void:
 	_active = false
-	
 	_random_pos = null
 	_movement_component.stop_moving()

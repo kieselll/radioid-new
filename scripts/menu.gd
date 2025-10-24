@@ -28,6 +28,7 @@ var button_color_array: Array[Color] = [
 ]
 
 func _ready() -> void :
+	GlobalLogger.write_to_logs(self, "Current scene: Main menu")
 	window = get_window()
 	window.title = "Radioid: Main menu"
 	SceneTransition.finish_trans()
@@ -63,15 +64,19 @@ func _modulate_body(body: RigidBody2D, color: Color):
 	tween.tween_property(body, "modulate", color, 0.3)
 
 func _on_button_pressed():
+	GlobalLogger.write_to_logs($MarginContainer/VBoxContainer/Button, "Pressed \"New Game\" button.")
 	SceneTransition.start_trans()
 	get_tree().change_scene_to_file("res://scenes/worldmaking.tscn")
 
 func _on_button_3_pressed():
+	GlobalLogger.write_to_logs($MarginContainer/VBoxContainer/Button3, "Pressed \"Quit\" button.")
 	SceneTransition.start_trans()
 	await SceneTransition.done
+	GlobalLogger.write_to_logs(self, "Quitting. Goodbye!")
 	get_tree().quit()
 
 func _on_button_2_pressed():
+	GlobalLogger.write_to_logs($MarginContainer/VBoxContainer/Button2, "Pressed \"Options\" button.")
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	get_tree().change_scene_to_file("res://scenes/options.tscn")

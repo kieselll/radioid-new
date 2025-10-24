@@ -10,9 +10,12 @@ func start_trans(animated : bool = false):
 	if animated:
 		await anim_player.animation_finished
 		anim_player.play("blow_up_planet")
+		GlobalLogger.write_to_logs(self, "Started animated transition")
+	else:
+		GlobalLogger.write_to_logs(self, "Started non-animated transition")
 	await anim_player.animation_finished
 	done.emit()
 
 func finish_trans():
 	anim_player.play("fade_out")
-	
+	GlobalLogger.write_to_logs(self, "Stopped transition")

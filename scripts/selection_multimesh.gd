@@ -11,7 +11,9 @@ func set_multimesh_texture(texture : Texture2D) -> void:
 
 func create_mesh_instances(rects : Dictionary) -> void:
 	valid_multimesh.instance_count = rects.valid.size()
+	GlobalLogger.write_to_logs(self, "Created %i multimesh instances for valid tiles" %rects.valid.size())
 	invalid_multimesh.instance_count = rects.invalid.size()
+	GlobalLogger.write_to_logs(self, "Created %i multimesh instances for invalid tiles" %rects.invalid.size())
 	for instance_id in valid_multimesh.instance_count:
 		var pair = rects.valid[instance_id]
 		valid_multimesh.set_instance_transform_2d(instance_id, Transform2D(PI, pair.coords))
@@ -24,3 +26,4 @@ func create_mesh_instances(rects : Dictionary) -> void:
 func erase_mesh_instances() -> void:
 	valid_multimesh.instance_count = 0
 	invalid_multimesh.instance_count = 0
+	GlobalLogger.write_to_logs(self, "Erased all multimesh instances")

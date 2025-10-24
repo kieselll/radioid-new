@@ -8,9 +8,9 @@ extends Resource
 @export var left_overlay: Texture2D
 
 func get_overlay(direction: Vector2i):
-  match direction:
-    Vector2i.UP: return top_overlay
-    Vector2i.RIGHT: return right_overlay
-    Vector2i.DOWN: return bottom_overlay
-    Vector2i.LEFT: return left_overlay
-    _: push_error("Unexpected %s in get_overlay" % direction)
+	match direction:
+		Vector2i.UP: return top_overlay
+		Vector2i.RIGHT: return right_overlay
+		Vector2i.DOWN: return bottom_overlay
+		Vector2i.LEFT: return left_overlay
+		_: push_error("Unexpected %s in get_overlay" % direction)

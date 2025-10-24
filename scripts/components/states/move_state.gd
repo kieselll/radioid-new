@@ -22,6 +22,7 @@ func start(args : Dictionary = {}) -> void :
 	if _movement_component.get_local_position() != move_target and not _movement_component.is_moving():
 		_movement_component.move_to_coord(move_target, _partial_path)
 	await _movement_component.arrived_at_destination
+	stop()
 	done.emit()
 
 func stop():

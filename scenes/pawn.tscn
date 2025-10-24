@@ -168,6 +168,10 @@ metadata/_custom_type_script = "uid://nbiig222rder"
 
 [node name="DecisionMaker" type="Node" parent="."]
 script = ExtResource("12_snu10")
+_base_priority_weight = 2.0
+_skill_weight = 0.6
+_negative_skill_weight = 2.0
+_distance_weight = 2.5
 metadata/_custom_type_script = "uid://bhsj43xf8ynaq"
 
 [node name="AbilityManager" type="Node" parent="."]
@@ -175,3 +179,4 @@ script = ExtResource("13_77t1k")
 metadata/_custom_type_script = "uid://b7tqs8421b0q7"
 
 [connection signal="timeout" from="alert_timer" to="." method="_on_alert_timer_timeout"]
+[connection signal="action_done" from="ActionMachine" to="DecisionMaker" method="_on_action_machine_action_done"]

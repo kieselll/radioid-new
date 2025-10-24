@@ -18,14 +18,14 @@ var _walls_layer
 func _ready() -> void :
 	_walls_layer = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls))
 	
-	# Ыetting up Astar
+	# Setting up Astar
 	astar.cell_size = Vector2(32, 32)
 	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
 	astar.region = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.ground)).get_used_rect()
 	astar.jumping_enabled = false
 	astar.update()
 	
-	# Шterating through chunk to find solid tiles. Will later load from save file if possible
+	# Iterating through chunk to find solid tiles. Will later load from save file if possible
 	var tile_data
 	for i in range(DELETE_ME):
 			for j in range(DELETE_ME):

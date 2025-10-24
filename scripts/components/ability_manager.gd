@@ -10,6 +10,12 @@ enum ability_names {
 	FIGHT
 }
 
+var ability_name_map = {
+	&"build_action" : ability_names.BUILD
+}
+
+# CRITICAL POPULATE THIS ^^^
+
 func xp_to_level(xp : int):
 	return floor(log((xp+10)/1000.)/log(1.4))
 
@@ -19,6 +25,9 @@ func xp_to_level(xp : int):
 	ability_names.SHOOT : 1000,
 	ability_names.FIGHT : 1000,
 }
+
+func action_name_to_ability_name(action_name : StringName):
+	return ability_name_map[action_name] if ability_name_map.keys().has(action_name) else null
 
 func get_ability_level(ability_name : ability_names) -> int:
 	return xp_to_level(_ability_xp[ability_name])

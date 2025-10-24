@@ -26,14 +26,13 @@ func _ready() -> void :
 func _on_listen_button_toggled(toggled_on : bool, button : BaseButton) -> void:
 	if button.get_meta_list().has(&"linked_list"):
 		button.get_node(button.get_meta(&"linked_list")).set_visible(toggled_on)
+		GlobalLogger.write_to_logs(button, "Toggled visibility of %s" %button.get_meta(&"linked_list").name)
 
 func _on_list_item_selected(item_id : int, list_name : StringName):
 	building_selected.emit(list_id_map[list_name][item_id])
-	print(list_id_map[list_name][item_id])
 
 func _on_ui_entered_exited(entered : bool):
 	if entered:
 		button_hover = true
 	else:
 		button_hover = false
-	print(button_hover)

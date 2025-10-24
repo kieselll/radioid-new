@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://dxrabdlx3km2v"]
 
-[ext_resource type="Script" uid="uid://pfc6e5gry0fp" path="res://scripts/mesh_logo.gd" id="1_0wykx"]
-[ext_resource type="Script" uid="uid://dxmonsd1bdfao" path="res://scripts/scene_transition.gd" id="1_rujfs"]
+[ext_resource type="Script" uid="uid://pfc6e5gry0fp" path="res://scripts/autoloads/scene_transition/mesh_logo.gd" id="1_0wykx"]
+[ext_resource type="Script" uid="uid://dxmonsd1bdfao" path="res://scripts/autoloads/scene_transition/scene_transition.gd" id="1_rujfs"]
 
 [sub_resource type="Animation" id="Animation_rujfs"]
 length = 0.001
@@ -290,7 +290,6 @@ fill_from = Vector2(0.6282051, 0.8247863)
 fill_to = Vector2(0.055555556, 0)
 
 [node name="SceneTransition" type="CanvasLayer"]
-visible = false
 script = ExtResource("1_rujfs")
 
 [node name="ColorRect" type="ColorRect" parent="."]

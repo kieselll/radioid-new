@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://d1e0vsqrxv75h"]
 
-[ext_resource type="Script" uid="uid://blal4p7xco4x8" path="res://scenes/debug_menu.gd" id="1_rta6x"]
+[ext_resource type="Script" uid="uid://blal4p7xco4x8" path="res://scripts/autoloads/debug_menu.gd" id="1_dn5ek"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rta6x"]
 content_margin_left = 5.0
@@ -15,13 +15,15 @@ corner_radius_bottom_left = 5
 
 [node name="DebugMenu" type="CanvasLayer"]
 visible = false
-script = ExtResource("1_rta6x")
+script = ExtResource("1_dn5ek")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 

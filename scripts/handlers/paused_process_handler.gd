@@ -5,6 +5,7 @@ func _on_resume_button_pressed() -> void :
 	$"../../Control/popup_layer/pause_menu".hide()
 	$"../../Control/popup_layer/Panel3".hide()
 	get_tree().paused = false
+	GlobalLogger.write_to_logs(self, "Resumed game")
 
 func _on_main_menu_button_pressed() -> void :
 	$"../../Control/popup_layer/pause_menu".hide()

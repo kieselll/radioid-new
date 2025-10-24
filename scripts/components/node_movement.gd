@@ -25,11 +25,6 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_local_position = _tilemap.local_to_map(_parent.position)
 
-	if _path.is_empty():
-		_parent.velocity = Vector2.ZERO
-		set_physics_process(false)
-		return
-
 	_target_position = _tilemap.map_to_local(_path[_current_step])
 	if _astar.astar.is_point_solid(_path[_current_step]): _update_path(_local_position, _path[-1], false)
 	_direction = (Vector2(_target_position) - _parent.position).normalized()
@@ -45,6 +40,7 @@ func _physics_process(delta: float) -> void:
 		if _current_step >= _path.size():
 			_path.clear()
 			arrived_at_destination.emit()
+			set_physics_process(false)
 
 	if _parent.velocity != Vector2.ZERO:
 		_parent.move_and_slide()
@@ -52,19 +48,12 @@ func _physics_process(delta: float) -> void:
 
 func move_to_coord(to: Vector2i, partial_path: bool = false) -> void:
 	var from = _local_position if _local_position else _tilemap.local_to_map(_parent.position)
+	print("moving to ", to)
 	_update_path(from, to, partial_path)
 	set_physics_process(true)
 
-func move_to_nearest_tile(tiles: Array[BuildableData], partial_path: bool = false) -> void :
-	var target = $ %grid_utils.find_nearest_tile(
-		_local_position, 
-		tiles
-	)
-	_update_path(_local_position, target, partial_path)
-	set_physics_process(true)
-
 func stop_moving() -> void :
-	_path = []
+	set_physics_process(false)
 	_parent.velocity = Vector2.ZERO
 
 func get_local_position(): return _tilemap.local_to_map(_parent.position)
@@ -72,10 +61,9 @@ func get_local_position(): return _tilemap.local_to_map(_parent.position)
 func _update_path(from: Vector2i, to: Vector2i, partial: bool) -> void :
 	_path = _astar.request_path(from, to, partial)
 	_current_step = 0
-	if _path.is_empty(): arrived_at_destination.emit()
-
-	if _path.is_empty():
+	if _path.is_empty(): 
+		arrived_at_destination.emit()
 		push_warning("No path found for %s to %s" % [_parent.name, to])
 
 func is_moving() -> bool:
-	return owner.velocity != Vector2.ZERO;
+	return owner.velocity != Vector2.ZERO
