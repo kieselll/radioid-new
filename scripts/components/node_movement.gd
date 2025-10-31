@@ -25,6 +25,11 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_local_position = _tilemap.local_to_map(_parent.position)
 
+	if _path.is_empty():
+		_parent.velocity = Vector2.ZERO
+		set_physics_process(false)
+		return
+
 	_target_position = _tilemap.map_to_local(_path[_current_step])
 	if _astar.astar.is_point_solid(_path[_current_step]): _update_path(_local_position, _path[-1], false)
 	_direction = (Vector2(_target_position) - _parent.position).normalized()
@@ -38,6 +43,7 @@ func _physics_process(delta: float) -> void:
 	if _parent.position.distance_to(_target_position) <= approach_threshold:
 		_current_step += 1
 		if _current_step >= _path.size():
+			GlobalLogger.write_to_logs(self, "Arrived at %v. Stopping..." %_path[_current_step - 1])
 			_path.clear()
 			arrived_at_destination.emit()
 			set_physics_process(false)
@@ -47,12 +53,13 @@ func _physics_process(delta: float) -> void:
 		_parent.rotate_sprite(_direction)
 
 func move_to_coord(to: Vector2i, partial_path: bool = false) -> void:
+	GlobalLogger.write_to_logs(self, "Moving to coords %v..." %to)
 	var from = _local_position if _local_position else _tilemap.local_to_map(_parent.position)
-	print("moving to ", to)
 	_update_path(from, to, partial_path)
 	set_physics_process(true)
 
 func stop_moving() -> void :
+	GlobalLogger.write_to_logs(self, "Stopped moving")
 	set_physics_process(false)
 	_parent.velocity = Vector2.ZERO
 

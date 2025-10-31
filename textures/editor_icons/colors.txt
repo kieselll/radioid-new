@@ -1,2 +1,4 @@
 States: F2C078
 Actions: FD8B39
+White: E0E0E0
+https://queenofsquiggles.codeberg.page/tech/godot-icon-colours/

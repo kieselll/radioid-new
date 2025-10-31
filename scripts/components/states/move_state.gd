@@ -11,6 +11,7 @@ func _late_ready() -> void:
 	_movement_component = owner.movement_component
 
 func start(args : Dictionary = {}) -> void :
+	GlobalLogger.write_to_logs(self, "Started moving")
 	_active = true
 	assert(args[&"target"] is Vector2i, "MoveState of %s recieved start(), but has no argument \"target\" of type Vector2i.")
 	
@@ -26,5 +27,6 @@ func start(args : Dictionary = {}) -> void :
 	done.emit()
 
 func stop():
+	GlobalLogger.write_to_logs(self, "Stopped moving")
 	_movement_component.stop_moving()
 	_active = false

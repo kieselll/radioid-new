@@ -7,7 +7,10 @@ signal finished_building
 
 func build(coords : Vector2i, id : int, time : float = 5):
 	var _data = BuildableDB.get_tile(id)
-	assert(_data, "Couldn't build tile with ID %s. (Invalid ID)" %id)
+	if not _data:
+		GlobalLogger.write_to_logs(self, "[ERROR]: Could not build tile with id: %d!" %id)
+		GlobalLogger.open_log_file()
+		get_tree().quit()
 	var progressbar : ProgressBar = GlobalRef.get_scene_path(GlobalRef.scenes_enum.progressbar).instantiate()
 	progressbar.z_index = 20
 	progressbar.size = Vector2(100, 10)

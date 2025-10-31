@@ -73,6 +73,7 @@ func _on_button_3_pressed():
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	GlobalLogger.write_to_logs(self, "Quitting. Goodbye!")
+	GlobalLogger.open_log_file()
 	get_tree().quit()
 
 func _on_button_2_pressed():

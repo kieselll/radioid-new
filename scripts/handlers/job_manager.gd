@@ -29,9 +29,9 @@ var auction = {}
 
 func _on_building_agent_objects_built(object_id: int, coord_array: Array, queued: bool) -> void:
 	if queued:
+		GlobalLogger.write_to_logs(self, "Adding built objects to jobs...")
 		for coord in coord_array:
 			jobs.append(BuildingJob.new(coord, object_id, 5))
-			print(coord)
 			_on_jobs_updated(jobs[-1])
 
 func start_job_auction(job : Job):
@@ -41,6 +41,7 @@ func start_job_auction(job : Job):
 		var pawn = get_node(path)
 		var _dec_maker : DecisionMaker = pawn.decision_maker
 		partake_in_auction(pawn, _dec_maker.calculate_action_priority_modifier(_queued_action.action_name, _queued_action.priority, job.location))
+	GlobalLogger.write_to_logs(self, "Auction won by %s" %auction[auction.keys().max()].name)
 	auction[auction.keys().max()].decision_maker.add_action_to_queue(_queued_action.action_name, auction.keys().max(), _queued_action.args)
 	auction.clear()
 	job.reserved = true
@@ -54,4 +55,7 @@ func partake_in_auction(pawn : Node, bet : float):
 	auction[bet] = pawn
 
 func _on_jobs_updated(with_what) -> void:
+	var type
+	if with_what is BuildingJob: type = "BuildingJob"
+	GlobalLogger.write_to_logs(self, "Started auction for %s at %s" %[type, with_what.location])
 	start_job_auction(with_what)

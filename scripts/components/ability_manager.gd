@@ -33,4 +33,5 @@ func get_ability_level(ability_name : ability_names) -> int:
 	return xp_to_level(_ability_xp[ability_name])
 
 func add_xp(ability : ability_names, amount : int):
+	GlobalLogger.write_to_logs(self, "Added xp: %d to %s" %[amount, ability])
 	_ability_xp[ability] += amount

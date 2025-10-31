@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://b46j0js042i4q"]
+[gd_scene load_steps=21 format=3 uid="uid://b46j0js042i4q"]
 
 [ext_resource type="Script" uid="uid://6c7xkrnwj04x" path="res://scripts/CharacterBody2D.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://supgli3ajes5" path="res://man.png" id="2"]
@@ -23,26 +23,6 @@ metadata/_custom_type_script = "uid://d0jsieodb28b8"
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_taskf"]
 radius = 122.0
 height = 244.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bqii1"]
-bg_color = Color(0, 0, 0, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-expand_margin_left = 1.0
-expand_margin_top = 1.0
-expand_margin_right = 1.0
-expand_margin_bottom = 1.0
-anti_aliasing = false
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a4pcm"]
-bg_color = Color(0, 0.75, 0, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
-anti_aliasing = false
 
 [sub_resource type="Gradient" id="Gradient_trpkc"]
 interpolation_mode = 1
@@ -84,30 +64,6 @@ texture = ExtResource("2")
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
 target_position = Vector2(0, 0)
-
-[node name="alert_timer" type="Timer" parent="."]
-wait_time = 30.0
-one_shot = true
-
-[node name="Panel" type="Panel" parent="."]
-visible = false
-light_mask = 2
-z_index = 2
-offset_left = -320.0
-offset_top = -356.0
-offset_right = -280.0
-offset_bottom = -350.0
-scale = Vector2(16, 16)
-theme_override_styles/panel = SubResource("StyleBoxFlat_bqii1")
-
-[node name="Panel2" type="Panel" parent="Panel"]
-light_mask = 2
-layout_mode = 0
-offset_left = 1.0
-offset_top = 1.0
-offset_right = 2.0
-offset_bottom = 5.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_a4pcm")
 
 [node name="animation_player" type="Node" parent="."]
 script = ExtResource("5")
@@ -178,5 +134,4 @@ metadata/_custom_type_script = "uid://bhsj43xf8ynaq"
 script = ExtResource("13_77t1k")
 metadata/_custom_type_script = "uid://b7tqs8421b0q7"
 
-[connection signal="timeout" from="alert_timer" to="." method="_on_alert_timer_timeout"]
 [connection signal="action_done" from="ActionMachine" to="DecisionMaker" method="_on_action_machine_action_done"]

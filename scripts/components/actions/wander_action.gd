@@ -16,6 +16,7 @@ func _late_ready() -> void:
 	_move_state = _state_machine.get_state(&"move_state")
 
 func start(args : Dictionary = {}) -> void:
+	GlobalLogger.write_to_logs(self, "Started wandering around...")
 	_active = true
 	new_pos()
 
@@ -36,6 +37,7 @@ func new_pos():
 		done.emit()
 
 func stop() -> void:
+	GlobalLogger.write_to_logs(self, "Stopped wandering around")
 	_active = false
 	_random_pos = null
 	_movement_component.stop_moving()

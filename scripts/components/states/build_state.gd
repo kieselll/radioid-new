@@ -16,6 +16,7 @@ func _late_ready():
 func start(args : Dictionary = {}) -> void:
 	assert(args[&"target"] is Vector2i, "BuildState of %s recieved start(), but has no argument \"target\" of type Vector2i." %owner.name)
 	assert(args[&"id"] is int, "BuildState of %s recieved start(), but has no argument \"id\" of type int." %owner.name)
+	GlobalLogger.write_to_logs(self, "Started building")
 	var _local_pos : Vector2i = _movement_component.get_local_position()
 	var _diff : Vector2i = abs(_movement_component.get_local_position() - args[&"target"])
 	assert(max(_diff.x, _diff.y) == 1, "%s tried to build a non-adjacent tile" % owner.name)
@@ -25,4 +26,5 @@ func start(args : Dictionary = {}) -> void:
 	done.emit()
 
 func stop():
+	GlobalLogger.write_to_logs(self, "Stopped building")
 	_active = false

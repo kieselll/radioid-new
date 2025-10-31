@@ -11,6 +11,8 @@ func find_nearest_tile(call_coords : Vector2i, data_array : Array[BuildableData]
 	return find_nearest_tile_coord(call_coords, coord_array)
 
 func find_nearest_tile_coord(call_coords : Vector2i, coords_array : Array):
+	printerr("FIX ME")
+	push_error(ERR_PRINTER_ON_FIRE)
 	var nearest_coord = null
 	var nearest_distance_sqr : float = INF
 	for coord in coords_array:

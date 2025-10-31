@@ -42,6 +42,7 @@ func _ready() -> void:
 ## Adds a new QueuedAction to the [member _action_queue], in the format of a class. Takes in an action_name (must be a valid action_name, like &"wander", a wanted priority for the action,
 ## and, optionally, arguments to the action, like the target for [MoveAction]. Doesn't have a [StateMachine] counterpart, because actions ([BaseAction]) already fulfill this need.
 func add_action_to_queue(action_name : StringName, priority : int, action_args : Dictionary = {}):
+	GlobalLogger.write_to_logs(self, "Added %s to queue with base priority: %f" %[action_name, priority])
 	for action_index in range(_action_queue.size()-1,-1,-1):
 		if _action_queue[action_index].priority < priority:
 			_action_queue.insert(action_index, QueuedAction.new(action_name, priority, action_args))
@@ -67,7 +68,6 @@ func calculate_action_priority_modifier(action_name : StringName, base_priority 
 			skill_modified = skill_level * _negative_skill_weight
 		else:
 			skill_modified = skill_level * _skill_weight
-	#return (base_priority * _base_priority_weight + skill_modified) * emotion_modifier * exp(-distance / _distance_weight)
 	return (100 * (priority * _base_priority_weight + skill_modified + emotion_modifier))/(1 + pow(distance * _distance_weight/1000,2))
 
 func _on_action_machine_action_done() -> void:
