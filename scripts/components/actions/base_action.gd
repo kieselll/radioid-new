@@ -17,13 +17,10 @@ func _ready() -> void:
 	_state_machine = owner.state_machine
 	_late_ready()
 
-func _late_ready() -> void:
-	pass
+func _late_ready() -> void: pass
 
-func start(args : Dictionary[StringName, Variant] = {}) -> void:
-	printerr("%s doesn't have start functionality implemented. Please override this function in the superclass to get rid of this warning" %name)
+@abstract func start(args : Dictionary[StringName, Variant] = {}) -> void
 
-func stop() -> void:
-	printerr("%s doesn't have stop functionality implemented. Please override this function in the superclass to get rid of this warning" %name)
+@abstract func stop() -> void
 
 func is_active() -> bool: return _active 

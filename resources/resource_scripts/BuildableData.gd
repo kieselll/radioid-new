@@ -45,28 +45,8 @@ extends Resource
 @export var flammable_params: BuildableFlammableData
 ## Parameters which refer to the colonist-object interactions, like opening a door. See [BuildableInteractionData]
 @export var interaction_params: BuildableInteractionData
-## Parameters which refer to the type of the oject. See [BuildableItemData] and [BuildableTerrainData]. [BuildableType] is abstract.
-@export var type_params: BuildableType
 ## Parameters which refer to the texture of the object. See [BuildableTextureData]
 @export var texture_params: BuildableTextureData
-
-func get_terrain_set() -> int:
-	if is_terrain():
-		return type_params.terrain_set
-	else:
-		return -1
-
-func get_terrain_id() -> int:
-	if is_terrain():
-		return type_params.terrain_id
-	else:
-		return -1
-
-func is_item() -> bool:
-	return type_params is BuildableItemData
-
-func is_terrain() -> bool:
-	return type_params is BuildableTerrainData
 
 func can_autoignite() -> bool:
 	if not flammable_params: return false

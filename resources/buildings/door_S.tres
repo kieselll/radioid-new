@@ -1,12 +1,6 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=4 format=3 uid="uid://db5ynut3g4h5a"]
+[gd_resource type="Resource" script_class="BuildableData" load_steps=2 format=3 uid="uid://db5ynut3g4h5a"]
 
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="2"]
-[ext_resource type="Script" uid="uid://cxs8gfk33l6nq" path="res://resources/resource_scripts/BuildableItemData.gd" id="3"]
-
-[sub_resource type="Resource" id="Resource_60wn3"]
-script = ExtResource("3")
-source_id = 2
-metadata/_custom_type_script = "uid://cxs8gfk33l6nq"
 
 [resource]
 script = ExtResource("2")
@@ -17,5 +11,4 @@ passable = true
 build_time = 7.5
 max_health = 75
 queued_layer = 4
-type_params = SubResource("Resource_60wn3")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

@@ -9,7 +9,8 @@ var objects: Dictionary = {}
 func _ready() -> void :
 	var buildings: = ResourceLoader.list_directory("res://resources/buildings/")
 	for i in buildings:
-		var buildable_data: BuildableData = ResourceLoader.load("resources/buildings/" + i)
+		var buildable_data: BuildableData = load("res://resources/buildings/" + i)
+		print("res://resources/buildings/" + i)
 		objects[buildable_data.id] = buildable_data
 
 ## Gets the [BuildableData] resource by its [member BuildableData.id]. Returns [null] if the id is nonexistent and pushes a warning.
@@ -17,4 +18,9 @@ func get_tile(id: int) -> BuildableData:
 	if objects.keys().has(id):
 		return objects[id]
 	push_warning("Tried to get tile by nonexisting ID: %s" % id)
+	return null
+
+func get_tile_layer(id : int):
+	var tile = get_tile(id)
+	if tile: return tile.layer
 	return null

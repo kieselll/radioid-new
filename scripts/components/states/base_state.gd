@@ -14,13 +14,10 @@ func _ready() -> void:
 	assert (owner is CharacterBody2D, "Root of scene must be of type CharacterBody2D")
 	_late_ready()
 
-func _late_ready() -> void:
-	pass
+func _late_ready() -> void: pass
 
-func start(args = {}) -> void:
-	printerr("%s doesn't have start functionality implemented. Please override this function in the superclass to get rid of this warning" %name)
+@abstract func start(args = {}) -> void
 
-func stop() -> void:
-	printerr("%s doesn't have stop functionality implemented. Please override this function in the superclass to get rid of this warning" %name)
+@abstract func stop() -> void
 
 func is_active() -> bool: return _active 

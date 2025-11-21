@@ -1,7 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://dxrabdlx3km2v"]
+[gd_scene load_steps=13 format=3 uid="uid://dxrabdlx3km2v"]
 
 [ext_resource type="Script" uid="uid://pfc6e5gry0fp" path="res://scripts/autoloads/scene_transition/mesh_logo.gd" id="1_0wykx"]
 [ext_resource type="Script" uid="uid://dxmonsd1bdfao" path="res://scripts/autoloads/scene_transition/scene_transition.gd" id="1_rujfs"]
+[ext_resource type="Theme" uid="uid://qb0c3yxrvyka" path="res://resources/theme.tres" id="3_dlbfy"]
 
 [sub_resource type="Animation" id="Animation_rujfs"]
 length = 0.001
@@ -289,6 +290,19 @@ fill = 1
 fill_from = Vector2(0.6282051, 0.8247863)
 fill_to = Vector2(0.055555556, 0)
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dlbfy"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lgvtp"]
+bg_color = Color(0.4354216, 0.6846261, 1.92523e-07, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [node name="SceneTransition" type="CanvasLayer"]
 script = ExtResource("1_rujfs")
 
@@ -386,3 +400,29 @@ antialiased = true
 texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(-31.495972, -101.755066, 22.352722, -35.808228, 26.592346, -41.831604, 30.18805, -48.18344, 33.093567, -53.387787, 36.551147, -60.324554, 39.24463, -66.85773, 41.479675, -72.416626, 44.55713, -79.26758, 48.09369, -88.69827, 50.312622, -95.77127, 53.641113, -107.76767, 56.69586, -120.47928, 58.602783, -131.00558, 59.74695, -139.70123, 60.358032, -153.0321, 60.495728, -166.84143)
 uv = PackedVector2Array(406.09674, 313.38593, 459.94543, 379.33276, 464.18506, 373.3094, 467.78076, 366.95755, 470.68628, 361.7532, 474.14386, 354.81644, 476.83734, 348.28326, 479.0724, 342.72437, 482.14984, 335.8734, 485.6864, 326.44272, 487.90533, 319.36972, 491.23383, 307.37332, 494.28857, 294.6617, 496.1955, 284.1354, 497.33966, 275.43976, 498.44214, 263.63248, 499.10718, 248.8621)
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_dlbfy")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Loading world"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("3_dlbfy")
+theme_override_styles/fill = SubResource("StyleBoxFlat_lgvtp")
+value = 30.43

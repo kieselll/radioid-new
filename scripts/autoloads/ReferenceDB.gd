@@ -53,6 +53,7 @@ var _handlers = {
 	handlers_enum.job_manager : "/job_manager",
 	handlers_enum.ui_manager : "/ui_manager"
 	}
+var chunks = {}
 
 @onready var pawns = [
 	"/root/GameRoot/test_pawn"
@@ -82,3 +83,6 @@ var scenes = {
 func get_scene_path(scene : scenes_enum):
 	return load("res://scenes/" + scenes[scene])
 #endregion
+
+func add_chunk_path(coords : Vector2i, chunk : Node):
+	chunks[coords] = chunk.get_path()

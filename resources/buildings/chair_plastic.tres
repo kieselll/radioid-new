@@ -1,14 +1,6 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=4 format=3 uid="uid://erimoka2j4te"]
+[gd_resource type="Resource" script_class="BuildableData" load_steps=2 format=3 uid="uid://erimoka2j4te"]
 
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="1"]
-[ext_resource type="Script" uid="uid://cxs8gfk33l6nq" path="res://resources/resource_scripts/BuildableItemData.gd" id="2"]
-
-[sub_resource type="Resource" id="Resource_lfe4j"]
-script = ExtResource("2")
-source_id = 1
-rotations = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)])
-rad_per_rotation = 1.571
-metadata/_custom_type_script = "uid://cxs8gfk33l6nq"
 
 [resource]
 script = ExtResource("1")
@@ -19,5 +11,4 @@ passable = true
 build_time = 12.0
 max_health = 25
 queued_layer = 4
-type_params = SubResource("Resource_lfe4j")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

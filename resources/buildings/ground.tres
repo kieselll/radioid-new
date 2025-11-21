@@ -1,17 +1,10 @@
 [gd_resource type="Resource" script_class="BuildableData" load_steps=4 format=3 uid="uid://cgouqk3erk1fs"]
 
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="1"]
-[ext_resource type="Script" uid="uid://cxs8gfk33l6nq" path="res://resources/resource_scripts/BuildableItemData.gd" id="2"]
-
-[sub_resource type="Resource" id="Resource_uh4iq"]
-script = ExtResource("2")
-source_id = 3
-metadata/_custom_type_script = "uid://cxs8gfk33l6nq"
 
 [resource]
 script = ExtResource("1")
 id = 4
 display_name = "Ground"
 passable = true
-type_params = SubResource("Resource_uh4iq")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

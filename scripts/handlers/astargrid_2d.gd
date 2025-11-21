@@ -19,23 +19,23 @@ func _ready() -> void :
 	GlobalLogger.write_to_logs(self, "Setting up Astar...")
 	_walls_layer = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls))
 	
-	# Setting up Astar
-	astar.cell_size = Vector2(32, 32)
-	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
-	astar.region = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.ground)).get_used_rect()
-	astar.jumping_enabled = false
-	astar.update()
-	GlobalLogger.write_to_logs(self, "Astar set up. Finding solid tiles...")
-	# Iterating through chunk to find solid tiles. Will later load from save file if possible
-	var tile_data
-	for i in range(DELETE_ME):
-			for j in range(DELETE_ME):
-				tile_data = _walls_layer.get_cell_tile_data(Vector2i(i, j))
-				if tile_data:
-					if BuildableDB.get_tile(tile_data.get_custom_data("id")):
-						astar.set_point_solid(Vector2i(i, j), not BuildableDB.get_tile(tile_data.get_custom_data("id")).passable)
-					else: astar.set_point_solid(Vector2i(i, j), false)
-	GlobalLogger.write_to_logs(self, "Solid tiles found and set up.")
+	## Setting up Astar
+	#astar.cell_size = Vector2(32, 32)
+	#astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
+	#astar.region = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.ground)).get_used_rect()
+	#astar.jumping_enabled = false
+	#astar.update()
+	#GlobalLogger.write_to_logs(self, "Astar set up. Finding solid tiles...")
+	## Iterating through chunk to find solid tiles. Will later load from save file if possible
+	#var tile_data
+	#for i in range(DELETE_ME):
+			#for j in range(DELETE_ME):
+				#tile_data = _walls_layer.get_cell_tile_data(Vector2i(i, j))
+				#if tile_data:
+					#if BuildableDB.get_tile(tile_data.get_custom_data("id")):
+						#astar.set_point_solid(Vector2i(i, j), not BuildableDB.get_tile(tile_data.get_custom_data("id")).passable)
+					#else: astar.set_point_solid(Vector2i(i, j), false)
+	#GlobalLogger.write_to_logs(self, "Solid tiles found and set up.")
 
 ## Function for agents to retrieve a path with source [param from] and destination [param to][br]
 ## The [param partial] parameter determines whether a partial path is returned.[br]
