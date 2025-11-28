@@ -294,31 +294,31 @@ func _create_multimesh(cell : NewCell):
 
 ## Returns a bitmask of neighboring tiles for autotiling.
 func _detect_neighbors(layer : GlobalRef.tilemap_layers_enum, coords : Vector2i):
-	print("I AM ", _tilemap.local_to_map(self.position), " checking ", coords)
 	var result = 0
 	var chunk = self
 
 	for i in offsets.size():
 		var o = coords + offsets[i]
-		var chunk_pos = Vector2i(_chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x, _chunk_manager.world_coord_to_chunk_coord(position).y)
+		var chunk_pos = Vector2i(_chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x, _chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).y)
 
 		if o.x < 0:
-			chunk = GlobalRef.get_chunk(chunk_pos + Vector2i(-1, 0))
+			chunk_pos += Vector2i(-1, 0)
 			o.x = CHUNK_SIZE - 1
 		elif o.x >= CHUNK_SIZE:
-			chunk = GlobalRef.get_chunk(chunk_pos + Vector2i(1, 0))
+			chunk_pos += Vector2i(1, 0)
 			o.x = 0
-		elif o.y < 0:
-			chunk = GlobalRef.get_chunk(chunk_pos + Vector2i(0, -1))
+		if o.y < 0:
+			chunk_pos += Vector2i(0, -1)
 			o.y = CHUNK_SIZE - 1
 		elif o.y >= CHUNK_SIZE:
-			chunk = GlobalRef.get_chunk(chunk_pos + Vector2i(0, 1))
+			chunk_pos += Vector2i(0, 1)
 			o.y = 0
-		else:
-			chunk = self
+		chunk = GlobalRef.get_chunk(chunk_pos)
 
 		if chunk == null:
 			continue
+
+		print("Comparing %d at %v to %d at %v. Offset: %v" %[chunk.get_cell(layer, o), o, chunk.get_cell(layer, coords), coords, offsets[i]])
 
 		if chunk.get_cell(layer, o) == get_cell(layer, coords):
 			result |= 1 << i
@@ -342,25 +342,24 @@ func _detect_neighbors(layer : GlobalRef.tilemap_layers_enum, coords : Vector2i)
 
 ## UV update for tile and neighbors
 func _set_tile_region(layer : GlobalRef.tilemap_layers_enum, coords : Vector2i):
+	var chunk = self
 	for off in offsets if BuildableDB.get_tile(get_cell(layer, coords)).texture_params.can_autotile else [Vector2i.ZERO]:
 		var p = coords + off
-		var chunk
-		var chunk_pos = Vector2i(_chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x, _chunk_manager.world_coord_to_chunk_coord(position).y)
+		var chunk_pos = Vector2i(_chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x, _chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).y)
 
 		if p.x < 0:
-			chunk = GlobalRef.get_chunk(chunk_pos + Vector2i(-1, 0))
+			chunk_pos += Vector2i(-1, 0)
 			p.x = CHUNK_SIZE - 1
 		elif p.x >= CHUNK_SIZE:
-			chunk = GlobalRef.get_chunk(chunk_pos + Vector2i(1, 0))
+			chunk_pos += Vector2i(1, 0)
 			p.x = 0
-		elif p.y < 0:
-			chunk = GlobalRef.get_chunk(chunk_pos + Vector2i(0, -1))
+		if p.y < 0:
+			chunk_pos += Vector2i(0, -1)
 			p.y = CHUNK_SIZE - 1
 		elif p.y >= CHUNK_SIZE:
-			chunk = GlobalRef.get_chunk(chunk_pos + Vector2i(0, 1))
+			chunk_pos += Vector2i(0, 1)
 			p.y = 0
-		else:
-			chunk = self
+		chunk = GlobalRef.get_chunk(chunk_pos)
 
 		if chunk == null:
 			continue
