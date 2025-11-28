@@ -10,7 +10,7 @@ var list_id_map : Dictionary = {
 	&"furniture_selection_list" : [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 }
 
-var button_hover 
+var button_hover
 
 signal building_selected(id : int)
 

@@ -6,8 +6,6 @@ extends Resource
 @export var texture: Texture2D
 @export_category("Terrain specific")
 @export var cell_size: Vector2i
-@export_category("Item specific")
-@export var cell_rect: Rect2i
 
 enum tile_neigbors {
 	TOP_LEFT   =  0b100000000,    TOP = 0b010000000,    TOP_RIGHT = 0b001000000,
@@ -15,7 +13,7 @@ enum tile_neigbors {
 	BOTTOM_LEFT = 0b000000100, BOTTOM = 0b000000010, BOTTOM_RIGHT = 0b000000001
 	}
 
-const autotile_layout : Dictionary = {
+@export var autotile_layout : Dictionary = {
 	0b000010010 : Vector2i(0, 0),
 	0b000011010 : Vector2i(1, 0),
 	0b000111010 : Vector2i(2, 0),
@@ -70,7 +68,8 @@ const autotile_layout : Dictionary = {
 }
 
 func get_terrain_tile_rect(neighbors_mask : int):
-	if not can_autotile: return texture
+	if not can_autotile: return Rect2i(0,0,1,1)
 	assert(Vector2i(texture.get_size()) % cell_size == Vector2i.ZERO, "Texture size not divisible by cell_size")
+	if not autotile_layout.has(neighbors_mask): return Rect2(Vector2(Vector2i(0, 3) * cell_size) / texture.get_size(), Vector2(cell_size) / texture.get_size())
 	var return_rect = Rect2(Vector2(autotile_layout[neighbors_mask] * cell_size) / texture.get_size(), Vector2(cell_size) / texture.get_size())
 	return return_rect

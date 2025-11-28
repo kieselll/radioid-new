@@ -1,6 +1,6 @@
 extends Node2D
 
-@onready var _tilemap : TileMapLayer = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.ground))
+@onready var _tilemap : TileMap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
 @onready var _ui_manager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.ui_manager))
 
 var _keyboard_input_allowed : bool = true
@@ -54,7 +54,9 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 			elif not event.pressed:
 				_click_2 = get_global_mouse_position()
 				if _click_1 and _click_2:
-					region_selected.emit(Rect2i(_tilemap.local_to_map(_click_1), _tilemap.local_to_map(_click_2) - _tilemap.local_to_map(_click_1)).abs(),_tilemap.local_to_map(_click_2))
+					region_selected.emit(Rect2i(_tilemap.local_to_map(_click_1), _tilemap.local_to_map(_click_2) - _tilemap.local_to_map(_click_1)).abs())
+					print(_tilemap.local_to_map(_click_1))
+					print(_tilemap.local_to_map(_click_2))
 				_click_2 = null
 				_click_1 = null
 

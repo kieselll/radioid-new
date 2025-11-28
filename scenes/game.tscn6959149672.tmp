@@ -1,4 +1,4 @@
-[gd_scene load_steps=64 format=3 uid="uid://b2icuxwl41o5e"]
+[gd_scene load_steps=63 format=3 uid="uid://b2icuxwl41o5e"]
 
 [ext_resource type="Script" uid="uid://c5vsugtempgka" path="res://scripts/Mainscene.gd" id="1_8ool0"]
 [ext_resource type="Script" uid="uid://bw83dbudhegaq" path="res://scripts/Camera2D.gd" id="2_pr1ej"]
@@ -209,10 +209,7 @@ shader_parameter/lod = 1.318
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mp8vi"]
 bg_color = Color(0, 0, 0, 0.876)
 
-[sub_resource type="TileSet" id="TileSet_pr1ej"]
-tile_size = Vector2i(32, 32)
-
-[sub_resource type="Resource" id="Resource_pr1ej"]
+[sub_resource type="Resource" id="Resource_05nbr"]
 resource_local_to_scene = true
 script = ExtResource("41_4nbsr")
 stats = {
@@ -293,7 +290,6 @@ rects = [NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContaine
 script = ExtResource("14_pr1ej")
 cam = NodePath("../../../Camera2D")
 chunk_scene = ExtResource("15_05nbr")
-render_distance = 8
 metadata/_custom_type_script = "uid://ccqmsxdcsc1b6"
 
 [node name="Control" type="Control" parent="."]
@@ -746,7 +742,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_mp8vi")
 
 [node name="TileMap" type="TileMap" parent="."]
 texture_filter = 1
-tile_set = SubResource("TileSet_pr1ej")
 collision_visibility_mode = 1
 format = 2
 
@@ -755,7 +750,7 @@ z_index = 2
 position = Vector2(594, 301)
 scale = Vector2(0.06, 0.06)
 floor_constant_speed = true
-characteristics = SubResource("Resource_pr1ej")
+characteristics = SubResource("Resource_05nbr")
 
 [connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
 [connection signal="button_down" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_down"]

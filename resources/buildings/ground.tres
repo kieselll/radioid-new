@@ -1,10 +1,19 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=4 format=3 uid="uid://cgouqk3erk1fs"]
+[gd_resource type="Resource" script_class="BuildableData" load_steps=5 format=3 uid="uid://cgouqk3erk1fs"]
 
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="1"]
+[ext_resource type="Script" uid="uid://5wn15k8plabq" path="res://resources/resource_scripts/BuildableTextureData.gd" id="2_uh4iq"]
+[ext_resource type="Texture2D" uid="uid://dcfr5p1hc6qa7" path="res://textures/tilesets/ground.png" id="3_2wnse"]
+
+[sub_resource type="Resource" id="Resource_6dp28"]
+script = ExtResource("2_uh4iq")
+texture = ExtResource("3_2wnse")
+cell_size = Vector2i(32, 32)
+metadata/_custom_type_script = "uid://5wn15k8plabq"
 
 [resource]
 script = ExtResource("1")
 id = 4
 display_name = "Ground"
 passable = true
+texture_params = SubResource("Resource_6dp28")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"

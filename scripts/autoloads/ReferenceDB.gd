@@ -5,7 +5,8 @@ class_name ReferenceDB
 enum game_nodes_enum {
 	tilemap,
 	handlers,
-	ui_layer
+	ui_layer,
+	chunk_manager,
 	}
 enum tilemap_layers_enum {
 	ground,
@@ -31,16 +32,9 @@ enum handlers_enum {
 var _game_nodes = {
 	game_nodes_enum.tilemap : "TileMap",
 	game_nodes_enum.handlers : "handlers",
-	game_nodes_enum.ui_layer : "Control/CanvasLayer"
-	}
-var _tilemap_layers = {
-	tilemap_layers_enum.ground : "/ground",
-	tilemap_layers_enum.terrain : "/terrain",
-	tilemap_layers_enum.walls : "/walls",
-	tilemap_layers_enum.terrain_queued : "/terrain_queued",
-	tilemap_layers_enum.walls_queued : "/walls_queued",
-	tilemap_layers_enum.terrain_queued_d : "/terrain_queued_d",
-	tilemap_layers_enum.walls_queued_d : "/walls_queued_d"
+	game_nodes_enum.ui_layer : "Control/CanvasLayer",
+	game_nodes_enum.chunk_manager : "handlers/chunks/ChunkManager",
+
 	}
 var _handlers = {
 	handlers_enum.fancy_thing : "/fancy_thing",
@@ -59,14 +53,16 @@ var chunks = {}
 	"/root/GameRoot/test_pawn"
 	]
 
-func get_tilemap_layer_path(layer_name : tilemap_layers_enum) -> String:
-	return get_game_node_path(game_nodes_enum.tilemap) + _tilemap_layers[layer_name]
-
 func get_handler(handler_name : handlers_enum) -> String:
 	return get_game_node_path(game_nodes_enum.handlers) + _handlers[handler_name]
 
 func get_game_node_path(node_name : game_nodes_enum) -> String:
 	return "/root/GameRoot/" + _game_nodes[node_name]
+
+func get_chunk(coords : Vector2i) -> Node:
+	if chunks.has(coords):
+		return chunks[coords]
+	return null
 #endregion
 
 #region Scenes
@@ -84,5 +80,5 @@ func get_scene_path(scene : scenes_enum):
 	return load("res://scenes/" + scenes[scene])
 #endregion
 
-func add_chunk_path(coords : Vector2i, chunk : Node):
-	chunks[coords] = chunk.get_path()
+func add_chunk(coords : Vector2i, chunk : Node):
+	chunks[coords] = chunk

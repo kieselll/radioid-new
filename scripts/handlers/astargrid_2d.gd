@@ -17,8 +17,6 @@ var _walls_layer
 
 func _ready() -> void :
 	GlobalLogger.write_to_logs(self, "Setting up Astar...")
-	_walls_layer = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls))
-	
 	## Setting up Astar
 	#astar.cell_size = Vector2(32, 32)
 	#astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES

@@ -1,117 +1,228 @@
 @icon("res://textures/editor_icons/house.svg")
 extends Node2D
 
-#region Private variables & functions
+#				 /$$$$$$$              /$$                           /$$
+#				| $$__  $$            |__/                          | $$
+#				| $$  \ $$   /$$$$$$   /$$  /$$    /$$   /$$$$$$   /$$$$$$     /$$$$$$
+#				| $$$$$$$/  /$$__  $$ | $$ |  $$  /$$/  |____  $$ |_  $$_/    /$$__  $$
+#				| $$____/  | $$  \__/ | $$  \  $$/$$/    /$$$$$$$   | $$     | $$$$$$$$
+#				| $$       | $$       | $$   \  $$$/    /$$__  $$   | $$ /$$ | $$_____/
+#				| $$       | $$       | $$    \  $/    |  $$$$$$$   |  $$$$/ |  $$$$$$$
+#				|__/       |__/       |__/     \_/      \_______/    \___/    \_______/
+#
+#
+#
+#				 /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$
+#				|_  $$_/ | $$$ | $$ |_  $$_/ |__  $$__/
+#				  | $$   | $$$$| $$   | $$      | $$
+#				  | $$   | $$ $$ $$   | $$      | $$
+#				  | $$   | $$  $$$$   | $$      | $$
+#				  | $$   | $$\  $$$   | $$      | $$
+#				 /$$$$$$ | $$ \  $$  /$$$$$$    | $$
+#				|______/ |__/  \__/ |______/    |__/
+
+#region Private_Variables
+
 @onready var _multimesh_manager : Node = $multimesh_manager
 @onready var _tilemap : TileMap = $"../../TileMap"
-@export var _default_selection_texture : Texture2D
+
+var _chunks_manager : ChunkManager
 var _current_item : BuildableData
-var _filled_array : Array
+var _filled_array : Array = []
 
-@onready var _layers: Dictionary = {
-	ground = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.ground)), 
-	terrain = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.terrain)), 
-	walls = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls)), 
-	terrain_queued = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.terrain_queued)), 
-	walls_queued = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls_queued)), 
-	terrain_queued_d = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.terrain_queued_d)), 
-	walls_queued_d = get_node(GlobalRef.get_tilemap_layer_path(GlobalRef.tilemap_layers_enum.walls_queued_d)), 
-}
-
+# Neighbors for edge masks
 enum _tile_neigbors {
-	TOP_LEFT   =  0b100000000,    TOP = 0b010000000,    TOP_RIGHT = 0b001000000,
-				 LEFT = 0b000100000, CENTER = 0b000010000,        RIGHT = 0b000001000,
+	TOP_LEFT    = 0b100000000, TOP    = 0b010000000, TOP_RIGHT    = 0b001000000,
+	LEFT        = 0b000100000, CENTER = 0b000010000, RIGHT        = 0b000001000,
 	BOTTOM_LEFT = 0b000000100, BOTTOM = 0b000000010, BOTTOM_RIGHT = 0b000000001
 }
+
+#endregion
+
+
+#region Private_Exported
+
+@export var _default_selection_texture : Texture2D
+
+#endregion
+
+
+#				 /$$$$$$$              /$$        /$$  /$$
+#				| $$__  $$            | $$       | $$ |__/
+#				| $$  \ $$  /$$   /$$ | $$$$$$$  | $$  /$$   /$$$$$$$
+#				| $$$$$$$/ | $$  | $$ | $$__  $$ | $$ | $$  /$$_____/
+#				| $$____/  | $$  | $$ | $$  \ $$ | $$ | $$ | $$
+#				| $$       | $$  | $$ | $$  | $$ | $$ | $$ | $$
+#				| $$       |  $$$$$$/ | $$$$$$$/ | $$ | $$ |  $$$$$$$
+#				|__/        \______/  |_______/  |__/ |__/  \_______/
+#
+#
+#
+#				 /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$
+#				|_  $$_/ | $$$ | $$ |_  $$_/ |__  $$__/
+#				  | $$   | $$$$| $$   | $$      | $$
+#				  | $$   | $$ $$ $$   | $$      | $$
+#				  | $$   | $$  $$$$   | $$      | $$
+#				  | $$   | $$\  $$$   | $$      | $$
+#				 /$$$$$$ | $$ \  $$  /$$$$$$    | $$
+#				|______/ |__/  \__/ |______/    |__/
+
+#region Lifecycle
 
 func _ready() -> void:
 	InputHandler.region_selected.connect(_on_input_handler_region_selected)
 	InputHandler.region_updated.connect(_on_input_handler_region_updated)
+	_chunks_manager = get_node(GlobalRef.get_game_node_path(ReferenceDB.game_nodes_enum.chunk_manager))
 
 #endregion
 
-#region Tile filtering
+
+#				 /$$$$$$$$  /$$  /$$    /$$                            /$$
+#				| $$_____/ |__/ | $$   | $$                           |__/
+#				| $$        /$$ | $$  /$$$$$$     /$$$$$$    /$$$$$$   /$$  /$$$$$$$    /$$$$$$
+#				| $$$$$    | $$ | $$ |_  $$_/    /$$__  $$  /$$__  $$ | $$ | $$__  $$  /$$__  $$
+#				| $$__/    | $$ | $$   | $$     | $$$$$$$$ | $$  \__/ | $$ | $$  \ $$ | $$  \ $$
+#				| $$       | $$ | $$   | $$ /$$ | $$_____/ | $$       | $$ | $$  | $$ | $$  | $$
+#				| $$       | $$ | $$   |  $$$$/ |  $$$$$$$ | $$       | $$ | $$  | $$ |  $$$$$$$
+#				|__/       |__/ |__/    \___/    \_______/ |__/       |__/ |__/  |__/  \____  $$
+#				                                                                       /$$  \ $$
+#				                                                                      |  $$$$$$/
+#				                                                                       \______/
+
+#region Tile_Filtering
+
+## Main filtering pipeline
 func filter_tiles(tiles: Array, built_object : BuildableData) -> Dictionary:
 	var result : Dictionary = {"valid" = [], "invalid" = []}
-	
-	var walls_filtered : Dictionary = filter_walls(tiles, built_object)
-	
+
+	var walls_filtered  : Dictionary = filter_walls(tiles, built_object)
 	result.invalid.append_array(walls_filtered.invalid)
-	
+
 	var terrain_filtered : Dictionary = filter_terrain(walls_filtered.valid, built_object)
-	
 	result.invalid.append_array(terrain_filtered.invalid)
 	result.valid.append_array(terrain_filtered.valid)
-	
+
 	var ground_filtered : Dictionary = filter_ground(terrain_filtered.empty, built_object)
-	
 	result.invalid.append_array(ground_filtered.invalid)
 	result.valid.append_array(ground_filtered.valid)
-	
+
 	return result
 
 func filter_walls(tiles : Array, built_object : BuildableData) -> Dictionary:
+	if built_object.valid_walls_id.has(0):
+		return {"valid" = tiles, "invalid" = []}
+
 	var result : Dictionary = {"valid" = [], "invalid" = []}
+
 	for tile_coord in tiles:
-		if _layers.walls.get_cell_tile_data(tile_coord):
-			if built_object.valid_walls_id.has(_layers.walls.get_cell_tile_data(tile_coord).get_custom_data("id")):
-				result.valid.append(tile_coord)
-			else:
-				result.invalid.append(tile_coord)
-		elif built_object.valid_walls_id.has(-1):
+		var chunk_pos : Vector4i = _chunks_manager.world_coord_to_chunk_coord(tile_coord)
+		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
+		var cell : int = chunk.get_cell(
+			GlobalRef.tilemap_layers_enum.walls,
+			Vector2i(chunk_pos.z, chunk_pos.w)
+		)
+
+		if built_object.valid_walls_id.has(cell):
 			result.valid.append(tile_coord)
 		else:
 			result.invalid.append(tile_coord)
-	
+
 	return result
+
 
 func filter_terrain(tiles : Array, built_object : BuildableData) -> Dictionary:
 	var result : Dictionary = {"valid" = [], "invalid" = [], "empty" = []}
+
 	for tile_coord in tiles:
-		if _layers.terrain.get_cell_tile_data(tile_coord):
-			if built_object.valid_terrain_id.has(_layers.terrain.get_cell_tile_data(tile_coord).get_custom_data("id")):
-				result.valid.append(tile_coord)
+		var chunk_pos : Vector4i = _chunks_manager.world_coord_to_chunk_coord(tile_coord)
+		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
+		var cell : int = chunk.get_cell(
+			GlobalRef.tilemap_layers_enum.terrain,
+			Vector2i(chunk_pos.z, chunk_pos.w)
+		)
+
+		if built_object.valid_terrain_id.has(cell):
+			if cell == -1:
+				result.empty.append(tile_coord)
 			else:
-				result.invalid.append(tile_coord)
-		elif built_object.valid_terrain_id.has(-1):
-			result.empty.append(tile_coord)
+				result.valid.append(tile_coord)
 		else:
 			result.invalid.append(tile_coord)
-	
+
 	return result
+
 
 func filter_ground(tiles : Array, built_object : BuildableData) -> Dictionary:
 	var result : Dictionary = {"valid" = [], "invalid" = []}
+
 	for tile_coord in tiles:
-		if _layers.ground.get_cell_tile_data(tile_coord):
-			if built_object.valid_ground_id.has(_layers.ground.get_cell_tile_data(tile_coord).get_custom_data("id")):
-				result.valid.append(tile_coord)
-			else:
-				result.invalid.append(tile_coord)
-		elif built_object.valid_ground_id.has(-1):
+		var chunk_pos : Vector4i = _chunks_manager.world_coord_to_chunk_coord(tile_coord)
+		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
+		var cell : int = chunk.get_cell(
+			GlobalRef.tilemap_layers_enum.ground,
+			Vector2i(chunk_pos.z, chunk_pos.w)
+		)
+
+		if built_object.valid_ground_id.has(cell):
 			result.valid.append(tile_coord)
 		else:
 			result.invalid.append(tile_coord)
-	
+			print(cell)
+
 	return result
 
 #endregion
 
-#region Rect array manipulations
+
+#				 /$$$$$$$                           /$$
+#				| $$__  $$                         | $$
+#				| $$  \ $$   /$$$$$$    /$$$$$$$  /$$$$$$
+#				| $$$$$$$/  /$$__  $$  /$$_____/ |_  $$_/
+#				| $$__  $$ | $$$$$$$$ | $$         | $$
+#				| $$  \ $$ | $$_____/ | $$         | $$ /$$
+#				| $$  | $$ |  $$$$$$$ |  $$$$$$$   |  $$$$/
+#				|__/  |__/  \_______/  \_______/    \___/
+#
+#
+#
+#				                                      /$$                        /$$$
+#				                                     |__/                       /$$ $$
+#				 /$$$$$$/$$$$    /$$$$$$   /$$$$$$$   /$$   /$$$$$$            |  $$$
+#				| $$_  $$_  $$  |____  $$ | $$__  $$ | $$  /$$__  $$            /$$ $$/$$
+#				| $$ \ $$ \ $$   /$$$$$$$ | $$  \ $$ | $$ | $$  \ $$           | $$  $$_/
+#				| $$ | $$ | $$  /$$__  $$ | $$  | $$ | $$ | $$  | $$           | $$\  $$
+#				| $$ | $$ | $$ |  $$$$$$$ | $$  | $$ | $$ | $$$$$$$/  /$$      |  $$$$/$$
+#				|__/ |__/ |__/  \_______/ |__/  |__/ |__/ | $$____/  |__/       \____/\_/
+#				                                          | $$
+#				                                          | $$
+#				                                          |__/
+#				 /$$      /$$             /$$    /$$      /$$  /$$      /$$                        /$$
+#				| $$$    /$$$            | $$   | $$     |__/ | $$$    /$$$                       | $$
+#				| $$$$  /$$$$  /$$   /$$ | $$  /$$$$$$    /$$ | $$$$  /$$$$   /$$$$$$    /$$$$$$$ | $$$$$$$
+#				| $$ $$/$$ $$ | $$  | $$ | $$ |_  $$_/   | $$ | $$ $$/$$ $$  /$$__  $$  /$$_____/ | $$__  $$
+#				| $$  $$$| $$ | $$  | $$ | $$   | $$     | $$ | $$  $$$| $$ | $$$$$$$$ |  $$$$$$  | $$  \ $$
+#				| $$\  $ | $$ | $$  | $$ | $$   | $$ /$$ | $$ | $$\  $ | $$ | $$_____/  \____  $$ | $$  | $$
+#				| $$ \/  | $$ |  $$$$$$/ | $$   |  $$$$/ | $$ | $$ \/  | $$ |  $$$$$$$  /$$$$$$$/ | $$  | $$
+#				|__/     |__/  \______/  |__/    \___/   |__/ |__/     |__/  \_______/ |_______/  |__/  |__/
+
+#region Rect_Array_Manipulations
 @warning_ignore_start("int_as_enum_without_cast")
+
 func _get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : bool = false) -> Array:
-	var points = []
-	var w : int = selection_rect.size.x
-	var h : int = selection_rect.size.y
-	
-	var min_x : int = selection_rect.position.x
-	var min_y : int = selection_rect.position.y
-	var max_x : int = min_x + w
-	var max_y : int = min_y + h
-	
+	var points := []
+	var w := selection_rect.size.x
+	var h := selection_rect.size.y
+
+	var min_x := selection_rect.position.x
+	var min_y := selection_rect.position.y
+	var max_x := min_x + w
+	var max_y := min_y + h
+
+	# Single tile
 	if w == 0 and h == 0:
-		return [{"coords" = Vector2i(min_x,min_y), "mask" = _tile_neigbors.CENTER}]
-	
+		return [{"coords" = Vector2i(min_x, min_y), "mask" = _tile_neigbors.CENTER}]
+
+	# Horizontal line
 	if h == 0:
 		for x in range(min_x, max_x + 1):
 			var mask = _tile_neigbors.CENTER
@@ -119,7 +230,8 @@ func _get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : 
 			if x > min_x: mask |= _tile_neigbors.RIGHT
 			points.append({"coords" = Vector2i(x,min_y), "mask" = mask})
 		return points
-	
+
+	# Vertical line
 	if w == 0:
 		for y in range(min_y, max_y + 1):
 			var mask = _tile_neigbors.CENTER
@@ -127,124 +239,178 @@ func _get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : 
 			if y > min_y: mask |= _tile_neigbors.TOP
 			points.append({"coords" = Vector2i(min_x, y), "mask" = mask})
 		return points
-	
+
+	# Filled rectangle or line-like
 	if h == 1 or w == 1 or is_filled:
 		for x in range(min_x, max_x + 1):
 			for y in range(min_y, max_y + 1):
 				var mask = 0b111111111
 				if x == min_x: mask &= ~(_tile_neigbors.TOP_RIGHT | _tile_neigbors.RIGHT | _tile_neigbors.BOTTOM_RIGHT)
-				if x == max_x: mask &= ~(_tile_neigbors.TOP_LEFT | _tile_neigbors.LEFT | _tile_neigbors.BOTTOM_LEFT)
+				if x == max_x: mask &= ~(_tile_neigbors.TOP_LEFT  | _tile_neigbors.LEFT  | _tile_neigbors.BOTTOM_LEFT)
 				if y == max_y: mask &= ~(_tile_neigbors.BOTTOM_LEFT | _tile_neigbors.BOTTOM | _tile_neigbors.BOTTOM_RIGHT)
 				if y == min_y: mask &= ~(_tile_neigbors.TOP_LEFT | _tile_neigbors.TOP | _tile_neigbors.TOP_RIGHT)
 				points.append({"coords" = Vector2i(x, y), "mask" = mask})
 		return points
-	
+
+	# Border rectangle
 	for x in range(min_x, max_x + 1):
 		var mask = _tile_neigbors.CENTER
 		if x < max_x: mask |= _tile_neigbors.LEFT
 		if x > min_x: mask |= _tile_neigbors.RIGHT
+
 		if x == max_x or x == min_x:
 			points.append({"coords" = Vector2i(x, min_y), "mask" = mask | _tile_neigbors.BOTTOM})
 			points.append({"coords" = Vector2i(x, max_y), "mask" = mask | _tile_neigbors.TOP})
 		else:
 			points.append({"coords" = Vector2i(x, min_y), "mask" = mask})
 			points.append({"coords" = Vector2i(x, max_y), "mask" = mask})
-	
+
 	for y in range(min_y + 1, max_y):
 		var mask = _tile_neigbors.CENTER
 		if y < max_y: mask |= _tile_neigbors.BOTTOM
 		if y > min_y: mask |= _tile_neigbors.TOP
+
 		points.append({"coords" = Vector2i(min_x, y), "mask" = mask})
 		points.append({"coords" = Vector2i(max_x, y), "mask" = mask})
-	
+
 	return points
+
 @warning_ignore_restore("int_as_enum_without_cast")
+
 
 func _neighbor_array_to_map_rect_array(neighbor_array : Array, texture_data : BuildableTextureData) -> Array:
 	var output := []
 	assert(texture_data, "There must be a texture data here!")
+
 	for pair in neighbor_array:
-		output.append({"coords" = pair.coords, "rect" = texture_data.get_terrain_tile_rect(pair.mask)})
+		output.append({
+			"coords" = pair.coords,
+			"rect"   = texture_data.get_terrain_tile_rect(pair.mask)
+		})
+
 	return output
 
 #endregion
 
-#region Input processing and multimesh parsing
-#func handle_rotation() -> void :
-	#var _click = $"../TileMap".local_to_map($"../TileMap".get_global_mouse_position())
-	#var tile_data = $"../../TileMap/walls".get_cell_tile_data(_click)
-	#if tile_data:
-		#var current_rot = $"../../TileMap/walls".get_cell_atlas_coords(_click)
-		#var next_rot = Global.class_reference[tile_data.get_custom_data("class_reference")].rotations[wrapi(Global.class_reference[tile_data.get_custom_data("class_reference")].rotations.find(current_rot) + 1, 0, Global.class_reference[tile_data.get_custom_data("class_reference")].rotations.size())]
-		#$"../../TileMap/walls".set_cell(_click, $"../../TileMap/walls".get_cell_source_id(_click), next_rot)
-		#if Global.class_reference[tile_data.get_custom_data("class_reference")] is Global.BuildableLightSource:
-			#get_node("../TileMap/%s" % var_to_str(_click)).rotate(Global.class_reference[tile_data.get_custom_data("class_reference")].radians_per_alternative)
 
-func _on_input_handler_region_selected(_rect: Rect2i, _click_2: Vector2i) -> void:
+#				 /$$$$$$                                     /$$            /$$$
+#				|_  $$_/                                    | $$           /$$ $$
+#				  | $$    /$$$$$$$    /$$$$$$   /$$   /$$  /$$$$$$        |  $$$
+#				  | $$   | $$__  $$  /$$__  $$ | $$  | $$ |_  $$_/         /$$ $$/$$
+#				  | $$   | $$  \ $$ | $$  \ $$ | $$  | $$   | $$          | $$  $$_/
+#				  | $$   | $$  | $$ | $$  | $$ | $$  | $$   | $$ /$$      | $$\  $$
+#				 /$$$$$$ | $$  | $$ | $$$$$$$/ |  $$$$$$/   |  $$$$/      |  $$$$/$$
+#				|______/ |__/  |__/ | $$____/   \______/     \___/         \____/\_/
+#				                    | $$
+#				                    | $$
+#				                    |__/
+#				 /$$$$$$$                                     /$$
+#				| $$__  $$                                   |__/
+#				| $$  \ $$   /$$$$$$    /$$$$$$   /$$    /$$  /$$   /$$$$$$   /$$  /$$  /$$
+#				| $$$$$$$/  /$$__  $$  /$$__  $$ |  $$  /$$/ | $$  /$$__  $$ | $$ | $$ | $$
+#				| $$____/  | $$  \__/ | $$$$$$$$  \  $$/$$/  | $$ | $$$$$$$$ | $$ | $$ | $$
+#				| $$       | $$       | $$_____/   \  $$$/   | $$ | $$_____/ | $$ | $$ | $$
+#				| $$       | $$       |  $$$$$$$    \  $/    | $$ |  $$$$$$$ |  $$$$$/$$$$/
+#				|__/       |__/        \_______/     \_/     |__/  \_______/  \_____/\___/
+
+
+#region Input_Processing
+
+func _on_input_handler_region_selected(_rect: Rect2i) -> void:
 	_multimesh_manager.erase_mesh_instances()
 	if _current_item:
-		fill_array(_filled_array, _current_item, true)
+		fill_array(filter_tiles(_filled_array, _current_item).valid, _current_item, true)
+
 
 func _on_input_handler_region_updated(rect: Rect2i) -> void:
-	if _current_item and _current_item.is_terrain():
+	if _current_item and _current_item.texture_params.can_autotile:
+
 		var neighbors = _get_rect_border_points_and_neighbors(
 			rect,
 			_current_item.selection_filled
 		)
-		
+
 		var rects = _neighbor_array_to_map_rect_array(
 			neighbors,
 			_current_item.texture_params
 		)
-		
+
 		_filled_array = rects.map(func(pair): return pair.coords)
 		var filtered_coords_dict : Dictionary = filter_tiles(_filled_array, _current_item)
+
 		var filtered_grect_dict : Dictionary = {"valid" = [], "invalid" = []}
+
+		# Convert coords to world + attach rect
 		filtered_grect_dict.valid = filtered_coords_dict.valid.map(
 			func(coord): return {
 				"coords" = _tilemap.map_to_local(coord),
-				"rect" = rects[rects.find_custom(func(element): return element.coords == coord)].rect}
-			)
+				"rect" = rects[rects.find_custom(func(e): return e.coords == coord)].rect
+			}
+		)
+
 		filtered_grect_dict.invalid = filtered_coords_dict.invalid.map(
 			func(coord): return {
 				"coords" = _tilemap.map_to_local(coord),
-				"rect" = rects[rects.find_custom(func(element): return element.coords == coord)].rect}
-			)
+				"rect" = rects[rects.find_custom(func(e): return e.coords == coord)].rect
+			}
+		)
+
 		_multimesh_manager.create_mesh_instances(filtered_grect_dict)
+
 
 func _on_ui_manager_building_selected(id: int) -> void:
 	_current_item = BuildableDB.get_tile(id)
-	GlobalLogger.write_to_logs(self, "Selected building with id: %d" %id)
-	_multimesh_manager.set_multimesh_texture(_current_item.texture_params.texture if _current_item.texture_params else _default_selection_texture)
+	GlobalLogger.write_to_logs(self, "Selected building with id: %d" % id)
+
+	var tex = (
+		_current_item.texture_params.texture
+		if _current_item.texture_params
+		else _default_selection_texture
+	)
+
+	_multimesh_manager.set_multimesh_texture(tex)
+
 #endregion
+
+
+#				 /$$$$$$$              /$$        /$$  /$$
+#				| $$__  $$            | $$       | $$ |__/
+#				| $$  \ $$  /$$   /$$ | $$$$$$$  | $$  /$$   /$$$$$$$
+#				| $$$$$$$/ | $$  | $$ | $$__  $$ | $$ | $$  /$$_____/
+#				| $$____/  | $$  | $$ | $$  \ $$ | $$ | $$ | $$
+#				| $$       | $$  | $$ | $$  | $$ | $$ | $$ | $$
+#				| $$       |  $$$$$$/ | $$$$$$$/ | $$ | $$ |  $$$$$$$
+#				|__/        \______/  |_______/  |__/ |__/  \_______/
+#
+#
+#
+#				  /$$$$$$   /$$$$$$$   /$$$$$$
+#				 /$$__  $$ | $$__  $$ |_  $$_/
+#				| $$  \ $$ | $$  \ $$   | $$
+#				| $$$$$$$$ | $$$$$$$/   | $$
+#				| $$__  $$ | $$____/    | $$
+#				| $$  | $$ | $$         | $$
+#				| $$  | $$ | $$        /$$$$$$
+#				|__/  |__/ |__/       |______/
 
 signal objects_built(object_id : int, coord_array : Array, queued : bool)
 
-#region Public functions
-	#region Docs
-	## Fills an area with either terrain tiles or regular tiles,
-	## depending on the given BuildableData configuration. [br][br]
-	##
-	## [param tiles] : List of tile coordinates to fill.[br]
-	## [param built_object] : Data object describing the buildable type and parameters.[br]
-	## [param queued] : If true, places tiles in the queued layer instead of the main one.
-	#endregion
+#region Public_Functions
 
+## Fills an area with either terrain tiles or regular tiles.
 func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void:
-	GlobalLogger.write_to_logs(self, "Filling array with tile id: %d, on layer: %d, with coord array: %s. Queued: %s" %[built_object.id, built_object.layer, str(tiles), str(queued)])
-	var layer: TileMapLayer = (
-		get_node(GlobalRef.get_tilemap_layer_path(built_object.queued_layer)) if queued
-		else get_node(GlobalRef.get_tilemap_layer_path(built_object.layer))
+
+	GlobalLogger.write_to_logs(
+		self,
+		"Filling array with tile id: %d, on layer: %d. Coords: %s. Queued: %s"
+		% [built_object.id, built_object.layer, str(tiles), str(queued)]
 	)
-	var type_params = built_object.type_params
-	if built_object.is_terrain():
-		layer.set_cells_terrain_connect(
-			tiles,
-			type_params.terrain_set,
-			type_params.terrain_id
-		)
-	else:
-		for coord in tiles:
-			layer.set_cell(coord, type_params.source_id, type_params.atlas_coords)
+
+	for coord in tiles:
+		var chunk_coords : Vector4i = _chunks_manager.world_coord_to_chunk_coord(coord)
+		GlobalRef.get_chunk(Vector2i(chunk_coords.x, chunk_coords.y)).set_cell(built_object.id, Vector2i(chunk_coords.z, chunk_coords.w))
+
+
 	objects_built.emit(built_object.id, tiles, queued)
+
 #endregion

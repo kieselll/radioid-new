@@ -10,7 +10,6 @@ func _ready() -> void :
 	var buildings: = ResourceLoader.list_directory("res://resources/buildings/")
 	for i in buildings:
 		var buildable_data: BuildableData = load("res://resources/buildings/" + i)
-		print("res://resources/buildings/" + i)
 		objects[buildable_data.id] = buildable_data
 
 ## Gets the [BuildableData] resource by its [member BuildableData.id]. Returns [null] if the id is nonexistent and pushes a warning.
