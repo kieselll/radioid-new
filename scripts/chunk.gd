@@ -318,8 +318,6 @@ func _detect_neighbors(layer : GlobalRef.tilemap_layers_enum, coords : Vector2i)
 		if chunk == null:
 			continue
 
-		print("Comparing %d at %v to %d at %v. Offset: %v" %[chunk.get_cell(layer, o), o, chunk.get_cell(layer, coords), coords, offsets[i]])
-
 		if chunk.get_cell(layer, o) == get_cell(layer, coords):
 			result |= 1 << i
 
@@ -336,7 +334,6 @@ func _detect_neighbors(layer : GlobalRef.tilemap_layers_enum, coords : Vector2i)
 	if not ((result & (1<<7)) and (result & (1<<5))):
 		result &= ~(1<<8)
 
-	print(result)
 	return result
 
 

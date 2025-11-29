@@ -290,6 +290,7 @@ rects = [NodePath("../../Control/CanvasLayer/selection_buttons_rect/HBoxContaine
 [node name="chunks" type="Node" parent="handlers"]
 
 [node name="ChunkManager" type="Node" parent="handlers/chunks" node_paths=PackedStringArray("cam")]
+process_mode = 3
 script = ExtResource("14_pr1ej")
 cam = NodePath("../../../Camera2D")
 chunk_scene = ExtResource("15_05nbr")

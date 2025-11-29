@@ -1,13 +1,14 @@
 extends Node2D
 
-@onready var _tilemap : TileMap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
-@onready var _ui_manager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.ui_manager))
+var _tilemap
+var _ui_manager
 
 var _keyboard_input_allowed : bool = true
 var _mouse_input_allowed : bool = true
 var _click_1 = null
 var _click_2 = null
 var _prev_mouse_map_pos = null
+var _prev_scene = ""
 
 var current_item : BuildableData
 
@@ -22,22 +23,37 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_F5:
 			DebugMenu.visible = not DebugMenu.visible
 			_keyboard_input_allowed = not DebugMenu.visible
+		elif event.keycode == KEY_ESCAPE:
+			GlobalLogger.write_to_logs(self, "Pause menu is opened")
+			$/root/GameRoot/Control/popup_layer/pause_menu.show()
+			$/root/GameRoot/Control/popup_layer/Panel3.show()
+			get_tree().paused = true
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_F1:
+			if $/root/GameRoot/Control/CanvasLayer.visible:
+				GlobalLogger.write_to_logs(self, "UI was hidden")
+				$/root/GameRoot/Control/CanvasLayer.hide()
+			else:
+				GlobalLogger.write_to_logs(self, "UI was shown")
+				$/root/GameRoot/Control/CanvasLayer.show()
+
 
 func _physics_process(delta: float) -> void:
+	if get_tree().current_scene and _prev_scene != get_tree().current_scene.name and get_tree().current_scene.name == "GameRoot":
+		_ui_manager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.ui_manager))
+		_tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
 	if _mouse_input_allowed:
 		_handle_mouse_motion()
-	if Input.is_action_pressed("up"):
-		if _keyboard_input_allowed:
-			movement_key_pressed.emit(Vector2i.UP, delta)
-	if Input.is_action_pressed("left"):
-		if _keyboard_input_allowed:
-			movement_key_pressed.emit(Vector2i.LEFT, delta)
-	if Input.is_action_pressed("down"):
-		if _keyboard_input_allowed:
-			movement_key_pressed.emit(Vector2i.DOWN, delta)
-	if Input.is_action_pressed("right"):
-		if _keyboard_input_allowed:
-			movement_key_pressed.emit(Vector2i.RIGHT, delta)
+	if _keyboard_input_allowed:
+		if Input.is_action_pressed("up"):
+				movement_key_pressed.emit(Vector2i.UP, delta)
+		if Input.is_action_pressed("left"):
+				movement_key_pressed.emit(Vector2i.LEFT, delta)
+		if Input.is_action_pressed("down"):
+				movement_key_pressed.emit(Vector2i.DOWN, delta)
+		if Input.is_action_pressed("right"):
+				movement_key_pressed.emit(Vector2i.RIGHT, delta)
+
 
 func _handle_mouse_motion() -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _click_1:

@@ -17,7 +17,7 @@ class QueuedAction:
 	var action_name : StringName
 	var priority : float
 	var args : Dictionary
-	
+
 	func _init(_action_name : StringName, _priority : float, _args : Dictionary = {}) -> void:
 		action_name = _action_name
 		priority = _priority
