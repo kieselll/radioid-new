@@ -204,7 +204,7 @@ corner_radius_bottom_left = 2
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_piek7"]
 shader = ExtResource("38_s0g06")
-shader_parameter/lod = 1.318
+shader_parameter/lod = 0.90000004275
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mp8vi"]
 bg_color = Color(0, 0, 0, 0.876)
@@ -630,6 +630,7 @@ process_mode = 3
 [node name="pause_menu" type="PanelContainer" parent="Control/popup_layer"]
 process_mode = 3
 visible = false
+modulate = Color(1, 1, 1, 0)
 z_index = 5
 custom_minimum_size = Vector2(300, 150)
 anchors_preset = 8
@@ -761,7 +762,6 @@ characteristics = SubResource("Resource_pr1ej")
 [connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
 [connection signal="button_down" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_down"]
 [connection signal="button_up" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_up"]
-[connection signal="pressed" from="Control/popup_layer/pause_menu/VBoxContainer/resume_button" to="handlers/paused_process_handler" method="_on_resume_button_pressed"]
 [connection signal="pressed" from="Control/popup_layer/pause_menu/VBoxContainer/options_button" to="handlers/paused_process_handler" method="_on_options_button_pressed"]
 [connection signal="pressed" from="Control/popup_layer/pause_menu/VBoxContainer/main_menu_button" to="handlers/paused_process_handler" method="_on_main_menu_button_pressed"]
 [connection signal="pressed" from="Control/popup_layer/pause_menu/VBoxContainer/exit_button" to="handlers/paused_process_handler" method="_on_exit_button_pressed"]

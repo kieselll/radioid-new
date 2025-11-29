@@ -16,6 +16,10 @@ signal region_selected(rect : Rect2i, _click_2 : Vector2i)
 signal region_updated(rect : Rect2i)
 signal movement_key_pressed(direction : Vector2i, delta : float)
 
+func _ready():
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	$/root/GameRoot/Control/popup_layer/pause_menu/VBoxContainer/resume_button.pressed.connect(_on_resume_button_pressed)
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and _mouse_input_allowed:
 		_handle_mouse_button(event)
@@ -24,11 +28,10 @@ func _input(event: InputEvent) -> void:
 			DebugMenu.visible = not DebugMenu.visible
 			_keyboard_input_allowed = not DebugMenu.visible
 		elif event.keycode == KEY_ESCAPE:
-			GlobalLogger.write_to_logs(self, "Pause menu is opened")
-			$/root/GameRoot/Control/popup_layer/pause_menu.show()
-			$/root/GameRoot/Control/popup_layer/Panel3.show()
-			get_tree().paused = true
-			get_viewport().set_input_as_handled()
+			if not $/root/GameRoot/Control/popup_layer/Panel3.visible:
+				show_pause()
+			else:
+				hide_pause()
 		elif event.keycode == KEY_F1:
 			if $/root/GameRoot/Control/CanvasLayer.visible:
 				GlobalLogger.write_to_logs(self, "UI was hidden")
@@ -53,7 +56,6 @@ func _physics_process(delta: float) -> void:
 				movement_key_pressed.emit(Vector2i.DOWN, delta)
 		if Input.is_action_pressed("right"):
 				movement_key_pressed.emit(Vector2i.RIGHT, delta)
-
 
 func _handle_mouse_motion() -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _click_1:
@@ -81,3 +83,30 @@ func set_keyboard_input_allowed(allowed : bool):
 
 func set_mouse_input_allowed(allowed : bool):
 	_mouse_input_allowed = allowed
+
+func show_pause():
+	_keyboard_input_allowed = false
+	_mouse_input_allowed = false
+	GlobalLogger.write_to_logs(self, "Pause menu is opened")
+	$/root/GameRoot/Control/popup_layer/pause_menu.show()
+	var pause_tween = create_tween().set_trans(Tween.TRANS_LINEAR).parallel()
+	pause_tween.tween_property($/root/GameRoot/Control/popup_layer/pause_menu, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.5)
+	$/root/GameRoot/Control/popup_layer/Panel3.show()
+	get_tree().paused = true
+	get_viewport().set_input_as_handled()
+
+func hide_pause():
+	_keyboard_input_allowed = true
+	_mouse_input_allowed = true
+	GlobalLogger.write_to_logs(self, "Pause menu is closed")
+	var pause_tween = create_tween().set_trans(Tween.TRANS_LINEAR).parallel()
+	pause_tween.tween_property($/root/GameRoot/Control/popup_layer/pause_menu, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.5)
+	await pause_tween.finished
+	$/root/GameRoot/Control/popup_layer/pause_menu.hide()
+	$/root/GameRoot/Control/popup_layer/Panel3.hide()
+	$/root/GameRoot/Control/popup_layer/save_confirmation_menu.hide()
+	get_tree().paused = false
+	get_viewport().set_input_as_handled()
+
+func _on_resume_button_pressed():
+	hide_pause()
