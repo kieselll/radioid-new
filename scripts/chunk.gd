@@ -38,6 +38,15 @@ const offsets : Array = [
 	Vector2i(-1,-1), Vector2i(0,-1), Vector2i(1,-1),
 ]
 
+const layer_colors : Dictionary[GlobalRef.tilemap_layers_enum, Color] = {
+	GlobalRef.tilemap_layers_enum.ground : Color.WHITE,
+	GlobalRef.tilemap_layers_enum.terrain : Color.WHITE,
+	GlobalRef.tilemap_layers_enum.walls : Color.WHITE,
+	GlobalRef.tilemap_layers_enum.terrain_queued : Color(0.418, 0.72, 0.705, 0.702),
+	GlobalRef.tilemap_layers_enum.walls_queued : Color(0.418, 0.72, 0.705, 0.702),
+	GlobalRef.tilemap_layers_enum.terrain_queued_d : Color(0.69, 0.276, 0.276, 0.7),
+	GlobalRef.tilemap_layers_enum.walls_queued_d : Color(0.69, 0.276, 0.276, 0.7),
+}
 #endregion
 
 
@@ -47,11 +56,13 @@ const offsets : Array = [
 class NewCell:
 	var id: int
 	var coords: Vector2i
+	var layer: GlobalRef.tilemap_layers_enum
 
 	@warning_ignore("shadowed_variable")
-	func _init(id : int, coords : Vector2i) -> void:
+	func _init(id : int, coords : Vector2i, layer : GlobalRef.tilemap_layers_enum) -> void:
 		self.id = id
 		self.coords = coords
+		self.layer = layer
 
 #endregion
 
@@ -147,8 +158,8 @@ func _process(_delta: float) -> void:
 #region Public_API
 
 ## Queues a tile for placement or replacement.
-func set_cell(id : int, coords : Vector2i) -> void:
-	_new_cells.append(NewCell.new(id, coords))
+func set_cell(id : int, coords : Vector2i, queued : bool = true) -> void:
+	_new_cells.append(NewCell.new(id, coords, BuildableDB.get_tile(id).queued_layer if queued else BuildableDB.get_tile(id).layer))
 	set_process(true)
 
 #endregion
@@ -269,7 +280,8 @@ func _create_multimesh(cell : NewCell):
 
 	mm.multimesh = MultiMesh.new()
 	mm.multimesh.use_custom_data = true
-	mm.material = base_material
+	mm.material = base_material.duplicate_deep(Resource.DEEP_DUPLICATE_ALL)
+	mm.material.set_shader_parameter("selection_color", layer_colors[cell.layer])
 
 	var mesh = QuadMesh.new()
 	mesh.size = BuildableDB.get_tile(cell.id).texture_params.cell_size

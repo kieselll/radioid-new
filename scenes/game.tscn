@@ -82,7 +82,7 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xbjxg"]
 shader = SubResource("Shader_mgshk")
-shader_parameter/selection_color = Color(0, 0.827451, 0.827451, 0.54902)
+shader_parameter/selection_color = Color(0.32, 1, 0.51266664, 0.54901963)
 
 [sub_resource type="QuadMesh" id="QuadMesh_mgshk"]
 size = Vector2(32, 32)
