@@ -1,3 +1,4 @@
+@icon("res://textures/editor_icons/cube.svg")
 class_name BuildableData
 extends Resource
 ## Resource that holds the data for a buildable object.

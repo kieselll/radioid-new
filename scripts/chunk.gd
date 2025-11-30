@@ -158,9 +158,10 @@ func _process(_delta: float) -> void:
 #region Public_API
 
 ## Queues a tile for placement or replacement.
-func set_cell(id : int, coords : Vector2i, queued : bool = true) -> void:
+func set_cell(id : int, coords : Vector2i, queued : bool, deferred : bool = false) -> void:
 	_new_cells.append(NewCell.new(id, coords, BuildableDB.get_tile(id).queued_layer if queued else BuildableDB.get_tile(id).layer))
-	set_process(true)
+	if not deferred: set_process(true)
+	else: call_deferred("_update")
 
 #endregion
 

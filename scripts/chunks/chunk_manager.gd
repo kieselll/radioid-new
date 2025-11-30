@@ -6,6 +6,7 @@ class_name ChunkManager
 @export var chunk_scene : PackedScene
 var chunks : Dictionary[Vector2i, Node]
 var load_queue : Array[Vector2i]
+var unload_queue : Array[Vector2i]
 var current_chunk : Vector2i
 var old_chunk : Vector2i
 var world_seed = randi()
@@ -42,7 +43,7 @@ func generate_new_layer(coords : Vector2i, layer : GlobalRef.tilemap_layers_enum
 				tile_array[i][j] = -1
 	return tile_array
 
-func generate_new_chunk(coords : Vector2i, _seed) -> Chunk:
+func generate_new_chunk(coords : Vector2i, _seed : int) -> Chunk:
 	var chunk = Chunk.new()
 	chunk.ground_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.ground, _seed)
 	chunk.terrain_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.terrain, _seed)
@@ -53,18 +54,39 @@ func generate_new_chunk(coords : Vector2i, _seed) -> Chunk:
 	chunk.wall_queued_d_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.walls_queued_d, _seed)
 	return chunk
 
+func instantiate_chunk(coords : Vector2i, _seed : int) -> void:
+	var new_chunk : Chunk
+	var chunk_node : Node2D
+	new_chunk = generate_new_chunk(coords, _seed)
+	chunk_node = chunk_scene.instantiate()
+	tilemap.add_child(chunk_node)
+	chunks[coords] = chunk_node
+	chunk_node.position = (coords) * CHUNK_SIZE * 32 + Vector2i(16,16)
+	GlobalRef.add_chunk(coords, chunk_node)
+
+	print(chunk_node.is_node_ready())
+
+	@warning_ignore("integer_division")
+	for i in CHUNK_SIZE:
+		for j in CHUNK_SIZE:
+			chunk_node.set_cell(new_chunk.ground_layer[i][j], Vector2i(i, j), false, true)
+			chunk_node.set_cell(new_chunk.terrain_layer[i][j], Vector2i(i, j), false, true)
+			chunk_node.set_cell(new_chunk.wall_layer[i][j], Vector2i(i, j), false, true)
+			chunk_node.set_cell(new_chunk.terrain_queued_layer[i][j], Vector2i(i, j), false, true)
+			chunk_node.set_cell(new_chunk.wall_queued_layer[i][j], Vector2i(i, j), false, true)
+			chunk_node.set_cell(new_chunk.terrain_queued_d_layer[i][j], Vector2i(i, j), false, true)
+			chunk_node.set_cell(new_chunk.wall_queued_d_layer[i][j], Vector2i(i, j), false, true)
+
 func _ready() -> void:
+	var gen_chunk_x := 0
+	var gen_chunk_y := 0
+	var coord_x := 0
+	var coord_y := 0
+	var new_chunk : Chunk = null
+	var chunk_node : Node2D
 	tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
 
-var gen_chunk_x := 0
-var gen_chunk_y := 0
-var coord_x := 0
-var coord_y := 0
-var new_chunk : Chunk
-var chunk_node : Node2D
-
-func _process(_delta: float) -> void:
-	if gen_chunk_x != render_distance and gen_chunk_y != render_distance:
+	while gen_chunk_x != render_distance and gen_chunk_y != render_distance:
 		if not new_chunk and not chunks.has(Vector2i(gen_chunk_x, gen_chunk_y)):
 			new_chunk = generate_new_chunk(Vector2i(gen_chunk_x, gen_chunk_y), world_seed)
 			chunk_node = chunk_scene.instantiate()
@@ -74,13 +96,13 @@ func _process(_delta: float) -> void:
 
 			@warning_ignore("integer_division")
 			for i in CHUNK_SIZE*CHUNK_SIZE:
-				chunk_node.set_cell(new_chunk.ground_layer[coord_x][coord_y], Vector2i(coord_x, coord_y))
-				chunk_node.set_cell(new_chunk.terrain_layer[coord_x][coord_y], Vector2i(coord_x, coord_y))
-				chunk_node.set_cell(new_chunk.wall_layer[coord_x][coord_y], Vector2i(coord_x, coord_y))
-				chunk_node.set_cell(new_chunk.terrain_queued_layer[coord_x][coord_y], Vector2i(coord_x, coord_y))
-				chunk_node.set_cell(new_chunk.wall_queued_layer[coord_x][coord_y], Vector2i(coord_x, coord_y))
-				chunk_node.set_cell(new_chunk.terrain_queued_d_layer[coord_x][coord_y], Vector2i(coord_x, coord_y))
-				chunk_node.set_cell(new_chunk.wall_queued_d_layer[coord_x][coord_y], Vector2i(coord_x, coord_y))
+				chunk_node.set_cell(new_chunk.ground_layer[coord_x][coord_y], Vector2i(coord_x, coord_y), false, true)
+				chunk_node.set_cell(new_chunk.terrain_layer[coord_x][coord_y], Vector2i(coord_x, coord_y), false, true)
+				chunk_node.set_cell(new_chunk.wall_layer[coord_x][coord_y], Vector2i(coord_x, coord_y), false, true)
+				chunk_node.set_cell(new_chunk.terrain_queued_layer[coord_x][coord_y], Vector2i(coord_x, coord_y), false, true)
+				chunk_node.set_cell(new_chunk.wall_queued_layer[coord_x][coord_y], Vector2i(coord_x, coord_y), false, true)
+				chunk_node.set_cell(new_chunk.terrain_queued_d_layer[coord_x][coord_y], Vector2i(coord_x, coord_y), false, true)
+				chunk_node.set_cell(new_chunk.wall_queued_d_layer[coord_x][coord_y], Vector2i(coord_x, coord_y), false, true)
 
 				if coord_x + 1 == CHUNK_SIZE:
 					coord_x = 0
@@ -96,23 +118,39 @@ func _process(_delta: float) -> void:
 							gen_chunk_y += 1
 						else:
 							gen_chunk_x += 1
-						return
 				else:
 					coord_x += 1
-	else:
-		new_chunk = null
-		print(Time.get_ticks_msec())
-		print(gen_chunk_x, " ", gen_chunk_y)
-		set_process(false)
+	new_chunk = null
+	print(Time.get_ticks_msec())
+	print(gen_chunk_x, " ", gen_chunk_y)
 
-#func _physics_process(_delta: float) -> void:
-	#current_chunk = (Vector2(cam.position)/(CHUNK_SIZE * 32)).floor()
-	#if old_chunk == null or old_chunk != current_chunk:
-		#current_chunk_changed.emit(current_chunk)
-		#set_process(true)
-		#gen_chunk_x = current_chunk.x
-		#gen_chunk_y = current_chunk.y
-		#old_chunk = current_chunk
+func _process(_delta: float) -> void:
+	if not unload_queue.is_empty():
+		chunks[unload_queue[-1]].queue_free()
+		unload_queue.remove_at(-1)
+	if not load_queue.is_empty():
+		instantiate_chunk(load_queue[-1], world_seed)
+		load_queue.remove_at(-1)
+		return
+	set_process(false)
+
+func _physics_process(_delta: float) -> void:
+	var chunk_cam_coords : Vector4i = world_coord_to_chunk_coord(get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap)).local_to_map(cam.position))
+	current_chunk = Vector2i(chunk_cam_coords.x, chunk_cam_coords.y)
+	if old_chunk == null or old_chunk != current_chunk:
+		current_chunk_changed.emit(current_chunk)
+		old_chunk = current_chunk
+		for i in chunks.keys():
+			@warning_ignore("integer_division")
+			if not Rect2i(current_chunk - Vector2i(render_distance/2, render_distance/2), Vector2i(render_distance, render_distance)):
+				unload_queue.append(i)
+		for i in render_distance:
+			for j in render_distance:
+				@warning_ignore("integer_division")
+				if not chunks.has(Vector2i(i, j) + current_chunk - Vector2i(render_distance/2, render_distance/2)) and not load_queue.has(Vector2i(i, j) + current_chunk - Vector2i(render_distance/2, render_distance/2)):
+					@warning_ignore("integer_division")
+					load_queue.append(Vector2i(i, j) + current_chunk - Vector2i(render_distance/2, render_distance/2))
+		set_process(true)
 
 func chunk_coord_to_world_coord(chunk_coords : Vector4i) -> Vector2i:
 	return Vector2i(
