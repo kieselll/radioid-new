@@ -64,8 +64,6 @@ func instantiate_chunk(coords : Vector2i, _seed : int) -> void:
 	chunk_node.position = (coords) * CHUNK_SIZE * 32 + Vector2i(16,16)
 	GlobalRef.add_chunk(coords, chunk_node)
 
-	print(chunk_node.is_node_ready())
-
 	@warning_ignore("integer_division")
 	for i in CHUNK_SIZE:
 		for j in CHUNK_SIZE:
@@ -121,12 +119,11 @@ func _ready() -> void:
 				else:
 					coord_x += 1
 	new_chunk = null
-	print(Time.get_ticks_msec())
-	print(gen_chunk_x, " ", gen_chunk_y)
 
 func _process(_delta: float) -> void:
-	if not unload_queue.is_empty():
+	if not unload_queue.is_empty() and chunks.has(unload_queue[-1]) and is_instance_valid(chunks[unload_queue[-1]]):
 		chunks[unload_queue[-1]].queue_free()
+		chunks.erase(unload_queue[-1])
 		unload_queue.remove_at(-1)
 	if not load_queue.is_empty():
 		instantiate_chunk(load_queue[-1], world_seed)
@@ -142,7 +139,7 @@ func _physics_process(_delta: float) -> void:
 		old_chunk = current_chunk
 		for i in chunks.keys():
 			@warning_ignore("integer_division")
-			if not Rect2i(current_chunk - Vector2i(render_distance/2, render_distance/2), Vector2i(render_distance, render_distance)):
+			if not Rect2i(current_chunk - Vector2i(render_distance/2, render_distance/2), Vector2i(render_distance, render_distance)).has_point(i):
 				unload_queue.append(i)
 		for i in render_distance:
 			for j in render_distance:

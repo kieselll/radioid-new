@@ -408,7 +408,7 @@ func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void
 
 	for coord in tiles:
 		var chunk_coords : Vector4i = _chunks_manager.world_coord_to_chunk_coord(coord)
-		GlobalRef.get_chunk(Vector2i(chunk_coords.x, chunk_coords.y)).set_cell(built_object.id, Vector2i(chunk_coords.z, chunk_coords.w))
+		GlobalRef.get_chunk(Vector2i(chunk_coords.x, chunk_coords.y)).set_cell(built_object.id, Vector2i(chunk_coords.z, chunk_coords.w), queued)
 
 
 	objects_built.emit(built_object.id, tiles, queued)

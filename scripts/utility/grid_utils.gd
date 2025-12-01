@@ -23,12 +23,12 @@ func get_neighbor_tiles(pos: Vector2, is_map: = false) -> Array:
 	var output = []
 
 	var offsets = [
-		Vector2(1, 1), Vector2(1, 0), Vector2(1, -1), 
-		Vector2(0, 1), Vector2(0, -1), 
+		Vector2(1, 1), Vector2(1, 0), Vector2(1, -1),
+		Vector2(0, 1), Vector2(0, -1),
 		Vector2(-1, 1), Vector2(-1, 0), Vector2(-1, -1)
 	] if is_map else [
-		Vector2(32, 32), Vector2(32, 0), Vector2(32, -32), 
-		Vector2(0, 32), Vector2(0, -32), 
+		Vector2(32, 32), Vector2(32, 0), Vector2(32, -32),
+		Vector2(0, 32), Vector2(0, -32),
 		Vector2(-32, 32), Vector2(-32, 0), Vector2(-32, -32)
 	]
 

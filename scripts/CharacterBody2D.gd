@@ -23,7 +23,7 @@ signal died()
 func _ready() -> void :
 	$Label.text = name
 	var children: = get_children()
-	
+
 func rotate_sprite(direction: Vector2):
 	if direction.angle() > -0.3839724 and direction.angle() < 0.3839724:
 		$Sprite2D.texture = right_texture

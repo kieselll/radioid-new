@@ -14,7 +14,7 @@ func start(args : Dictionary = {}) -> void :
 	GlobalLogger.write_to_logs(self, "Started moving")
 	_active = true
 	assert(args[&"target"] is Vector2i, "MoveState of %s recieved start(), but has no argument \"target\" of type Vector2i.")
-	
+
 	var move_target = args[&"target"]
 	var _partial_path = args.get(&"partial", false)
 	if typeof(_partial_path) != TYPE_BOOL:

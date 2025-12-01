@@ -60,7 +60,7 @@ func get_game_node_path(node_name : game_nodes_enum) -> String:
 	return "/root/GameRoot/" + _game_nodes[node_name]
 
 func get_chunk(coords : Vector2i) -> Node:
-	if chunks.has(coords):
+	if chunks.has(coords) and is_instance_valid(chunks[coords]):
 		return chunks[coords]
 	return null
 #endregion

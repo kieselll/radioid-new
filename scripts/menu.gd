@@ -7,23 +7,23 @@ var default_button_color = Color("1a1a1a")
 var button_hover_sound = load("res://sounds/UI/button_hover.wav")
 @onready var audiostream = $AudioStreamPlayer
 @onready var rigid_bodies: Array[RigidBody2D] = [
-	$Node2D / RigidBody2D, 
-	$Node2D / RigidBody2D2, 
-	$Node2D / RigidBody2D3, 
-	$Node2D / RigidBody2D4, 
-	$Node2D / RigidBody2D5, 
-	$Node2D / RigidBody2D6, 
+	$Node2D / RigidBody2D,
+	$Node2D / RigidBody2D2,
+	$Node2D / RigidBody2D3,
+	$Node2D / RigidBody2D4,
+	$Node2D / RigidBody2D5,
+	$Node2D / RigidBody2D6,
 ]
 @onready var menu_buttons: Array[Button] = [
-	$MarginContainer/VBoxContainer/Button4, 
-	$MarginContainer/VBoxContainer/Button, 
-	$MarginContainer/VBoxContainer/Button2, 
+	$MarginContainer/VBoxContainer/Button4,
+	$MarginContainer/VBoxContainer/Button,
+	$MarginContainer/VBoxContainer/Button2,
 	$MarginContainer/VBoxContainer/Button3
 ]
 var button_color_array: Array[Color] = [
-	Color("659900"), 
-	Color("659900"), 
-	Color("659900"), 
+	Color("659900"),
+	Color("659900"),
+	Color("659900"),
 	Color("90000e")
 ]
 
@@ -87,7 +87,7 @@ func _process_button_anims_and_sounds(button: Button, entered: bool):
 		_animate_button(button, Vector2(1.1, 1.1), button.position - button.size/20, button_color_array[menu_buttons.find(button)])
 		audiostream.stream = button_hover_sound
 		audiostream.play()
-		
+
 	else:
 		_animate_button(button, Vector2(1, 1), Vector2(0, menu_buttons.find(button)*(($MarginContainer/VBoxContainer.size.y - 9)/4 + 3)), default_button_color)
 		print(button.size)
