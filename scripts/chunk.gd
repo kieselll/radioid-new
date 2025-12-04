@@ -24,6 +24,7 @@ extends Node2D
 
 var _new_cells : Array[NewCell] = []               # Queue of cell updates
 var _cells : Array[Array] = []                        # 3D tile storage
+var _deltas : Array[NewCell]
 var _multimesh_instances : Dictionary[int, MultiMeshInstance2D] = {}   # Tile ID → MultiMeshInstance
 var _chunk_manager : ChunkManager
 var _tilemap : TileMap
@@ -89,8 +90,6 @@ class NewCell:
 #region Public_Exported_Fields
 
 @export var base_material : ShaderMaterial
-@export var queued_material : ShaderMaterial
-@export var queued_d_material : ShaderMaterial
 
 #endregion
 
@@ -160,6 +159,7 @@ func _process(_delta: float) -> void:
 ## Queues a tile for placement or replacement.
 func set_cell(id : int, coords : Vector2i, queued : bool, deferred : bool = false) -> void:
 	_new_cells.append(NewCell.new(id, coords, BuildableDB.get_tile(id).queued_layer if queued else BuildableDB.get_tile(id).layer))
+	_deltas.append(NewCell.new(id, coords, BuildableDB.get_tile(id).queued_layer if queued else BuildableDB.get_tile(id).layer))
 	if not deferred: set_process(true)
 	else: call_deferred("_update")
 
@@ -172,6 +172,11 @@ func set_cell(id : int, coords : Vector2i, queued : bool, deferred : bool = fals
 func get_cell(layer : GlobalRef.tilemap_layers_enum, coords : Vector2i) -> int:
 	return _cells[layer][coords.x][coords.y]
 
+func get_all_cells_bin():
+	var result : Dictionary[Vector2i, int]
+	for cell in _deltas:
+		result[cell.coords] = cell.id
+	return var_to_bytes(result)
 #endregion
 
 
