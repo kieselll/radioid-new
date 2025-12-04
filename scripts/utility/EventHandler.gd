@@ -1,3 +1,3 @@
 extends Node
 
-signal scene_chaged(current_schene : String)
+signal scene_chaged(current_schene: String)

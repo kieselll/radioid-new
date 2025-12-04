@@ -18,12 +18,11 @@ extends Node
 #				   \  $/    |  $$$$$$$ | $$        /$$$$$$$/
 #				    \_/      \_______/ |__/       |_______/
 
-@onready var valid_multimesh_inst : MultiMeshInstance2D = $valid_selection_multimesh
-@onready var invalid_multimesh_inst : MultiMeshInstance2D = $invalid_selection_multimesh
+@onready var valid_multimesh_inst: MultiMeshInstance2D = $valid_selection_multimesh
+@onready var invalid_multimesh_inst: MultiMeshInstance2D = $invalid_selection_multimesh
 
-@onready var valid_multimesh : MultiMesh = valid_multimesh_inst.multimesh
-@onready var invalid_multimesh : MultiMesh = invalid_multimesh_inst.multimesh
-
+@onready var valid_multimesh: MultiMesh = valid_multimesh_inst.multimesh
+@onready var invalid_multimesh: MultiMesh = invalid_multimesh_inst.multimesh
 
 #				 /$$$$$$$              /$$        /$$  /$$
 #				| $$__  $$            | $$       | $$ |__/
@@ -45,15 +44,16 @@ extends Node
 #				| $$  | $$ | $$        /$$$$$$
 #				|__/  |__/ |__/       |______/
 
+
 ## Assigns texture used for both valid & invalid previews.
-func set_multimesh_texture(texture : Texture2D) -> void:
+func set_multimesh_texture(texture: Texture2D) -> void:
 	valid_multimesh_inst.texture = texture
 	invalid_multimesh_inst.texture = texture
 
 
 ## Creates both valid and invalid multimesh tile instances.
 ## rects = {valid = [ {coords, rect}, ...], invalid = [...]}
-func create_mesh_instances(rects : Dictionary) -> void:
+func create_mesh_instances(rects: Dictionary) -> void:
 	# --- Set instance counts ---
 	valid_multimesh.instance_count = rects.valid.size()
 
@@ -63,10 +63,7 @@ func create_mesh_instances(rects : Dictionary) -> void:
 	for id in range(valid_multimesh.instance_count):
 		var pair = rects.valid[id]
 
-		valid_multimesh.set_instance_transform_2d(
-			id,
-			Transform2D(PI, pair.coords)
-		)
+		valid_multimesh.set_instance_transform_2d(id, Transform2D(PI, pair.coords))
 
 		valid_multimesh.set_instance_custom_data(
 			id,
@@ -77,10 +74,7 @@ func create_mesh_instances(rects : Dictionary) -> void:
 	for id in range(invalid_multimesh.instance_count):
 		var pair = rects.invalid[id]
 
-		invalid_multimesh.set_instance_transform_2d(
-			id,
-			Transform2D(PI, pair.coords)
-		)
+		invalid_multimesh.set_instance_transform_2d(id, Transform2D(PI, pair.coords))
 
 		invalid_multimesh.set_instance_custom_data(
 			id,

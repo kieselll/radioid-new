@@ -10,12 +10,13 @@ extends Node
 # WARNING
 const DELETE_ME = 200
 ## The AstarGrid2D algorythm that calculates paths for all agents
-var astar : AStarGrid2D = AStarGrid2D.new()
+var astar: AStarGrid2D = AStarGrid2D.new()
 ## The only layer colonists should worry about for now[br]
 ## Will later add _terrain_layer for water
 var _walls_layer
 
-func _ready() -> void :
+
+func _ready() -> void:
 	GlobalLogger.write_to_logs(self, "Setting up Astar...")
 	## Setting up Astar
 	#astar.cell_size = Vector2(32, 32)
@@ -27,13 +28,14 @@ func _ready() -> void :
 	## Iterating through chunk to find solid tiles. Will later load from save file if possible
 	#var tile_data
 	#for i in range(DELETE_ME):
-			#for j in range(DELETE_ME):
-				#tile_data = _walls_layer.get_cell_tile_data(Vector2i(i, j))
-				#if tile_data:
-					#if BuildableDB.get_tile(tile_data.get_custom_data("id")):
-						#astar.set_point_solid(Vector2i(i, j), not BuildableDB.get_tile(tile_data.get_custom_data("id")).passable)
-					#else: astar.set_point_solid(Vector2i(i, j), false)
+	#for j in range(DELETE_ME):
+	#tile_data = _walls_layer.get_cell_tile_data(Vector2i(i, j))
+	#if tile_data:
+	#if BuildableDB.get_tile(tile_data.get_custom_data("id")):
+	#astar.set_point_solid(Vector2i(i, j), not BuildableDB.get_tile(tile_data.get_custom_data("id")).passable)
+	#else: astar.set_point_solid(Vector2i(i, j), false)
 	#GlobalLogger.write_to_logs(self, "Solid tiles found and set up.")
+
 
 ## Function for agents to retrieve a path with source [param from] and destination [param to][br]
 ## The [param partial] parameter determines whether a partial path is returned.[br]
@@ -46,6 +48,7 @@ func request_path(from: Vector2i, to: Vector2i, partial: bool) -> Array[Vector2i
 		get_tree().quit()
 	path = astar.get_id_path(from, to, partial)
 	return path
+
 
 ## Marks tile as solid for the Astar pathfinder.[br]
 ## Used so that nodes don't access Astar directly.

@@ -1,14 +1,15 @@
 extends Node
 class_name Saver
 
-var editor_game_path : String = "user:///game"
+var editor_game_path: String = "user:///game"
 
-var save_dir_path : String
-var save_dir_access : DirAccess
-var game_dir_path : String
-var current_save_name : String
+var save_dir_path: String
+var save_dir_access: DirAccess
+var game_dir_path: String
+var current_save_name: String
 
-var _process_handler : Node
+var _process_handler: Node
+
 
 func _ready() -> void:
 	# CRITICAL vvv DELETE THIS BEFORE RELEASE vvv
@@ -23,15 +24,20 @@ func _ready() -> void:
 		DirAccess.make_dir_recursive_absolute(save_dir_path)
 	save_dir_access = DirAccess.open(save_dir_path)
 
+
 func save_game() -> void:
 	_process_handler = get_node(GlobalRef.get_handler(GlobalRef._handlers_enum.process_handler))
-	var save_file = FileAccess.open(save_dir_path + "/save_" + str(Time.get_datetime_string_from_system()), FileAccess.WRITE)
+	var save_file = FileAccess.open(
+		save_dir_path + "/save_" + str(Time.get_datetime_string_from_system()), FileAccess.WRITE
+	)
 	save_file.store_string(JSON.stringify(_process_handler.time))
 	save_file.close()
+
 
 func load_game(path: String) -> void:
 	# CRITICAL IMPLEMENT ASAP
 	push_error("load_game() not implemented yet!")
+
 
 func get_save_list() -> Array:
 	# CRITICAL IMPLEMENT ASAP

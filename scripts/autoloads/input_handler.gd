@@ -21,16 +21,15 @@ extends Node2D
 var _tilemap
 var _ui_manager
 
-var _keyboard_input_allowed : bool = true
-var _mouse_input_allowed : bool = true
+var _keyboard_input_allowed: bool = true
+var _mouse_input_allowed: bool = true
 
 var _click_1 = null
 var _click_2 = null
 var _prev_mouse_map_pos = null
-var _prev_scene : String = ""
+var _prev_scene: String = ""
 
-var current_item : BuildableData
-
+var current_item: BuildableData
 
 #				 /$$$$$$$               /$$      /$$
 #				| $$__  $$             | $$     | $$
@@ -52,14 +51,14 @@ var current_item : BuildableData
 #				| $$       |  $$$$$$$ | $$      /$$$$$$$/
 #				|__/        \_______/ |__/     |_______/
 
-@onready var _pause_menu      := $/root/GameRoot/Control/popup_layer/pause_menu
-@onready var _resume_button   := $/root/GameRoot/Control/popup_layer/pause_menu/VBoxContainer/resume_button
-@onready var _ui_layer        := $/root/GameRoot/Control/CanvasLayer
-@onready var _blur_layer      := $/root/GameRoot/Control/popup_layer/Panel3   # эффект блюра / инверсии
-@onready var _save_confirm    := $/root/GameRoot/Control/popup_layer/save_confirmation_menu
+@onready var _pause_menu := $/root/GameRoot/Control/popup_layer/pause_menu
+@onready
+var _resume_button := $/root/GameRoot/Control/popup_layer/pause_menu/VBoxContainer/resume_button
+@onready var _ui_layer := $/root/GameRoot/Control/CanvasLayer
+@onready var _blur_layer := $/root/GameRoot/Control/popup_layer/Panel3  # эффект блюра / инверсии
+@onready var _save_confirm := $/root/GameRoot/Control/popup_layer/save_confirmation_menu
 
-@onready var _popup_layer     := $/root/GameRoot/Control/popup_layer
-
+@onready var _popup_layer := $/root/GameRoot/Control/popup_layer
 
 #				  /$$$$$$   /$$                                   /$$
 #				 /$$__  $$ |__/                                  | $$
@@ -73,10 +72,9 @@ var current_item : BuildableData
 #				                |  $$$$$$/
 #				                 \______/
 
-signal region_selected(rect : Rect2i, _click_2 : Vector2i)
-signal region_updated(rect : Rect2i)
-signal movement_key_pressed(direction : Vector2i, delta : float)
-
+signal region_selected(rect: Rect2i, _click_2: Vector2i)
+signal region_updated(rect: Rect2i)
+signal movement_key_pressed(direction: Vector2i, delta: float)
 
 #				 /$$        /$$   /$$$$$$                                               /$$
 #				| $$       |__/  /$$__  $$                                             | $$
@@ -90,6 +88,7 @@ signal movement_key_pressed(direction : Vector2i, delta : float)
 #				                                                 |  $$$$$$/
 #				                                                  \______/
 
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_resume_button.pressed.connect(_on_resume_button_pressed)
@@ -97,10 +96,11 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	# Lazy-load handlers when scene changes
-	if get_tree().current_scene \
-	and _prev_scene != get_tree().current_scene.name \
-	and get_tree().current_scene.name == "GameRoot":
-
+	if (
+		get_tree().current_scene
+		and _prev_scene != get_tree().current_scene.name
+		and get_tree().current_scene.name == "GameRoot"
+	):
 		_prev_scene = get_tree().current_scene.name
 		_ui_manager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.ui_manager))
 		_tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
@@ -133,6 +133,7 @@ func _physics_process(delta: float) -> void:
 #				                    | $$
 #				                    |__/
 
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and _mouse_input_allowed:
 		_handle_mouse_button(event)
@@ -144,7 +145,6 @@ func _input(event: InputEvent) -> void:
 
 func _handle_keyboard_input(event: InputEventKey) -> void:
 	match event.keycode:
-
 		KEY_F5:
 			DebugMenu.visible = not DebugMenu.visible
 			_keyboard_input_allowed = not DebugMenu.visible
@@ -169,10 +169,10 @@ func _handle_mouse_motion() -> void:
 		var mouse_map = _tilemap.local_to_map(get_global_mouse_position())
 
 		if _prev_mouse_map_pos and mouse_map != _prev_mouse_map_pos:
-			var rect := Rect2i(
-				_tilemap.local_to_map(_click_1),
-				mouse_map - _tilemap.local_to_map(_click_1)
-			).abs()
+			var rect := (
+				Rect2i(_tilemap.local_to_map(_click_1), mouse_map - _tilemap.local_to_map(_click_1))
+				. abs()
+			)
 			region_updated.emit(rect)
 
 		_prev_mouse_map_pos = mouse_map
@@ -193,15 +193,19 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 		_click_2 = get_global_mouse_position()
 
 		if _click_1 and _click_2:
-			var rect := Rect2i(
-				_tilemap.local_to_map(_click_1),
-				_tilemap.local_to_map(_click_2) - _tilemap.local_to_map(_click_1)
-			).abs()
+			var rect := (
+				Rect2i(
+					_tilemap.local_to_map(_click_1),
+					_tilemap.local_to_map(_click_2) - _tilemap.local_to_map(_click_1)
+				)
+				. abs()
+			)
 
 			region_selected.emit(rect)
 
 		_click_2 = null
 		_click_1 = null
+
 
 #				 /$$$$$$$
 #				| $$__  $$
@@ -225,6 +229,7 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 #				                       /$$  \ $$
 #				                      |  $$$$$$/
 #				                       \______/
+
 
 func show_pause() -> void:
 	_keyboard_input_allowed = false
@@ -273,8 +278,10 @@ func _on_resume_button_pressed() -> void:
 #				|  $$$$$$/ |  $$$$$$$   |  $$$$/ |  $$$$/ |  $$$$$$$ | $$        /$$$$$$$/
 #				 \______/   \_______/    \___/    \___/    \_______/ |__/       |_______/
 
+
 func set_keyboard_input_allowed(allowed: bool) -> void:
 	_keyboard_input_allowed = allowed
+
 
 func set_mouse_input_allowed(allowed: bool) -> void:
 	_mouse_input_allowed = allowed

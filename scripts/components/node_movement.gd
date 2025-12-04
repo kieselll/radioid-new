@@ -52,7 +52,7 @@ var _local_position = null
 @export var movement_smoothness: float = 15
 @export var approach_threshold: float = 4
 
-signal arrived_at_destination()
+signal arrived_at_destination
 
 #				 /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$
 #				|_  $$_/ | $$$ | $$ |_  $$_/ |__  $$__/
@@ -62,6 +62,7 @@ signal arrived_at_destination()
 #				  | $$   | $$\  $$$   | $$      | $$
 #				 /$$$$$$ | $$ \  $$  /$$$$$$    | $$
 #				|______/ |__/  \__/ |______/    |__/
+
 
 func _ready() -> void:
 	_tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
@@ -80,6 +81,7 @@ func _ready() -> void:
 #				                                                 |  $$$$$$/
 #				                                                  \______/
 
+
 func _physics_process(delta: float) -> void:
 	_local_position = _tilemap.local_to_map(_parent.position)
 
@@ -96,17 +98,15 @@ func _physics_process(delta: float) -> void:
 
 	_direction = (Vector2(_target_position) - _parent.position).normalized()
 
-	_parent.velocity = lerp(
-		_parent.velocity,
-		_direction * speed,
-		100 * delta / movement_smoothness
-	)
+	_parent.velocity = lerp(_parent.velocity, _direction * speed, 100 * delta / movement_smoothness)
 
 	if _parent.position.distance_to(_target_position) <= approach_threshold:
 		_current_step += 1
 
 		if _current_step >= _path.size():
-			GlobalLogger.write_to_logs(self, "Arrived at %v. Stopping..." % _path[_current_step - 1])
+			GlobalLogger.write_to_logs(
+				self, "Arrived at %v. Stopping..." % _path[_current_step - 1]
+			)
 			_path.clear()
 			arrived_at_destination.emit()
 			set_physics_process(false)
@@ -136,6 +136,7 @@ func _physics_process(delta: float) -> void:
 #				| $$  | $$ | $$        /$$$$$$
 #				|__/  |__/ |__/       |______/
 
+
 func move_to_coord(to: Vector2i, partial_path: bool = false) -> void:
 	GlobalLogger.write_to_logs(self, "Moving to coords %v..." % to)
 	var from = _local_position if _local_position else _tilemap.local_to_map(_parent.position)
@@ -155,6 +156,7 @@ func get_local_position() -> Vector2i:
 
 func is_moving() -> bool:
 	return owner.velocity != Vector2.ZERO
+
 
 #				 /$$$$$$$              /$$                           /$$
 #				| $$__  $$            |__/                          | $$
@@ -178,6 +180,7 @@ func is_moving() -> bool:
 #				                       /$$  \ $$
 #				                      |  $$$$$$/
 #				                       \______/
+
 
 func _update_path(from: Vector2i, to: Vector2i, partial: bool) -> void:
 	_path = _astar.request_path(from, to, partial)

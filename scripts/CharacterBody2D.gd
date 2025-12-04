@@ -17,12 +17,14 @@ var left_front_texture = load("res://man_diag3.png")
 var right_back_texture = load("res://man_diag2.png")
 var left_back_texture = load("res://man_diag.png")
 
-signal full_ready()
-signal died()
+signal full_ready
+signal died
 
-func _ready() -> void :
+
+func _ready() -> void:
 	$Label.text = name
-	var children: = get_children()
+	var children := get_children()
+
 
 func rotate_sprite(direction: Vector2):
 	if direction.angle() > -0.3839724 and direction.angle() < 0.3839724:
@@ -42,7 +44,8 @@ func rotate_sprite(direction: Vector2):
 	elif direction.angle() > -1.16937 and direction.angle() < -0.3839724:
 		$Sprite2D.texture = right_back_texture
 
-func _input(event: InputEvent) -> void :
+
+func _input(event: InputEvent) -> void:
 	if event is InputEventKey and Input.is_physical_key_pressed(KEY_P):
 		print(characteristics.stats["tiredness"])
 		print(characteristics.stats["health"])
@@ -52,8 +55,12 @@ func _input(event: InputEvent) -> void :
 	elif Input.is_physical_key_pressed(KEY_K):
 		characteristics.stats["health"] = 0
 	elif Input.is_physical_key_pressed(KEY_KP_ADD):
-		characteristics.abilities["building"] = clampi(characteristics.abilities["building"] + 1, 0, 9)
+		characteristics.abilities["building"] = clampi(
+			characteristics.abilities["building"] + 1, 0, 9
+		)
 		print(characteristics.abilities["building"])
 	elif Input.is_physical_key_pressed(KEY_KP_SUBTRACT):
-		characteristics.abilities["building"] = clampi(characteristics.abilities["building"] - 1, 0, 9)
+		characteristics.abilities["building"] = clampi(
+			characteristics.abilities["building"] - 1, 0, 9
+		)
 		print(characteristics.abilities["building"])
