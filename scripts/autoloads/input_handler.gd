@@ -91,7 +91,7 @@ signal movement_key_pressed(direction: Vector2i, delta: float)
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_resume_button.pressed.connect(_on_resume_button_pressed)
+	#_resume_button.pressed.connect(_on_resume_button_pressed) CRITICAL
 
 
 func _physics_process(delta: float) -> void:

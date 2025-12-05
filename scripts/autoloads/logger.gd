@@ -9,7 +9,7 @@ var _logs_folder: DirAccess
 
 
 func _ready() -> void:
-	game_dir_path = GlobalSaver.game_dir_path
+	game_dir_path = GlobalSaver._game_dir_path
 	_logs_folder = DirAccess.open(game_dir_path)
 	if not _logs_folder.dir_exists("logs"):
 		_logs_folder.make_dir_recursive("logs")

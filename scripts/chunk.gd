@@ -24,6 +24,7 @@ extends Node2D
 
 var _new_cells: Array[NewCell] = []  # Queue of cell updates
 var _cells: Array[Array] = []  # 3D tile storage
+var _deltas: Array #
 var _multimesh_instances: Dictionary[int, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
 var _chunk_manager: ChunkManager
 var _tilemap: TileMap
