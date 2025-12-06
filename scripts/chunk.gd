@@ -23,7 +23,7 @@ extends Node2D
 #region Private_Fields
 
 var _new_cells: Array[NewCell] = []  # Queue of cell updates
-var _cells: Array[Array] = []  # 3D tile storage
+var _cells: Array = []  # 3D tile storage
 var dirty: bool
 var _multimesh_instances: Dictionary[int, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
 var _chunk_manager: ChunkManager
@@ -184,8 +184,38 @@ func set_cell(id: int, coords: Vector2i, queued: bool) -> void:
 
 #region Public_Helpers
 
+
 func get_cells() -> Array:
 	return _cells
+
+
+func get_cells_rle() -> Dictionary:
+	var result = {}
+
+	for layer in _cells.size():
+		var layer_data = []
+		var last_id = null
+		var run_length = 0
+
+		for y in CHUNK_SIZE:
+			for x in CHUNK_SIZE:
+				var id = _cells[layer][y][x]
+
+				if last_id == null:
+					last_id = id
+					run_length = 1
+				elif id == last_id:
+					run_length += 1
+				else:
+					layer_data.append(Vector2i(last_id, run_length))
+					last_id = id
+					run_length = 1
+
+		layer_data.append(Vector2i(last_id, run_length))
+
+		result[layer] = layer_data
+
+	return result
 
 
 ## Returns tile at given coords.

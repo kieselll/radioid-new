@@ -1,39 +1,22 @@
-
-
-
-
-
 class_name BuildableInteractionData
 extends Resource
 
-
-
-
-
 @export_subgroup("Interaction")
 
-
-
 @export_flags(
-	"Is container", 
-	"Is workstation", 
-	"Can sit on", 
-	"Can lie on", 
-	"Can nap on", 
-	"Can sleep on", 
+	"Is container",
+	"Is workstation",
+	"Can sit on",
+	"Can lie on",
+	"Can nap on",
+	"Can sleep on",
 	"Can heal on"
 )
 var flags
 
-
 @export var interaction_coords: Array[Vector2i]
 
-
 @export var interaction_name: String
-
-
-
-
 
 const IS_CONTAINER = 1 << 0
 const IS_WORKSTATION = 1 << 1

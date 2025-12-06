@@ -11,8 +11,6 @@ class_name ChunkManager
 #				| $$       | $$       | $$    \  $/    |  $$$$$$$   |  $$$$/ |  $$$$$$$
 #				|__/       |__/       |__/     \_/      \_______/    \___/    \_______/
 
-
-
 #				 /$$    /$$   /$$$$$$    /$$$$$$    /$$$$$$$
 #				|  $$  /$$/  |____  $$  /$$__  $$  /$$_____/
 #				 \  $$/$$/    /$$$$$$$ | $$  \__/ |  $$$$$$
@@ -39,8 +37,6 @@ var tilemap: TileMap
 #				| $$       |  $$$$$$/ | $$$$$$$/ | $$ | $$ |  $$$$$$$
 #				|__/        \______/  |_______/  |__/ |__/  \_______/
 
-
-
 #				 /$$    /$$   /$$$$$$    /$$$$$$    /$$$$$$$
 #				|  $$  /$$/  |____  $$  /$$__  $$  /$$_____/
 #				 \  $$/$$/    /$$$$$$$ | $$  \__/ |  $$$$$$
@@ -53,6 +49,7 @@ var tilemap: TileMap
 @export var render_distance: int = 10
 
 const CHUNK_SIZE = 16
+
 
 class Chunk:
 	var ground_layer: Array
@@ -78,7 +75,6 @@ class Chunk:
 
 signal current_chunk_changed(new_chunk_coords: Vector2i)
 
-
 #				 /$$        /$$   /$$$$$$                                               /$$
 #				| $$       |__/  /$$__  $$                                             | $$
 #				| $$        /$$ | $$  \__/   /$$$$$$    /$$$$$$$  /$$   /$$   /$$$$$$$ | $$   /$$$$$$
@@ -91,12 +87,15 @@ signal current_chunk_changed(new_chunk_coords: Vector2i)
 #				                                                 |  $$$$$$/
 #				                                                  \______/
 
+
 func _ready() -> void:
 	tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
+
 
 func _temp_saver():
 	for i in GlobalRef.chunks:
 		GlobalSaver.save_chunk(Vector2i(i))
+
 
 func _process(_delta: float) -> void:
 	if (
@@ -104,7 +103,8 @@ func _process(_delta: float) -> void:
 		and chunks.has(unload_queue[-1])
 		and is_instance_valid(chunks[unload_queue[-1]])
 	):
-		if chunks[unload_queue[-1]].dirty: GlobalSaver.save_chunk(unload_queue[-1])
+		if chunks[unload_queue[-1]].dirty:
+			GlobalSaver.save_chunk(unload_queue[-1])
 		chunks[unload_queue[-1]].queue_free()
 		chunks.erase(unload_queue[-1])
 		unload_queue.remove_at(-1)
@@ -136,7 +136,8 @@ func _physics_process(_delta: float) -> void:
 				Rect2i(
 					current_chunk - Vector2i(render_distance / 2, render_distance / 2),
 					Vector2i(render_distance, render_distance)
-				).has_point(i)
+				)
+				. has_point(i)
 			):
 				unload_queue.append(i)
 
@@ -166,8 +167,6 @@ func _physics_process(_delta: float) -> void:
 #				| $$       |  $$$$$$/ | $$$$$$$/ | $$ | $$ |  $$$$$$$
 #				|__/        \______/  |_______/  |__/ |__/  \_______/
 
-
-
 #				  /$$$$$$
 #				 /$$__  $$
 #				| $$  \__/ /$$   /$$  /$$$$$$$    /$$$$$$$   /$$$$$$$
@@ -177,20 +176,17 @@ func _physics_process(_delta: float) -> void:
 #				| $$      |  $$$$$$/ | $$  | $$ |  $$$$$$$  /$$$$$$$/
 #				|__/       \______/  |__/  |__/  \_______/ |_______/
 
+
 func chunk_coord_to_world_coord(chunk_coords: Vector4i) -> Vector2i:
 	return Vector2i(
-		chunk_coords.x * CHUNK_SIZE + chunk_coords.z,
-		chunk_coords.y * CHUNK_SIZE + chunk_coords.w
+		chunk_coords.x * CHUNK_SIZE + chunk_coords.z, chunk_coords.y * CHUNK_SIZE + chunk_coords.w
 	)
 
 
 func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 	@warning_ignore("integer_division")
 	return Vector4i(
-		coord.x / CHUNK_SIZE,
-		coord.y / CHUNK_SIZE,
-		coord.x % CHUNK_SIZE,
-		coord.y % CHUNK_SIZE
+		coord.x / CHUNK_SIZE, coord.y / CHUNK_SIZE, coord.x % CHUNK_SIZE, coord.y % CHUNK_SIZE
 	)
 
 
@@ -202,8 +198,6 @@ func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 #				| $$       | $$       | $$   \  $$$/    /$$__  $$   | $$ /$$ | $$_____/
 #				| $$       | $$       | $$    \  $/    |  $$$$$$$   |  $$$$/ |  $$$$$$$
 #				|__/       |__/       |__/     \_/      \_______/    \___/    \_______/
-
-
 
 #				 /$$                   /$$
 #				| $$                  | $$
@@ -217,10 +211,9 @@ func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 #				                           | $$
 #				                           |__/
 
+
 func generate_new_layer(
-	coords: Vector2i,
-	layer: GlobalRef.tilemap_layers_enum,
-	_seed: int
+	coords: Vector2i, layer: GlobalRef.tilemap_layers_enum, _seed: int
 ) -> Array:  # CRITICAL WIP
 	var tile_array: Array = []
 	tile_array.resize(CHUNK_SIZE)
@@ -249,24 +242,16 @@ func generate_new_chunk(coords: Vector2i, _seed: int) -> Chunk:
 	chunk.wall_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.walls, _seed)
 
 	chunk.terrain_queued_layer = generate_new_layer(
-		coords,
-		GlobalRef.tilemap_layers_enum.terrain_queued,
-		_seed
+		coords, GlobalRef.tilemap_layers_enum.terrain_queued, _seed
 	)
 	chunk.wall_queued_layer = generate_new_layer(
-		coords,
-		GlobalRef.tilemap_layers_enum.walls_queued,
-		_seed
+		coords, GlobalRef.tilemap_layers_enum.walls_queued, _seed
 	)
 	chunk.terrain_queued_d_layer = generate_new_layer(
-		coords,
-		GlobalRef.tilemap_layers_enum.terrain_queued_d,
-		_seed
+		coords, GlobalRef.tilemap_layers_enum.terrain_queued_d, _seed
 	)
 	chunk.wall_queued_d_layer = generate_new_layer(
-		coords,
-		GlobalRef.tilemap_layers_enum.walls_queued_d,
-		_seed
+		coords, GlobalRef.tilemap_layers_enum.walls_queued_d, _seed
 	)
 
 	return chunk
@@ -295,5 +280,3 @@ func instantiate_chunk(coords: Vector2i, _seed: int) -> void:
 			chunk_node.set_cell(new_chunk.wall_queued_layer[i][j], Vector2i(i, j), false)
 			chunk_node.set_cell(new_chunk.terrain_queued_d_layer[i][j], Vector2i(i, j), false)
 			chunk_node.set_cell(new_chunk.wall_queued_d_layer[i][j], Vector2i(i, j), false)
-
-	chunk_node.dirty = false

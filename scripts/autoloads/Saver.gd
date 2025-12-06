@@ -69,7 +69,7 @@ func load_save(dirname : String) -> SaveMeta:
 
 func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
-	_chunks_to_save.append(chunk.get_cells())
+	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells())})
 
 func _ready() -> void:
 	_current_save = SaveMeta.new("test_save", 1234)
@@ -79,10 +79,14 @@ func _ready() -> void:
 	write_timer.connect("timeout", _on_write_timer_timeout)
 
 func _on_write_timer_timeout():
+	var data : PackedByteArray = []
 	for i in _chunks_to_save:
-		_current_world_file.store_var(i)
+		data.append_array(i.data)
+	if not data.is_empty():
+		_current_world_file.store_buffer(data)
 		print("stored")
-	_chunks_to_save.clear()
+		_chunks_to_save.clear()
+
 
 func _open_file(path : String) -> FileAccess:
 	return FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE)

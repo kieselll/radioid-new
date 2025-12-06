@@ -49,74 +49,110 @@ extends Resource
 ## Parameters which refer to the texture of the object. See [BuildableTextureData]
 @export var texture_params: BuildableTextureData
 
+
 func can_autoignite() -> bool:
-	if not flammable_params: return false
+	if not flammable_params:
+		return false
 	return bool(flammable_params.burn_flags & flammable_params.CAN_AUTO_IGNITE)
 
+
 func can_be_ignited() -> bool:
-	if not flammable_params: return false
+	if not flammable_params:
+		return false
 	return bool(flammable_params.burn_flags & flammable_params.CAN_BE_IGNITED)
 
+
 func can_burn() -> bool:
-	if not flammable_params: return false
+	if not flammable_params:
+		return false
 	return bool(flammable_params.burn_flags & flammable_params.CAN_BURN)
 
+
 func can_be_extingushed() -> bool:
-	if not flammable_params: return false
+	if not flammable_params:
+		return false
 	return bool(flammable_params.burn_flags & flammable_params.CAN_BE_EXTINGUSHED)
 
+
 func can_explode() -> bool:
-	if not flammable_params: return false
+	if not flammable_params:
+		return false
 	return flammable_params.explosion_flags != 0
 
+
 func explodes_on_ignition() -> bool:
-	if not flammable_params: return false
+	if not flammable_params:
+		return false
 	return bool(flammable_params.explosion_flags & flammable_params.EXPLODES_ON_IGNITION)
 
+
 func explodes_on_burndown() -> bool:
-	if not flammable_params: return false
+	if not flammable_params:
+		return false
 	return bool(flammable_params.explosion_flags & flammable_params.EXPLODES_ON_BURNDOWN)
 
+
 func explodes_on_collision() -> bool:
-	if not flammable_params: return false
+	if not flammable_params:
+		return false
 	return bool(flammable_params.explosion_flags & flammable_params.EXPLODES_ON_COLLISION)
 
+
 func is_container() -> bool:
-	if not interaction_params: return false
+	if not interaction_params:
+		return false
 	return interaction_params.flags & interaction_params.IS_CONTAINER != 0
 
+
 func is_workstation() -> bool:
-	if not interaction_params: return false
+	if not interaction_params:
+		return false
 	return interaction_params.flags & interaction_params.IS_WORKSTATION != 0
 
+
 func can_sit_on() -> bool:
-	if not interaction_params: return false
+	if not interaction_params:
+		return false
 	return interaction_params.flags & interaction_params.CAN_SIT_ON != 0
 
+
 func can_lie_on() -> bool:
-	if not interaction_params: return false
+	if not interaction_params:
+		return false
 	return interaction_params.flags & interaction_params.CAN_LIE_ON != 0
 
+
 func can_nap_on() -> bool:
-	if not interaction_params: return false
+	if not interaction_params:
+		return false
 	return interaction_params.flags & interaction_params.CAN_NAP_ON != 0
 
+
 func can_sleep_on() -> bool:
-	if not interaction_params: return false
+	if not interaction_params:
+		return false
 	return interaction_params.flags & interaction_params.CAN_SLEEP_ON != 0
 
+
 func can_heal_on() -> bool:
-	if not interaction_params: return false
+	if not interaction_params:
+		return false
 	return interaction_params.flags & interaction_params.CAN_HEAL_ON != 0
 
+
 func get_ignition_explosion_chance() -> float:
-	if not flammable_params: return 0
+	if not flammable_params:
+		return 0
 	return flammable_params.explosion_chances["Ignition"]
 
+
 func get_burndown_explosion_chance() -> float:
-	if not flammable_params: return 0
+	if not flammable_params:
+		return 0
 	return flammable_params.explosion_chances["Burndown"]
 
+
 func get_collision_explosion_chance() -> float:
-	if not flammable_params: return 0
+	if not flammable_params:
+		return 0
 	return flammable_params.explosion_chances["Collision"]

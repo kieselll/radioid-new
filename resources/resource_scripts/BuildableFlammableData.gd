@@ -6,16 +6,14 @@ extends Resource
 @export var burn_temp: float
 @export var burn_dps: float
 @export var burn_color: Color
-@export_range(0, 100, 0.1)
-var autoignition_chance: float
-@export_flags("can be ignited", "can burn", "can be extingushed")
-var burn_flags
+@export_range(0, 100, 0.1) var autoignition_chance: float
+@export_flags("can be ignited", "can burn", "can be extingushed") var burn_flags
 
 @export_subgroup("Explosive related")
 @export var explosion_chances: Dictionary = {
-	"Ignition": 0.0, 
-	"Burndown": 0.0, 
-	"Collision": 0.0, 
+	"Ignition": 0.0,
+	"Burndown": 0.0,
+	"Collision": 0.0,
 }
 @export var explosion_power: float
 @export var explosion_range: float
