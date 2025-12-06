@@ -92,93 +92,11 @@ signal current_chunk_changed(new_chunk_coords: Vector2i)
 #				                                                  \______/
 
 func _ready() -> void:
-	var gen_chunk_x := 0
-	var gen_chunk_y := 0
-	var coord_x := 0
-	var coord_y := 0
-	var new_chunk: Chunk = null
-	var chunk_node: Node2D
-
 	tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
 
-	while gen_chunk_x != render_distance and gen_chunk_y != render_distance:
-
-		if not new_chunk and not chunks.has(Vector2i(gen_chunk_x, gen_chunk_y)):
-			new_chunk = generate_new_chunk(Vector2i(gen_chunk_x, gen_chunk_y), world_seed)
-			chunk_node = chunk_scene.instantiate()
-			tilemap.add_child(chunk_node)
-			chunks[Vector2i(gen_chunk_x, gen_chunk_y)] = chunk_node
-			chunk_node.position = (
-				(Vector2i(gen_chunk_x, gen_chunk_y) + current_chunk) * CHUNK_SIZE * 32
-				+ Vector2i(16, 16)
-			)
-
-			@warning_ignore("integer_division")
-			for i in CHUNK_SIZE * CHUNK_SIZE:
-				chunk_node.set_cell(
-					new_chunk.ground_layer[coord_x][coord_y],
-					Vector2i(coord_x, coord_y),
-					false,
-					true
-				)
-				chunk_node.set_cell(
-					new_chunk.terrain_layer[coord_x][coord_y],
-					Vector2i(coord_x, coord_y),
-					false,
-					true
-				)
-				chunk_node.set_cell(
-					new_chunk.wall_layer[coord_x][coord_y],
-					Vector2i(coord_x, coord_y),
-					false,
-					true
-				)
-				chunk_node.set_cell(
-					new_chunk.terrain_queued_layer[coord_x][coord_y],
-					Vector2i(coord_x, coord_y),
-					false,
-					true
-				)
-				chunk_node.set_cell(
-					new_chunk.wall_queued_layer[coord_x][coord_y],
-					Vector2i(coord_x, coord_y),
-					false,
-					true
-				)
-				chunk_node.set_cell(
-					new_chunk.terrain_queued_d_layer[coord_x][coord_y],
-					Vector2i(coord_x, coord_y),
-					false,
-					true
-				)
-				chunk_node.set_cell(
-					new_chunk.wall_queued_d_layer[coord_x][coord_y],
-					Vector2i(coord_x, coord_y),
-					false,
-					true
-				)
-
-				if coord_x + 1 == CHUNK_SIZE:
-					coord_x = 0
-					coord_y += 1
-
-					if coord_y == CHUNK_SIZE:
-						coord_x = 0
-						coord_y = 0
-						new_chunk = null
-						GlobalRef.add_chunk(Vector2i(gen_chunk_x, gen_chunk_y), chunk_node)
-						print(gen_chunk_x, " ", gen_chunk_y)
-
-						if gen_chunk_x + 1 == render_distance:
-							gen_chunk_x = 0
-							gen_chunk_y += 1
-						else:
-							gen_chunk_x += 1
-				else:
-					coord_x += 1
-
-	new_chunk = null
-
+func _temp_saver():
+	for i in GlobalRef.chunks:
+		GlobalSaver.save_chunk(Vector2i(i))
 
 func _process(_delta: float) -> void:
 	if (
@@ -186,6 +104,7 @@ func _process(_delta: float) -> void:
 		and chunks.has(unload_queue[-1])
 		and is_instance_valid(chunks[unload_queue[-1]])
 	):
+		if chunks[unload_queue[-1]].dirty: GlobalSaver.save_chunk(unload_queue[-1])
 		chunks[unload_queue[-1]].queue_free()
 		chunks.erase(unload_queue[-1])
 		unload_queue.remove_at(-1)
@@ -369,10 +288,12 @@ func instantiate_chunk(coords: Vector2i, _seed: int) -> void:
 	@warning_ignore("integer_division")
 	for i in CHUNK_SIZE:
 		for j in CHUNK_SIZE:
-			chunk_node.set_cell(new_chunk.ground_layer[i][j], Vector2i(i, j), false, true)
-			chunk_node.set_cell(new_chunk.terrain_layer[i][j], Vector2i(i, j), false, true)
-			chunk_node.set_cell(new_chunk.wall_layer[i][j], Vector2i(i, j), false, true)
-			chunk_node.set_cell(new_chunk.terrain_queued_layer[i][j], Vector2i(i, j), false, true)
-			chunk_node.set_cell(new_chunk.wall_queued_layer[i][j], Vector2i(i, j), false, true)
-			chunk_node.set_cell(new_chunk.terrain_queued_d_layer[i][j], Vector2i(i, j), false, true)
-			chunk_node.set_cell(new_chunk.wall_queued_d_layer[i][j], Vector2i(i, j), false, true)
+			chunk_node.set_cell(new_chunk.ground_layer[i][j], Vector2i(i, j), false)
+			chunk_node.set_cell(new_chunk.terrain_layer[i][j], Vector2i(i, j), false)
+			chunk_node.set_cell(new_chunk.wall_layer[i][j], Vector2i(i, j), false)
+			chunk_node.set_cell(new_chunk.terrain_queued_layer[i][j], Vector2i(i, j), false)
+			chunk_node.set_cell(new_chunk.wall_queued_layer[i][j], Vector2i(i, j), false)
+			chunk_node.set_cell(new_chunk.terrain_queued_d_layer[i][j], Vector2i(i, j), false)
+			chunk_node.set_cell(new_chunk.wall_queued_d_layer[i][j], Vector2i(i, j), false)
+
+	chunk_node.dirty = false

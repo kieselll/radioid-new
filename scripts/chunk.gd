@@ -24,7 +24,7 @@ extends Node2D
 
 var _new_cells: Array[NewCell] = []  # Queue of cell updates
 var _cells: Array[Array] = []  # 3D tile storage
-var _deltas: Array #
+var dirty: bool
 var _multimesh_instances: Dictionary[int, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
 var _chunk_manager: ChunkManager
 var _tilemap: TileMap
@@ -168,7 +168,7 @@ func _process(_delta: float) -> void:
 
 
 ## Queues a tile for placement or replacement.
-func set_cell(id: int, coords: Vector2i, queued: bool, deferred: bool = false) -> void:
+func set_cell(id: int, coords: Vector2i, queued: bool) -> void:
 	_new_cells.append(
 		NewCell.new(
 			id,
@@ -176,15 +176,16 @@ func set_cell(id: int, coords: Vector2i, queued: bool, deferred: bool = false) -
 			BuildableDB.get_tile(id).queued_layer if queued else BuildableDB.get_tile(id).layer
 		)
 	)
-	if not deferred:
-		set_process(true)
-	else:
-		call_deferred("_update")
+	dirty = true
+	set_process(true)
 
 
 #endregion
 
 #region Public_Helpers
+
+func get_cells() -> Array:
+	return _cells
 
 
 ## Returns tile at given coords.
@@ -267,7 +268,7 @@ func _update():
 
 		var inst = _multimesh_instances[i.id]
 
-		var index = i.coords.y * CHUNK_SIZE + i.coords.x
+		var index = abs(i.coords.y) * CHUNK_SIZE + abs(i.coords.x)
 
 		inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, 32 * i.coords))
 
@@ -308,6 +309,7 @@ func _create_multimesh(cell: NewCell):
 
 	mm.multimesh.instance_count = CHUNK_SIZE * CHUNK_SIZE
 	add_child(mm)
+	pass
 
 
 #endregion

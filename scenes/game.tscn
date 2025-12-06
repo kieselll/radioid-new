@@ -294,7 +294,7 @@ process_mode = 3
 script = ExtResource("14_pr1ej")
 cam = NodePath("../../../Camera2D")
 chunk_scene = ExtResource("15_05nbr")
-render_distance = 5
+render_distance = 14
 metadata/_custom_type_script = "uid://ccqmsxdcsc1b6"
 
 [node name="Control" type="Control" parent="."]
