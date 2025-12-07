@@ -186,9 +186,8 @@ func set_cell(id: int, coords: Vector2i, queued: bool) -> void:
 func get_cells() -> Array:
 	return _cells
 
-
-func get_cells_rle() -> Dictionary:
-	var result = {}
+func get_cells_rle() -> Array:
+	var result : Array = []
 
 	for layer in _cells.size():
 		var layer_data = []
@@ -211,6 +210,7 @@ func get_cells_rle() -> Dictionary:
 
 		layer_data.append(Vector2i(last_id, run_length))
 
+		result.append([])
 		result[layer] = layer_data
 
 	return result
