@@ -69,7 +69,10 @@ func load_save(dirname : String) -> SaveMeta:
 
 func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
-	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells())})
+	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
+
+func read_chunk():
+	pass
 
 func _ready() -> void:
 	_current_save = SaveMeta.new("test_save", 1234)
