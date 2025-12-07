@@ -76,17 +76,20 @@ func read_chunk():
 
 func _ready() -> void:
 	_current_save = SaveMeta.new("test_save", 1234)
-	load_save("test_save")
+	write_save("test_save")
 	add_child(write_timer)
 	write_timer.start(2)
 	write_timer.connect("timeout", _on_write_timer_timeout)
 
 func _on_write_timer_timeout():
 	var data : PackedByteArray = []
+	var index_data : PackedByteArray = []
 	for i in _chunks_to_save:
 		data.append_array(i.data)
+		index_data.append_array(var_to_bytes([i.coords, _current_world_file.get_position() + data.size()]))
 	if not data.is_empty():
 		_current_world_file.store_buffer(data)
+		_current_index_file.store_buffer(index_data)
 		print("stored")
 		_chunks_to_save.clear()
 
