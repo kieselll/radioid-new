@@ -754,7 +754,7 @@ format = 2
 
 [node name="test_pawn" parent="." instance=ExtResource("40_vgxg3")]
 z_index = 2
-position = Vector2(594, 301)
+position = Vector2(17.000122, 14.0000305)
 scale = Vector2(0.06, 0.06)
 floor_constant_speed = true
 characteristics = SubResource("Resource_pr1ej")
