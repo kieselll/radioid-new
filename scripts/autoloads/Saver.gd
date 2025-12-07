@@ -93,6 +93,13 @@ func _on_write_timer_timeout():
 		print("stored")
 		_chunks_to_save.clear()
 
-
 func _open_file(path : String) -> FileAccess:
 	return FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE)
+
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		for i in GlobalRef.chunks.keys():
+			if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
+				save_chunk(i)
+		_on_write_timer_timeout()
+		get_tree().quit()
