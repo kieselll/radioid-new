@@ -141,6 +141,7 @@ func _physics_process(_delta: float) -> void:
 			):
 				unload_queue.append(i)
 
+		var temp_load : Array[Vector2i] = []
 		# Mark chunks for load
 		for i in render_distance:
 			for j in render_distance:
@@ -153,7 +154,9 @@ func _physics_process(_delta: float) -> void:
 
 				if not chunks.has(coords) and not load_queue.has(coords):
 					@warning_ignore("integer_division")
-					load_queue.append(coords)
+					temp_load.append(coords)
+		temp_load.sort_custom(func(a,b): return abs(current_chunk.x - a.x) + abs(current_chunk.y - a.y) > abs(current_chunk.x - b.x) + abs(current_chunk.y - b.y))
+		load_queue = temp_load
 
 		set_process(true)
 
