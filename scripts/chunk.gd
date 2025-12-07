@@ -179,11 +179,9 @@ func set_cell(id: int, coords: Vector2i, queued: bool) -> void:
 	dirty = true
 	set_process(true)
 
-
 #endregion
 
 #region Public_Helpers
-
 
 func get_cells() -> Array:
 	return _cells
@@ -289,7 +287,7 @@ func _update():
 		if i.id == -1:
 			continue
 
-		var layer = BuildableDB.get_tile_layer(i.id)
+		var layer = i.layer
 		_cells[layer][i.coords.x][i.coords.y] = i.id
 
 		# Create MultiMesh if needed
@@ -339,7 +337,6 @@ func _create_multimesh(cell: NewCell):
 
 	mm.multimesh.instance_count = CHUNK_SIZE * CHUNK_SIZE
 	add_child(mm)
-	pass
 
 
 #endregion
@@ -440,7 +437,7 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 			continue
 
 		var rect: Rect2 = BuildableDB.get_tile(id).texture_params.get_terrain_tile_rect(
-			chunk._detect_neighbors(BuildableDB.get_tile_layer(id), p)
+			chunk._detect_neighbors(layer, p)
 		)
 
 		var index = p.y * CHUNK_SIZE + p.x
