@@ -71,8 +71,50 @@ func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
 	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
 
-func read_chunk():
-	pass
+func read_chunk(coords : Vector2i):
+	var memory_chunk = _chunks_to_save.find_custom(func(element): return element.coords == coords)
+	if memory_chunk != -1:
+		return bytes_to_var(_chunks_to_save[memory_chunk].data)
+	_current_index_file.seek(0)
+	var position : int = 0
+	while _current_index_file.get_position() + 16 <= _current_index_file.get_length():
+		print(_current_index_file.get_position() ," out of ", _current_index_file.get_length())
+		var buffer = _current_index_file.get_buffer(16)
+		if not buffer or buffer.size() < 16: return null
+		var read_coords := Vector2i(buffer.decode_s32(0), buffer.decode_s32(4))
+		position = buffer.decode_s64(8)
+		if read_coords == coords:
+			_current_world_file.seek(position)
+			var buffer_size = _current_world_file.get_buffer(8).decode_u64(0)
+			print("INDEX ENTRY:", read_coords, position)
+			print("BUFFER SIZE RAW:", buffer_size)
+			return bytes_to_var(_current_world_file.get_buffer(buffer_size))
+	return null
+
+func update_index(coords: Vector2i, new_position: int) -> void:
+		_current_index_file.seek(0)
+		while _current_index_file.get_position() < _current_index_file.get_length():
+				var entry_pos = _current_index_file.get_position()
+				var buf = _current_index_file.get_buffer(16)
+				if buf.size() < 16:
+						print("INDEX CORRUPTED AT POS:", entry_pos)
+						return
+				var x = buf.decode_s32(0)
+				var y = buf.decode_s32(4)
+				if coords == Vector2i(x, y):
+						_current_index_file.seek(entry_pos + 8)
+						var pos_buf = PackedByteArray()
+						pos_buf.resize(8)
+						pos_buf.encode_s64(0, new_position)
+						_current_index_file.store_buffer(pos_buf)
+						return
+		var entry = PackedByteArray()
+		entry.resize(16)
+		entry.encode_s32(0, coords.x)
+		entry.encode_s32(4, coords.y)
+		entry.encode_s64(8, new_position)
+		_current_index_file.store_buffer(entry)
+
 
 func _ready() -> void:
 	_current_save = SaveMeta.new("test_save", 1234)
@@ -83,14 +125,21 @@ func _ready() -> void:
 
 func _on_write_timer_timeout():
 	var data : PackedByteArray = []
-	var index_data : PackedByteArray = []
+	var pos = _current_world_file.get_length()
+	_current_world_file.seek(pos)
 	for i in _chunks_to_save:
+		print("RLE FOR ", i.coords, ": ", i.data)
+		print("DECODED: ", bytes_to_var(i.data))
+		print("SIZE: ", i.data.size())
+		var header = PackedByteArray([])
+		header.resize(8)
+		header.encode_u64(0, i.data.size())
+		data.append_array(header)
 		data.append_array(i.data)
-		index_data.append_array(var_to_bytes([i.coords, _current_world_file.get_position() + data.size()]))
+		update_index(i.coords, pos)
+		pos += i.data.size() + 8
 	if not data.is_empty():
 		_current_world_file.store_buffer(data)
-		_current_index_file.store_buffer(index_data)
-		print("stored")
 		_chunks_to_save.clear()
 
 func _open_file(path : String) -> FileAccess:

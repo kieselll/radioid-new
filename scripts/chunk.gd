@@ -168,26 +168,23 @@ func _process(_delta: float) -> void:
 
 
 ## Queues a tile for placement or replacement.
-func set_cell(id: int, coords: Vector2i, queued: bool) -> void:
-	_new_cells.append(
-		NewCell.new(
-			id,
-			coords,
-			BuildableDB.get_tile(id).queued_layer if queued else BuildableDB.get_tile(id).layer
-		)
-	)
+func set_cell(id: int, coords: Vector2i, layer: GlobalRef.tilemap_layers_enum) -> void:
+	_new_cells.append(NewCell.new(id, coords, layer))
 	dirty = true
 	set_process(true)
+
 
 #endregion
 
 #region Public_Helpers
 
+
 func get_cells() -> Array:
 	return _cells
 
+
 func get_cells_rle() -> Array:
-	var result : Array = []
+	var result: Array = []
 
 	for layer in _cells.size():
 		var layer_data = []

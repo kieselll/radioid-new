@@ -110,7 +110,11 @@ func _process(_delta: float) -> void:
 		unload_queue.remove_at(-1)
 
 	if not load_queue.is_empty():
-		instantiate_chunk(load_queue[-1], world_seed)
+		var loaded_chunk = GlobalSaver.read_chunk(load_queue[-1])
+		if not loaded_chunk:
+			instantiate_chunk(generate_new_chunk(load_queue[-1], world_seed), load_queue[-1])
+		else:
+			instantiate_chunk(decompress_chunk(loaded_chunk), load_queue[-1])
 		load_queue.remove_at(-1)
 		return
 
@@ -141,7 +145,7 @@ func _physics_process(_delta: float) -> void:
 			):
 				unload_queue.append(i)
 
-		var temp_load : Array[Vector2i] = []
+		var temp_load: Array[Vector2i] = []
 		# Mark chunks for load
 		for i in render_distance:
 			for j in render_distance:
@@ -155,7 +159,13 @@ func _physics_process(_delta: float) -> void:
 				if not chunks.has(coords) and not load_queue.has(coords):
 					@warning_ignore("integer_division")
 					temp_load.append(coords)
-		temp_load.sort_custom(func(a,b): return abs(current_chunk.x - a.x) + abs(current_chunk.y - a.y) > abs(current_chunk.x - b.x) + abs(current_chunk.y - b.y))
+		temp_load.sort_custom(
+			func(a, b):
+				return (
+					abs(current_chunk.x - a.x) + abs(current_chunk.y - a.y)
+					> abs(current_chunk.x - b.x) + abs(current_chunk.y - b.y)
+				)
+		)
 		load_queue = temp_load
 
 		set_process(true)
@@ -244,6 +254,44 @@ func generate_new_layer(
 	return tile_array
 
 
+func decompress_chunk(compressed_chunk: Array) -> Chunk:
+	var chunk = Chunk.new()
+	chunk.ground_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.ground])
+	chunk.terrain_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.terrain])
+	chunk.wall_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.walls])
+	chunk.terrain_queued_layer = decompress_layer(
+		compressed_chunk[GlobalRef.tilemap_layers_enum.terrain_queued]
+	)
+	chunk.wall_queued_layer = decompress_layer(
+		compressed_chunk[GlobalRef.tilemap_layers_enum.walls_queued]
+	)
+	chunk.terrain_queued_d_layer = decompress_layer(
+		compressed_chunk[GlobalRef.tilemap_layers_enum.terrain_queued_d]
+	)
+	chunk.wall_queued_d_layer = decompress_layer(
+		compressed_chunk[GlobalRef.tilemap_layers_enum.walls_queued_d]
+	)
+	return chunk
+
+
+func decompress_layer(compressed_layer: Array) -> Array:
+	var result = []
+	result.resize(CHUNK_SIZE)
+	for x in CHUNK_SIZE:
+		result[x] = []
+		result[x].resize(CHUNK_SIZE)
+	var intermediate_result: Array = []
+	for i in compressed_layer:
+		var array_insert: Array = []
+		array_insert.resize(i.y)
+		array_insert.fill(i.x)
+		intermediate_result.append_array(array_insert)
+	for i in intermediate_result.size():
+		@warning_ignore("integer_division")
+		result[i / CHUNK_SIZE][i % CHUNK_SIZE] = intermediate_result[i]
+	return result
+
+
 func generate_new_chunk(coords: Vector2i, _seed: int) -> Chunk:
 	var chunk = Chunk.new()
 
@@ -267,11 +315,9 @@ func generate_new_chunk(coords: Vector2i, _seed: int) -> Chunk:
 	return chunk
 
 
-func instantiate_chunk(coords: Vector2i, _seed: int) -> void:
-	var new_chunk: Chunk
+func instantiate_chunk(new_chunk: Chunk, coords) -> void:
 	var chunk_node: Node2D
 
-	new_chunk = generate_new_chunk(coords, _seed)
 	chunk_node = chunk_scene.instantiate()
 
 	tilemap.add_child(chunk_node)
@@ -283,10 +329,32 @@ func instantiate_chunk(coords: Vector2i, _seed: int) -> void:
 	@warning_ignore("integer_division")
 	for i in CHUNK_SIZE:
 		for j in CHUNK_SIZE:
-			chunk_node.set_cell(new_chunk.ground_layer[i][j], Vector2i(i, j), false)
-			chunk_node.set_cell(new_chunk.terrain_layer[i][j], Vector2i(i, j), false)
-			chunk_node.set_cell(new_chunk.wall_layer[i][j], Vector2i(i, j), false)
-			chunk_node.set_cell(new_chunk.terrain_queued_layer[i][j], Vector2i(i, j), false)
-			chunk_node.set_cell(new_chunk.wall_queued_layer[i][j], Vector2i(i, j), false)
-			chunk_node.set_cell(new_chunk.terrain_queued_d_layer[i][j], Vector2i(i, j), false)
-			chunk_node.set_cell(new_chunk.wall_queued_d_layer[i][j], Vector2i(i, j), false)
+			chunk_node.set_cell(
+				new_chunk.ground_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.ground
+			)
+			chunk_node.set_cell(
+				new_chunk.terrain_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.terrain
+			)
+			chunk_node.set_cell(
+				new_chunk.wall_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.walls
+			)
+			chunk_node.set_cell(
+				new_chunk.terrain_queued_layer[i][j],
+				Vector2i(i, j),
+				GlobalRef.tilemap_layers_enum.terrain_queued
+			)
+			chunk_node.set_cell(
+				new_chunk.wall_queued_layer[i][j],
+				Vector2i(i, j),
+				GlobalRef.tilemap_layers_enum.walls_queued
+			)
+			chunk_node.set_cell(
+				new_chunk.terrain_queued_d_layer[i][j],
+				Vector2i(i, j),
+				GlobalRef.tilemap_layers_enum.terrain_queued_d
+			)
+			chunk_node.set_cell(
+				new_chunk.wall_queued_d_layer[i][j],
+				Vector2i(i, j),
+				GlobalRef.tilemap_layers_enum.walls_queued_d
+			)
