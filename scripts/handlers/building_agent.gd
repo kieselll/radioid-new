@@ -72,7 +72,7 @@ enum _tile_neigbors {
 func _ready() -> void:
 	InputHandler.region_selected.connect(_on_input_handler_region_selected)
 	InputHandler.region_updated.connect(_on_input_handler_region_updated)
-	_chunks_manager = get_node(GlobalRef.get_game_node_path(ReferenceDB.game_nodes_enum.chunk_manager))
+	_chunks_manager = get_node(GlobalRef.get_handler(ReferenceDB.handlers_enum.chunk_manager))
 
 #endregion
 

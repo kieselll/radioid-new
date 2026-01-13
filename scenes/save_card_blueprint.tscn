@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://8vesb33v6d8h"]
+[gd_scene load_steps=10 format=3 uid="uid://8vesb33v6d8h"]
 
 [ext_resource type="Script" uid="uid://2fn6ba1fqtb7" path="res://scripts/save_card_blueprint.gd" id="1_tgj5r"]
 [ext_resource type="Texture2D" uid="uid://bfygxhwvhxnb6" path="res://textures/editor_icons/exploding-planet.png" id="2_6j7t3"]
@@ -16,10 +16,10 @@ border_width_top = 5
 border_width_right = 5
 border_width_bottom = 5
 border_color = Color(0.0901961, 0.0901961, 0.0901961, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2njs1"]
 
@@ -37,10 +37,20 @@ content_margin_top = 5.0
 content_margin_right = 5.0
 content_margin_bottom = 5.0
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6j7t3"]
+size = Vector2(290, 400)
+
 [node name="SaveCardBlueprint" type="PanelContainer"]
 custom_minimum_size = Vector2(290, 400)
-offset_right = 290.0
-offset_bottom = 400.0
+anchors_preset = -1
+offset_left = -145.0
+offset_top = -200.0
+offset_right = 145.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 theme = SubResource("Theme_d5urt")
 theme_override_styles/panel = SubResource("StyleBoxFlat_tgj5r")
 script = ExtResource("1_tgj5r")
@@ -82,3 +92,9 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_6j7t3")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_yn4tl")
 bbcode_enabled = true
 text = "Date :"
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(145, 200)
+shape = SubResource("RectangleShape2D_6j7t3")

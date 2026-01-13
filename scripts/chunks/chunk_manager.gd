@@ -2,14 +2,14 @@
 extends Node
 class_name ChunkManager
 
-#				 /$$$$$$$              /$$                           /$$
-#				| $$__  $$            |__/                          | $$
-#				| $$  \ $$   /$$$$$$   /$$  /$$    /$$   /$$$$$$   /$$$$$$     /$$$$$$
-#				| $$$$$$$/  /$$__  $$ | $$ |  $$  /$$/  |____  $$ |_  $$_/    /$$__  $$
-#				| $$____/  | $$  \__/ | $$  \  $$/$$/    /$$$$$$$   | $$     | $$$$$$$$
-#				| $$       | $$       | $$   \  $$$/    /$$__  $$   | $$ /$$ | $$_____/
-#				| $$       | $$       | $$    \  $/    |  $$$$$$$   |  $$$$/ |  $$$$$$$
-#				|__/       |__/       |__/     \_/      \_______/    \___/    \_______/
+#				 /$$$$$$$              /$$        /$$  /$$
+#				| $$__  $$            | $$       | $$ |__/
+#				| $$  \ $$  /$$   /$$ | $$$$$$$  | $$  /$$   /$$$$$$$
+#				| $$$$$$$/ | $$  | $$ | $$__  $$ | $$ | $$  /$$_____/
+#				| $$____/  | $$  | $$ | $$  \ $$ | $$ | $$ | $$
+#				| $$       | $$  | $$ | $$  | $$ | $$ | $$ | $$
+#				| $$       |  $$$$$$/ | $$$$$$$/ | $$ | $$ |  $$$$$$$
+#				|__/        \______/  |_______/  |__/ |__/  \_______/
 
 #				 /$$    /$$   /$$$$$$    /$$$$$$    /$$$$$$$
 #				|  $$  /$$/  |____  $$  /$$__  $$  /$$_____/
@@ -28,14 +28,14 @@ var old_chunk: Vector2i
 var world_seed = randi()
 var tilemap: TileMap
 
-#				 /$$$$$$$              /$$        /$$  /$$
-#				| $$__  $$            | $$       | $$ |__/
-#				| $$  \ $$  /$$   /$$ | $$$$$$$  | $$  /$$   /$$$$$$$
-#				| $$$$$$$/ | $$  | $$ | $$__  $$ | $$ | $$  /$$_____/
-#				| $$____/  | $$  | $$ | $$  \ $$ | $$ | $$ | $$
-#				| $$       | $$  | $$ | $$  | $$ | $$ | $$ | $$
-#				| $$       |  $$$$$$/ | $$$$$$$/ | $$ | $$ |  $$$$$$$
-#				|__/        \______/  |_______/  |__/ |__/  \_______/
+#				 /$$$$$$$              /$$                           /$$
+#				| $$__  $$            |__/                          | $$
+#				| $$  \ $$   /$$$$$$   /$$  /$$    /$$   /$$$$$$   /$$$$$$     /$$$$$$
+#				| $$$$$$$/  /$$__  $$ | $$ |  $$  /$$/  |____  $$ |_  $$_/    /$$__  $$
+#				| $$____/  | $$  \__/ | $$  \  $$/$$/    /$$$$$$$   | $$     | $$$$$$$$
+#				| $$       | $$       | $$   \  $$$/    /$$__  $$   | $$ /$$ | $$_____/
+#				| $$       | $$       | $$    \  $/    |  $$$$$$$   |  $$$$/ |  $$$$$$$
+#				|__/       |__/       |__/     \_/      \_______/    \___/    \_______/
 
 #				 /$$    /$$   /$$$$$$    /$$$$$$    /$$$$$$$
 #				|  $$  /$$/  |____  $$  /$$__  $$  /$$_____/
@@ -74,18 +74,20 @@ class Chunk:
 #				                 \______/
 
 signal current_chunk_changed(new_chunk_coords: Vector2i)
+signal chunk_deleted(coords: Vector2i)
+signal chunk_generated(coords: Vector2i)
 
-#				 /$$        /$$   /$$$$$$                                               /$$
-#				| $$       |__/  /$$__  $$                                             | $$
-#				| $$        /$$ | $$  \__/   /$$$$$$    /$$$$$$$  /$$   /$$   /$$$$$$$ | $$   /$$$$$$
-#				| $$       | $$ | $$$$      /$$__  $$  /$$_____/ | $$  | $$  /$$_____/ | $$  /$$__  $$
-#				| $$       | $$ | $$_/     | $$$$$$$$ | $$       | $$  | $$ | $$       | $$ | $$$$$$$$
-#				| $$       | $$ | $$       | $$_____/ | $$       | $$  | $$ | $$       | $$ | $$_____/
-#				| $$$$$$$$ | $$ | $$       |  $$$$$$$ |  $$$$$$$ |  $$$$$$$ |  $$$$$$$ | $$ |  $$$$$$$
-#				|________/ |__/ |__/        \_______/  \_______/  \____  $$  \_______/ |__/  \_______/
-#				                                                  /$$  | $$
-#				                                                 |  $$$$$$/
-#				                                                  \______/
+#				 /$$        /$$   /$$$$$$                                              /$$
+#				| $$       |__/  /$$__  $$                                            | $$
+#				| $$        /$$ | $$  \__/  /$$$$$$    /$$$$$$$  /$$   /$$   /$$$$$$$ | $$   /$$$$$$
+#				| $$       | $$ | $$$$     /$$__  $$  /$$_____/ | $$  | $$  /$$_____/ | $$  /$$__  $$
+#				| $$       | $$ | $$_/    | $$$$$$$$ | $$       | $$  | $$ | $$       | $$ | $$$$$$$$
+#				| $$       | $$ | $$      | $$_____/ | $$       | $$  | $$ | $$       | $$ | $$_____/
+#				| $$$$$$$$ | $$ | $$      |  $$$$$$$ |  $$$$$$$ |  $$$$$$$ |  $$$$$$$ | $$ |  $$$$$$$
+#				|________/ |__/ |__/       \_______/  \_______/  \____  $$  \_______/ |__/  \_______/
+#				                                                 /$$  | $$
+#				                                                |  $$$$$$/
+#				                                                 \______/
 
 
 func _ready() -> void:
@@ -106,6 +108,7 @@ func _process(_delta: float) -> void:
 		if chunks[unload_queue[-1]].dirty:
 			GlobalSaver.save_chunk(unload_queue[-1])
 		chunks[unload_queue[-1]].queue_free()
+		chunk_deleted.emit(unload_queue[-1])
 		chunks.erase(unload_queue[-1])
 		unload_queue.remove_at(-1)
 
@@ -315,7 +318,7 @@ func generate_new_chunk(coords: Vector2i, _seed: int) -> Chunk:
 	return chunk
 
 
-func instantiate_chunk(new_chunk: Chunk, coords) -> void:
+func instantiate_chunk(new_chunk: Chunk, coords: Vector2i) -> void:
 	var chunk_node: Node2D
 
 	chunk_node = chunk_scene.instantiate()
@@ -330,13 +333,19 @@ func instantiate_chunk(new_chunk: Chunk, coords) -> void:
 	for i in CHUNK_SIZE:
 		for j in CHUNK_SIZE:
 			chunk_node.set_cell(
-				new_chunk.ground_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.ground
+				new_chunk.ground_layer[i][j],
+				Vector2i(i, j),
+				GlobalRef.tilemap_layers_enum.ground
 			)
 			chunk_node.set_cell(
-				new_chunk.terrain_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.terrain
+				new_chunk.terrain_layer[i][j],
+				Vector2i(i, j),
+				GlobalRef.tilemap_layers_enum.terrain
 			)
 			chunk_node.set_cell(
-				new_chunk.wall_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.walls
+				new_chunk.wall_layer[i][j],
+				Vector2i(i, j),
+				GlobalRef.tilemap_layers_enum.walls
 			)
 			chunk_node.set_cell(
 				new_chunk.terrain_queued_layer[i][j],
@@ -358,3 +367,5 @@ func instantiate_chunk(new_chunk: Chunk, coords) -> void:
 				Vector2i(i, j),
 				GlobalRef.tilemap_layers_enum.walls_queued_d
 			)
+
+	chunk_generated.emit(coords)

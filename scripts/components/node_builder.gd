@@ -13,7 +13,7 @@ func build(coords: Vector2i, id: int, time: float = 5):
 		GlobalLogger.open_log_file()
 		get_tree().quit()
 	var progressbar: ProgressBar = (
-		GlobalRef.get_scene_path(GlobalRef.scenes_enum.progressbar).instantiate()
+		GlobalRef.get_scene(GlobalRef.scenes_enum.progressbar).instantiate()
 	)
 	progressbar.z_index = 20
 	progressbar.size = Vector2(100, 10)

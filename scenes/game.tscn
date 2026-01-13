@@ -760,6 +760,8 @@ floor_constant_speed = true
 characteristics = SubResource("Resource_pr1ej")
 
 [connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
+[connection signal="chunk_deleted" from="handlers/chunks/ChunkManager" to="handlers/GlobalPathfinder" method="_on_chunk_manager_chunk_deleted"]
+[connection signal="chunk_generated" from="handlers/chunks/ChunkManager" to="handlers/GlobalPathfinder" method="_on_chunk_manager_chunk_generated"]
 [connection signal="button_down" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_down"]
 [connection signal="button_up" from="Control/CanvasLayer/ui_buttons/build_toggle_button" to="Control/CanvasLayer/selection_buttons_rect" method="_on_button_button_up"]
 [connection signal="pressed" from="Control/popup_layer/pause_menu/VBoxContainer/options_button" to="handlers/paused_process_handler" method="_on_options_button_pressed"]
