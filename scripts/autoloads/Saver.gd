@@ -20,11 +20,9 @@ class SaveMeta:
 	var version : String
 
 	@warning_ignore("shadowed_variable")
-	func _init(display_name: String, world_seed: int):
+	func _init():
 		creation_date = Time.get_datetime_dict_from_system()
 		modified_date = creation_date
-		self.display_name = display_name
-		self.world_seed = world_seed
 		version = ProjectSettings.get_setting("application/config/version")
 		playtime = 0
 
@@ -61,10 +59,16 @@ func write_save(dirname : String) -> void:
 
 func load_save(dirname : String) -> SaveMeta:
 	_current_save_path = _save_dir_path + dirname
-	var _new_save = SaveMeta.new("",0)
-	var fileacc = FileAccess.open(_current_save_path + "/meta.json", FileAccess.READ_WRITE)
-	_new_save.dejsonify(fileacc.get_as_text())
+	var _new_save = get_save_meta(dirname)
 	_current_world_file = _open_file(_current_save_path + "/world.dat")
+	_current_index_file = _open_file(_current_save_path + "/index.dat")
+	return _new_save
+
+func get_save_meta(dirname : String) -> SaveMeta:
+	var _new_save = SaveMeta.new()
+	var save_path = _save_dir_path + dirname
+	var fileacc = FileAccess.open(save_path + "/meta.json", FileAccess.READ_WRITE)
+	_new_save.dejsonify(fileacc.get_as_text())
 	return _new_save
 
 func save_chunk(coords : Vector2i):
@@ -78,7 +82,6 @@ func read_chunk(coords : Vector2i):
 	_current_index_file.seek(0)
 	var position : int = 0
 	while _current_index_file.get_position() + 16 <= _current_index_file.get_length():
-		print(_current_index_file.get_position() ," out of ", _current_index_file.get_length())
 		var buffer = _current_index_file.get_buffer(16)
 		if not buffer or buffer.size() < 16: return null
 		var read_coords := Vector2i(buffer.decode_s32(0), buffer.decode_s32(4))
@@ -86,8 +89,6 @@ func read_chunk(coords : Vector2i):
 		if read_coords == coords:
 			_current_world_file.seek(position)
 			var buffer_size = _current_world_file.get_buffer(8).decode_u64(0)
-			print("INDEX ENTRY:", read_coords, position)
-			print("BUFFER SIZE RAW:", buffer_size)
 			return bytes_to_var(_current_world_file.get_buffer(buffer_size))
 	return null
 
@@ -97,7 +98,6 @@ func update_index(coords: Vector2i, new_position: int) -> void:
 				var entry_pos = _current_index_file.get_position()
 				var buf = _current_index_file.get_buffer(16)
 				if buf.size() < 16:
-						print("INDEX CORRUPTED AT POS:", entry_pos)
 						return
 				var x = buf.decode_s32(0)
 				var y = buf.decode_s32(4)
@@ -117,20 +117,18 @@ func update_index(coords: Vector2i, new_position: int) -> void:
 
 
 func _ready() -> void:
-	_current_save = SaveMeta.new("test_save", 1234)
-	write_save("test_save")
 	add_child(write_timer)
 	write_timer.start(2)
 	write_timer.connect("timeout", _on_write_timer_timeout)
+	if OS.has_feature("editor"):
+		load_save("test_save")
 
 func _on_write_timer_timeout():
+	if get_tree().current_scene and get_tree().current_scene.name != "GameRoot": return
 	var data : PackedByteArray = []
 	var pos = _current_world_file.get_length()
 	_current_world_file.seek(pos)
 	for i in _chunks_to_save:
-		print("RLE FOR ", i.coords, ": ", i.data)
-		print("DECODED: ", bytes_to_var(i.data))
-		print("SIZE: ", i.data.size())
 		var header = PackedByteArray([])
 		header.resize(8)
 		header.encode_u64(0, i.data.size())
