@@ -183,7 +183,7 @@ func is_moving() -> bool:
 
 
 func _update_path(from: Vector2i, to: Vector2i, partial: bool) -> void:
-	_path = _astar.request_path(from, to, partial)
+	#_path = _astar.request_path(from, to, partial)
 	_current_step = 0
 
 	if _path.is_empty():
