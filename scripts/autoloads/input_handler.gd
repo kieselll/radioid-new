@@ -103,7 +103,6 @@ func _physics_process(delta: float) -> void:
 	):
 		_prev_scene = get_tree().current_scene.name
 		_ui_manager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.ui_manager))
-		_tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
 
 	# Mouse input
 	if _mouse_input_allowed:
