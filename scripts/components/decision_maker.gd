@@ -66,13 +66,13 @@ func add_action_to_queue(action_name: StringName, priority: int, action_args: Di
 func calculate_action_priority_modifier(
 	action_name: StringName,
 	base_priority: int,
-	location: Vector2i = Vector2i.MAX,
+	location: Vector4i = Vector4i.MAX,
 	emotion_modifier: float = 1
 ) -> float:
 	var skill_modified: float = 0
 	var distance: float = (
 		_movement_component.get_local_position().distance_squared_to(location)
-		if location != Vector2i.MAX
+		if location != Vector4i.MAX
 		else 0
 	)
 	var skill_level: int

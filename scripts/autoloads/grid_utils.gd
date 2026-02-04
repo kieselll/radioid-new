@@ -87,7 +87,7 @@ func tile_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 		result.y -= 1
 	return result
 
-func worlde_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
+func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 	@warning_ignore("integer_division")
 	var tile_coord = coord/TILE_SIZE
 	var result = Vector4i(

@@ -3,7 +3,6 @@ class_name ReferenceDB
 
 #region Nodes
 enum game_nodes_enum {
-	tilemap,
 	handlers,
 	ui_layer,
 }
@@ -24,7 +23,6 @@ enum handlers_enum {
 }
 
 var _game_nodes = {
-	game_nodes_enum.tilemap: "TileMap",
 	game_nodes_enum.handlers: "handlers",
 	game_nodes_enum.ui_layer: "Control/CanvasLayer",
 }

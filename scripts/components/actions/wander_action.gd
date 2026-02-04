@@ -27,8 +27,8 @@ func new_pos():
 	if not _active:
 		return
 	if not _random_pos:
-		_random_pos = Vector2i(randi_range(-5, 5), randi_range(-5, 5))
-		if _random_pos == Vector2i.ZERO:
+		_random_pos = GridUtils.tile_coord_to_chunk_coord(Vector2i(randi_range(-5, 5), randi_range(-5, 5)))
+		if _random_pos == Vector4i.ZERO:
 			_random_pos = null
 			await get_tree().process_frame
 			new_pos()

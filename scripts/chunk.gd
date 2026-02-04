@@ -120,7 +120,6 @@ class NewCell:
 func _ready() -> void:
 	_init_cells()
 	_chunk_manager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.chunk_manager))
-	_tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
 
 
 func _process(_delta: float) -> void:
@@ -358,8 +357,8 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 	for i in offsets.size():
 		var o = coords + offsets[i]
 		var chunk_pos = Vector2i(
-			_chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x,
-			_chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).y
+			GridUtils.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x,
+			GridUtils.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).y
 		)
 
 		if o.x < 0:
@@ -408,8 +407,8 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 	):
 		var p = coords + off
 		var chunk_pos = Vector2i(
-			_chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x,
-			_chunk_manager.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).y
+			GridUtils.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x,
+			GridUtils.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).y
 		)
 
 		if p.x < 0:
@@ -437,7 +436,7 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 			chunk._detect_neighbors(layer, p)
 		)
 
-		var index = p.y * CHUNK_SIZE + p.x
+		var index = abs(p.y) * CHUNK_SIZE + abs(p.x)
 
 		chunk._multimesh_instances[id].multimesh.set_instance_custom_data(
 			index, Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y)

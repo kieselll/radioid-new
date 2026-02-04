@@ -2,11 +2,11 @@
 extends Node
 
 @abstract class Job:
-	var location: Vector2i
+	var location: Vector4i
 	var reserved: bool
 	var priority: int
 	@warning_ignore("shadowed_variable")
-	func _init(location: Vector2i, priority: int, reserved: bool = false) -> void:
+	func _init(location: Vector4i, priority: int, reserved: bool = false) -> void:
 		self.location = location
 		self.priority = priority
 		self.reserved = reserved
@@ -17,7 +17,7 @@ class BuildingJob:
 	var building_id: int
 	@warning_ignore("shadowed_variable")
 	@warning_ignore("shadowed_variable_base_class")
-	func _init(location: Vector2i, building_id: int, priority: int, reserved: bool = false) -> void:  # CRITICAL ADD PAWN REFERENCE TO RESERVED INSTEAD
+	func _init(location: Vector4i, building_id: int, priority: int, reserved: bool = false) -> void:  # CRITICAL ADD PAWN REFERENCE TO RESERVED INSTEAD
 		self.location = location
 		self.priority = priority
 		self.reserved = reserved

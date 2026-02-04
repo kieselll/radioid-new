@@ -90,10 +90,6 @@ signal chunk_generated(coords: Vector2i)
 #				                                                 \______/
 
 
-func _ready() -> void:
-	tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
-
-
 func _temp_saver():
 	for i in GlobalRef.chunks:
 		GlobalSaver.save_chunk(Vector2i(i))
@@ -125,11 +121,7 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var chunk_cam_coords: Vector4i = world_coord_to_chunk_coord(
-		get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap)).local_to_map(
-			cam.position
-		)
-	)
+	var chunk_cam_coords: Vector4i = GridUtils.world_coord_to_chunk_coord(cam.position)
 	current_chunk = Vector2i(chunk_cam_coords.x, chunk_cam_coords.y)
 
 	if old_chunk == null or old_chunk != current_chunk:
@@ -174,7 +166,6 @@ func _physics_process(_delta: float) -> void:
 		set_process(true)
 
 
-#				 /$$$$$$$              /$$        /$$  /$$
 #				| $$__  $$            | $$       | $$ |__/
 #				| $$  \ $$  /$$   /$$ | $$$$$$$  | $$  /$$   /$$$$$$$
 #				| $$$$$$$/ | $$  | $$ | $$__  $$ | $$ | $$  /$$_____/
@@ -333,19 +324,13 @@ func instantiate_chunk(new_chunk: Chunk, coords: Vector2i) -> void:
 	for i in CHUNK_SIZE:
 		for j in CHUNK_SIZE:
 			chunk_node.set_cell(
-				new_chunk.ground_layer[i][j],
-				Vector2i(i, j),
-				GlobalRef.tilemap_layers_enum.ground
+				new_chunk.ground_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.ground
 			)
 			chunk_node.set_cell(
-				new_chunk.terrain_layer[i][j],
-				Vector2i(i, j),
-				GlobalRef.tilemap_layers_enum.terrain
+				new_chunk.terrain_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.terrain
 			)
 			chunk_node.set_cell(
-				new_chunk.wall_layer[i][j],
-				Vector2i(i, j),
-				GlobalRef.tilemap_layers_enum.walls
+				new_chunk.wall_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.walls
 			)
 			chunk_node.set_cell(
 				new_chunk.terrain_queued_layer[i][j],

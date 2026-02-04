@@ -16,7 +16,7 @@ func start(args: Dictionary = {}) -> void:
 	GlobalLogger.write_to_logs(self, "Started moving")
 	_active = true
 	assert(
-		args[&"target"] is Vector2i,
+		args[&"target"] is Vector4i,
 		'MoveState of %s recieved start(), but has no argument "target" of type Vector2i.'
 	)
 

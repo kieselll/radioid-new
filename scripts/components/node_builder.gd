@@ -6,7 +6,7 @@ extends Node
 signal finished_building
 
 
-func build(coords: Vector2i, id: int, time: float = 5):
+func build(coords: Vector4i, id: int, time: float = 5):
 	var _data = BuildableDB.get_tile(id)
 	if not _data:
 		GlobalLogger.write_to_logs(self, "[ERROR]: Could not build tile with id: %d!" % id)
@@ -18,10 +18,8 @@ func build(coords: Vector2i, id: int, time: float = 5):
 	progressbar.z_index = 20
 	progressbar.size = Vector2(100, 10)
 	progressbar.position = (
-		get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap)).map_to_local(
-			coords
-		)
-		- Vector2(12, 26)
+		GridUtils.chunk_coord_to_world_coord(coords)
+		- Vector2i(12, 26)
 	)
 	get_node(GlobalRef.get_tilemap_layer_path(_data.layer)).add_child(progressbar)
 	var progressbar_tween = create_tween()

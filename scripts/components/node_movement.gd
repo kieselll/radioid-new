@@ -20,14 +20,13 @@ extends Node
 #				   \  $/    |  $$$$$$$ | $$        /$$$$$$$/
 #				    \_/      \_______/ |__/       |_______/
 
-var _path: Array[Vector2i] = []
+var _path: Array[Vector4i] = []
 var _current_step: int = 0
 var _target_position: Vector2i
 var _direction: Vector2
 var _local_position = null
 
 @onready var _parent: CharacterBody2D = get_parent()
-@onready var _tilemap: TileMap
 @onready var _astar: Node
 
 #				 /$$$$$$$              /$$        /$$  /$$
@@ -65,7 +64,6 @@ signal arrived_at_destination
 
 
 func _ready() -> void:
-	_tilemap = get_node(GlobalRef.get_game_node_path(GlobalRef.game_nodes_enum.tilemap))
 	_astar = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
 
@@ -83,14 +81,14 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_local_position = _tilemap.local_to_map(_parent.position)
+	_local_position = GridUtils.world_coord_to_chunk_coord(_parent.position)
 
 	if _path.is_empty():
 		_parent.velocity = Vector2.ZERO
 		set_physics_process(false)
 		return
 
-	_target_position = _tilemap.map_to_local(_path[_current_step])
+	_target_position = GridUtils.chunk_coord_to_world_coord(_path[_current_step])
 
 	# Recalculate path if obstacle appears
 	if _astar.astar.is_point_solid(_path[_current_step]):
@@ -137,9 +135,9 @@ func _physics_process(delta: float) -> void:
 #				|__/  |__/ |__/       |______/
 
 
-func move_to_coord(to: Vector2i, partial_path: bool = false) -> void:
+func move_to_coord(to: Vector4i, partial_path: bool = false) -> void:
 	GlobalLogger.write_to_logs(self, "Moving to coords %v..." % to)
-	var from = _local_position if _local_position else _tilemap.local_to_map(_parent.position)
+	var from = _local_position if _local_position else GridUtils.world_coord_to_chunk_coord(_parent.position)
 	_update_path(from, to, partial_path)
 	set_physics_process(true)
 
@@ -150,8 +148,8 @@ func stop_moving() -> void:
 	_parent.velocity = Vector2.ZERO
 
 
-func get_local_position() -> Vector2i:
-	return _tilemap.local_to_map(_parent.position)
+func get_local_position() -> Vector4i:
+	return GridUtils.world_coord_to_chunk_coord(_parent.position)
 
 
 func is_moving() -> bool:
@@ -182,7 +180,7 @@ func is_moving() -> bool:
 #				                       \______/
 
 
-func _update_path(from: Vector2i, to: Vector2i, partial: bool) -> void:
+func _update_path(from: Vector4i, to: Vector4i, partial: bool) -> void:
 	#_path = _astar.request_path(from, to, partial)
 	_current_step = 0
 

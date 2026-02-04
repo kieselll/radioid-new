@@ -40,7 +40,7 @@ func start(args: Dictionary = {}) -> void:
 		'BuildState of %s recieved start(), but has no argument "id" of type int.' % owner.name
 	)
 	GlobalLogger.write_to_logs(self, "Started building")
-	var _local_pos: Vector2i = _movement_component.get_local_position()
+	var _local_pos: Vector4i = _movement_component.get_local_position()
 	var _diff: Vector2i = abs(_movement_component.get_local_position() - args[&"target"])
 	assert(max(_diff.x, _diff.y) == 1, "%s tried to build a non-adjacent tile" % owner.name)
 	_building_component.build(args[&"target"], args[&"id"])
