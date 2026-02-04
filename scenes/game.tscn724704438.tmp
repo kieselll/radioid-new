@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://cel1egt4300a" path="res://scripts/handlers/paused_process_handler.gd" id="8_fedci"]
 [ext_resource type="Script" uid="uid://dfp1l6s4qr8nr" path="res://scripts/handlers/process_handler.gd" id="9_8qswn"]
 [ext_resource type="Script" uid="uid://bn4gl6qp36s43" path="res://scripts/handlers/astargrid_2d.gd" id="10_rm0al"]
+[ext_resource type="Script" uid="uid://gbt8dd5ngoow" path="res://scripts/utility/grid_utils.gd" id="11_i4re6"]
 [ext_resource type="Script" uid="uid://bjymq7o5gkojm" path="res://scripts/handlers/job_manager.gd" id="12_pf7vy"]
 [ext_resource type="Script" uid="uid://or0wot3jhfux" path="res://scripts/handlers/ui_manager.gd" id="13_o8ni1"]
 [ext_resource type="Script" uid="uid://c3cvur4cfyn06" path="res://scripts/control.gd" id="14_3hbvx"]
@@ -211,7 +212,7 @@ bg_color = Color(0, 0, 0, 0.876)
 [sub_resource type="TileSet" id="TileSet_pr1ej"]
 tile_size = Vector2i(32, 32)
 
-[sub_resource type="Resource" id="Resource_8ool0"]
+[sub_resource type="Resource" id="Resource_pr1ej"]
 resource_local_to_scene = true
 script = ExtResource("41_4nbsr")
 stats = {
@@ -272,6 +273,10 @@ script = ExtResource("9_8qswn")
 [node name="GlobalPathfinder" type="Node" parent="handlers" unique_id=1018771243]
 script = ExtResource("10_rm0al")
 metadata/_custom_type_script = "uid://bn4gl6qp36s43"
+
+[node name="grid_utils" type="Node" parent="handlers" unique_id=105953547]
+unique_name_in_owner = true
+script = ExtResource("11_i4re6")
 
 [node name="job_manager" type="Node" parent="handlers" unique_id=1226258330]
 script = ExtResource("12_pf7vy")
@@ -754,7 +759,7 @@ z_index = 2
 position = Vector2(356.99997, 197.99998)
 scale = Vector2(0.06, 0.06)
 floor_constant_speed = true
-characteristics = SubResource("Resource_8ool0")
+characteristics = SubResource("Resource_pr1ej")
 
 [connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
 [connection signal="chunk_deleted" from="handlers/chunks/ChunkManager" to="handlers/GlobalPathfinder" method="_on_chunk_manager_chunk_deleted"]

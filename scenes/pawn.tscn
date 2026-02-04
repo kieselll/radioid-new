@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://b46j0js042i4q"]
+[gd_scene format=3 uid="uid://b46j0js042i4q"]
 
 [ext_resource type="Script" uid="uid://6c7xkrnwj04x" path="res://scripts/CharacterBody2D.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://supgli3ajes5" path="res://man.png" id="2"]
@@ -36,7 +36,7 @@ width = 1
 gradient = SubResource("Gradient_trpkc")
 width = 1
 
-[node name="test_pawn" type="CharacterBody2D"]
+[node name="test_pawn" type="CharacterBody2D" unique_id=1045036099]
 scale = Vector2(0.5, 0.5)
 input_pickable = true
 motion_mode = 1
@@ -44,43 +44,43 @@ slide_on_ceiling = false
 script = ExtResource("1")
 characteristics = SubResource("Resource_hjss0")
 
-[node name="BuildingComponent" type="Node" parent="."]
+[node name="BuildingComponent" type="Node" parent="." unique_id=1321672555]
 script = ExtResource("6")
 metadata/_custom_type_script = "uid://dfbrbyd3o8hij"
 
-[node name="MovementComponent" type="Node" parent="."]
+[node name="MovementComponent" type="Node" parent="." unique_id=1460093695]
 script = ExtResource("7")
 metadata/_custom_type_script = "uid://1yujcdfforo4"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1131298891]
 position = Vector2(0, 70)
 shape = SubResource("CapsuleShape2D_taskf")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2027119988]
 z_index = 2
 texture_filter = 1
 scale = Vector2(16, 16)
 texture = ExtResource("2")
 
-[node name="RayCast2D" type="RayCast2D" parent="."]
+[node name="RayCast2D" type="RayCast2D" parent="." unique_id=1029058316]
 target_position = Vector2(0, 0)
 
-[node name="animation_player" type="Node" parent="."]
+[node name="animation_player" type="Node" parent="." unique_id=2117777128]
 script = ExtResource("5")
 
-[node name="right_hand" type="Sprite2D" parent="."]
+[node name="right_hand" type="Sprite2D" parent="." unique_id=1114180998]
 visible = false
 position = Vector2(126, -190)
 scale = Vector2(40, 40)
 texture = SubResource("GradientTexture1D_vrna7")
 
-[node name="left_hand" type="Sprite2D" parent="."]
+[node name="left_hand" type="Sprite2D" parent="." unique_id=1764301117]
 visible = false
 position = Vector2(-168, -198)
 scale = Vector2(40, 40)
 texture = SubResource("GradientTexture1D_bgilg")
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="." unique_id=941452451]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -94,35 +94,35 @@ theme_override_font_sizes/font_size = 50
 text = "Чюпеп"
 horizontal_alignment = 1
 
-[node name="ActionMachine" type="Node" parent="."]
+[node name="ActionMachine" type="Node" parent="." unique_id=963760608]
 script = ExtResource("8_otoq7")
 metadata/_custom_type_script = "uid://mlsuy8iy31ye"
 
-[node name="WanderAction" type="Node" parent="ActionMachine"]
+[node name="WanderAction" type="Node" parent="ActionMachine" unique_id=1729808754]
 script = ExtResource("9_vvra3")
 metadata/_custom_type_script = "uid://ronrx335gx2j"
 
-[node name="BuildAction" type="Node" parent="ActionMachine"]
+[node name="BuildAction" type="Node" parent="ActionMachine" unique_id=1564300205]
 script = ExtResource("8_kv2g7")
 metadata/_custom_type_script = "uid://bc2oir51xr02"
 
-[node name="StateMachine" type="Node" parent="."]
+[node name="StateMachine" type="Node" parent="." unique_id=1864938713]
 script = ExtResource("4")
 metadata/_custom_type_script = "uid://coyult43c47ei"
 
-[node name="IdleState" type="Node" parent="StateMachine"]
+[node name="IdleState" type="Node" parent="StateMachine" unique_id=149075669]
 script = ExtResource("8_ycofb")
 metadata/_custom_type_script = "uid://cyml8tsc5rk7i"
 
-[node name="MoveState" type="Node" parent="StateMachine"]
+[node name="MoveState" type="Node" parent="StateMachine" unique_id=882617367]
 script = ExtResource("7_ojbo2")
 metadata/_custom_type_script = "uid://cvf7cyvmsnhhf"
 
-[node name="BuildState" type="Node" parent="StateMachine"]
+[node name="BuildState" type="Node" parent="StateMachine" unique_id=611919989]
 script = ExtResource("11_snu10")
 metadata/_custom_type_script = "uid://nbiig222rder"
 
-[node name="DecisionMaker" type="Node" parent="."]
+[node name="DecisionMaker" type="Node" parent="." unique_id=790860303]
 script = ExtResource("12_snu10")
 _base_priority_weight = 2.0
 _skill_weight = 0.6
@@ -130,7 +130,7 @@ _negative_skill_weight = 2.0
 _distance_weight = 2.5
 metadata/_custom_type_script = "uid://bhsj43xf8ynaq"
 
-[node name="AbilityManager" type="Node" parent="."]
+[node name="AbilityManager" type="Node" parent="." unique_id=1511709753]
 script = ExtResource("13_77t1k")
 metadata/_custom_type_script = "uid://b7tqs8421b0q7"
 

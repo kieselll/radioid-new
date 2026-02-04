@@ -147,7 +147,6 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 	match event.keycode:
 		KEY_F5:
 			DebugMenu.visible = not DebugMenu.visible
-			_keyboard_input_allowed = not DebugMenu.visible
 
 		KEY_ESCAPE:
 			if not _blur_layer.visible:

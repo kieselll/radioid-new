@@ -54,6 +54,6 @@ func _tick() -> void:
 		+ " MB"
 	)
 	_tile_info.text = str("NOT DONE YET")
-	_tick_timer.start(1)
+	_tick_timer.start(0.25)
 	await _tick_timer.timeout
 	call_deferred("_tick")

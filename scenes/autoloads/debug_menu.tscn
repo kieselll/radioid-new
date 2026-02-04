@@ -89,5 +89,5 @@ layout_mode = 2
 [node name="LineEdit" type="LineEdit" parent="Control/HBoxContainer/Panel3/VSplitContainer"]
 layout_mode = 2
 emoji_menu_enabled = false
+select_all_on_focus = true
 caret_blink = true
-caret_blink_interval = 1.0
