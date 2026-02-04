@@ -8,14 +8,18 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="idkrim"
 run/main_scene="res://scenes/menu.tscn"
 config/auto_accept_quit=false
-config/features=PackedStringArray("4.5", "Mobile")
+config/features=PackedStringArray("4.6", "Mobile")
 boot_splash/bg_color=Color(0.0901961, 0.0901961, 0.0901961, 1)
-boot_splash/fullsize=false
+boot_splash/stretch_mode=0
 boot_splash/use_filter=false
 boot_splash/image="uid://bfygxhwvhxnb6"
 config/icon="uid://bfygxhwvhxnb6"
@@ -30,6 +34,7 @@ SceneTransition="*res://scenes/autoloads/scene_transition.tscn"
 BuildableDB="*res://scripts/autoloads/BuildableDB.gd"
 DebugMenu="*res://scenes/autoloads/debug_menu.tscn"
 InputHandler="*res://scripts/autoloads/input_handler.gd"
+GridUtils="*uid://gbt8dd5ngoow"
 
 [debug]
 
