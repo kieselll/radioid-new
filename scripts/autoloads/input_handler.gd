@@ -18,7 +18,6 @@ extends Node2D
 #				   \  $/    |  $$$$$$$ | $$        /$$$$$$$/
 #				    \_/      \_______/ |__/       |_______/
 
-var _tilemap
 var _ui_manager
 
 var _keyboard_input_allowed: bool = true
@@ -72,8 +71,8 @@ var _resume_button := $/root/GameRoot/Control/popup_layer/pause_menu/VBoxContain
 #				                |  $$$$$$/
 #				                 \______/
 
-signal region_selected(rect: Rect2i, _click_2: Vector2i)
-signal region_updated(rect: Rect2i)
+signal region_selected(rect: TileMapRect, _click_2: Vector4i)
+signal region_updated(rect: TileMapRect)
 signal movement_key_pressed(direction: Vector2i, delta: float)
 
 #				 /$$        /$$   /$$$$$$                                               /$$
@@ -164,13 +163,10 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 
 func _handle_mouse_motion() -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _click_1:
-		var mouse_map = _tilemap.local_to_map(get_global_mouse_position())
+		var mouse_map = GridUtils.world_coord_to_chunk_coord(get_global_mouse_position())
 
 		if _prev_mouse_map_pos and mouse_map != _prev_mouse_map_pos:
-			var rect := (
-				Rect2i(_tilemap.local_to_map(_click_1), mouse_map - _tilemap.local_to_map(_click_1))
-				. abs()
-			)
+			var rect := TileMapRect.new(GridUtils.world_coord_to_chunk_coord(_click_1), mouse_map).normalize()
 			region_updated.emit(rect)
 
 		_prev_mouse_map_pos = mouse_map
@@ -191,12 +187,9 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 		_click_2 = get_global_mouse_position()
 
 		if _click_1 and _click_2:
-			var rect := (
-				Rect2i(
-					_tilemap.local_to_map(_click_1),
-					_tilemap.local_to_map(_click_2) - _tilemap.local_to_map(_click_1)
-				)
-				. abs()
+			var rect := TileMapRect.new(
+				GridUtils.world_coord_to_chunk_coord(_click_1),
+				GridUtils.world_coord_to_chunk_coord(_click_2),
 			)
 
 			region_selected.emit(rect)

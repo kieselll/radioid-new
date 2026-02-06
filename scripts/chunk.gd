@@ -357,8 +357,8 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 	for i in offsets.size():
 		var o = coords + offsets[i]
 		var chunk_pos = Vector2i(
-			GridUtils.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x,
-			GridUtils.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).y
+			GridUtils.world_coord_to_chunk_coord(position).x,
+			GridUtils.world_coord_to_chunk_coord(position).y
 		)
 
 		if o.x < 0:
@@ -407,8 +407,8 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 	):
 		var p = coords + off
 		var chunk_pos = Vector2i(
-			GridUtils.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).x,
-			GridUtils.world_coord_to_chunk_coord(_tilemap.local_to_map(position)).y
+			GridUtils.world_coord_to_chunk_coord(position).x,
+			GridUtils.world_coord_to_chunk_coord(position).y,
 		)
 
 		if p.x < 0:
