@@ -166,43 +166,6 @@ func _physics_process(_delta: float) -> void:
 		set_process(true)
 
 
-#				| $$__  $$            | $$       | $$ |__/
-#				| $$  \ $$  /$$   /$$ | $$$$$$$  | $$  /$$   /$$$$$$$
-#				| $$$$$$$/ | $$  | $$ | $$__  $$ | $$ | $$  /$$_____/
-#				| $$____/  | $$  | $$ | $$  \ $$ | $$ | $$ | $$
-#				| $$       | $$  | $$ | $$  | $$ | $$ | $$ | $$
-#				| $$       |  $$$$$$/ | $$$$$$$/ | $$ | $$ |  $$$$$$$
-#				|__/        \______/  |_______/  |__/ |__/  \_______/
-
-#				  /$$$$$$
-#				 /$$__  $$
-#				| $$  \__/ /$$   /$$  /$$$$$$$    /$$$$$$$   /$$$$$$$
-#				| $$$$    | $$  | $$ | $$__  $$  /$$_____/  /$$_____/
-#				| $$_/    | $$  | $$ | $$  \ $$ | $$       |  $$$$$$
-#				| $$      | $$  | $$ | $$  | $$ | $$        \____  $$
-#				| $$      |  $$$$$$/ | $$  | $$ |  $$$$$$$  /$$$$$$$/
-#				|__/       \______/  |__/  |__/  \_______/ |_______/
-
-
-func chunk_coord_to_world_coord(chunk_coords: Vector4i) -> Vector2i:
-	return Vector2i(
-		chunk_coords.x * CHUNK_SIZE + chunk_coords.z, chunk_coords.y * CHUNK_SIZE + chunk_coords.w
-	)
-
-
-func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
-	@warning_ignore("integer_division")
-	var result = Vector4i(
-		coord.x / CHUNK_SIZE, coord.y / CHUNK_SIZE, coord.x % CHUNK_SIZE, coord.y % CHUNK_SIZE
-	)
-	if result.z < 0:
-		result.z = CHUNK_SIZE + result.z
-		result.x -= 1
-	if result.w < 0:
-		result.w = CHUNK_SIZE + result.w
-		result.y -= 1
-	return result
-
 
 #				 /$$$$$$$              /$$                           /$$
 #				| $$__  $$            |__/                          | $$
