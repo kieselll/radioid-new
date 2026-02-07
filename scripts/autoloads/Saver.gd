@@ -75,24 +75,46 @@ func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
 	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
 
+## Function that searches for the given coords in the index file, reading from end to start because of the append-only architecture,
+## and then returning the raw buffer representing the RLE encoded chunk data. Returns [null] if no chunk with such coords is found. [br][br]
+## [color=red] NEED TO ADD DATA VALIDATION AND SKIPPING LATER!!![/color]
 func read_chunk(coords : Vector2i):
+	# We try to find the chunk in memory
 	var memory_chunk = _chunks_to_save.find_custom(func(element): return element.coords == coords)
+	# If there is one, we return it
 	if memory_chunk != -1:
 		return bytes_to_var(_chunks_to_save[memory_chunk].data)
-	_current_index_file.seek(0)
+	# If the chunk wasn't found in the memory, we search for it on the disk
+	# We start from the end of the index file, because we use an append-only architecture
+	_current_index_file.seek_end()
+	# Creatng a variable for the chunk data position in the save file (in bytes)
 	var position : int = 0
-	while _current_index_file.get_position() + 16 <= _current_index_file.get_length():
+	# While the start of the file isn't overshot by the buffer size
+	while _current_index_file.get_position() - 16 >= 0:
+		# We move the cursor towards the start by the default buffer size (16)
+		_current_index_file.seek(_current_index_file.get_position() - 16)
+		# Then we get the buffer
 		var buffer = _current_index_file.get_buffer(16)
-		if not buffer or buffer.size() < 16: return null
+		# And advance the cursor by 16 bytes to the front AGAIN
+		# because apparently files are meant to be read from start to end, not the opposite
+		_current_index_file.seek(_current_index_file.get_position() - 16)
+		# If the buffer is corrupted, we search further
+		if not buffer or buffer.size() < 16: continue
+		# If not, we save the read coords
 		var read_coords := Vector2i(buffer.decode_s32(0), buffer.decode_s32(4))
-		position = buffer.decode_s64(8)
+		# Compare them to the coords we search for
 		if read_coords == coords:
+			# And save the position
+			position = buffer.decode_s64(8)
+			# Then we move to that position in the actual save file
 			_current_world_file.seek(position)
+			# Read the buffer size from the chunk header
 			var buffer_size = _current_world_file.get_buffer(8).decode_u64(0)
+			# And then return the BINARY chunk
 			return bytes_to_var(_current_world_file.get_buffer(buffer_size))
 	return null
 
-func update_index(coords: Vector2i, new_position: int) -> void:
+func update_chunk_index(coords: Vector2i, new_position: int) -> void:
 		_current_index_file.seek(0)
 		while _current_index_file.get_position() < _current_index_file.get_length():
 				var entry_pos = _current_index_file.get_position()
@@ -115,6 +137,35 @@ func update_index(coords: Vector2i, new_position: int) -> void:
 		entry.encode_s64(8, new_position)
 		_current_index_file.store_buffer(entry)
 
+func save_nav_data(portals_by_id : Dictionary, portal_nodes : Dictionary[int, Array]):
+	var mode
+	var index_data : PackedByteArray = []
+	var data : PackedByteArray = []
+
+	if not FileAccess.file_exists(_save_dir_path + "/navigation/index.dat"):
+		mode = FileAccess.WRITE
+	else:
+		mode = FileAccess.READ_WRITE
+	var index_file = FileAccess.open(_save_dir_path + "/navigation/index.dat", mode)
+
+	if not FileAccess.file_exists(_save_dir_path + "/navigation/data.dat"):
+		mode = FileAccess.WRITE
+	else:
+		mode = FileAccess.READ_WRITE
+	var data_file = FileAccess.open(_save_dir_path + "/navigation/data.dat", mode)
+
+	data_file.seek_end()
+
+	for i in portal_nodes:
+		index_data.resize(portal_nodes[i].size())
+		for j in portal_nodes[i]:
+			var encoded_data = portals_by_id[j].encode()
+			data.append_array(encoded_data)
+			index_data.encode_u64(index_data.size(), encoded_data.size() + data_file.get_position())
+
+	data_file.store_buffer(data)
+	index_file.store_buffer(index_data)
+
 
 func _ready() -> void:
 	add_child(write_timer)
@@ -134,7 +185,7 @@ func _on_write_timer_timeout():
 		header.encode_u64(0, i.data.size())
 		data.append_array(header)
 		data.append_array(i.data)
-		update_index(i.coords, pos)
+		update_chunk_index(i.coords, pos)
 		pos += i.data.size() + 8
 	if not data.is_empty():
 		_current_world_file.store_buffer(data)
