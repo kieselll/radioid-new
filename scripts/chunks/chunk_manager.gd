@@ -314,7 +314,7 @@ func instantiate_chunk(new_chunk: Chunk, coords: Vector2i) -> void:
 
 	chunk_node = chunk_scene.instantiate()
 
-	tilemap.add_child(chunk_node)
+	add_child(chunk_node)
 	chunks[coords] = chunk_node
 
 	chunk_node.position = coords * CHUNK_SIZE * 32 + Vector2i(16, 16)

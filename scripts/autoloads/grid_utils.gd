@@ -68,11 +68,15 @@ func get_neighbor_tiles(pos: Vector2, is_map := false) -> Array:
 	return output
 
 
-func chunk_coord_to_world_coord(chunk_coords: Vector4i) -> Vector2i:
+func chunk_coord_to_tile_coord(chunk_coords: Vector4i) -> Vector2i:
 	return Vector2i(
 		chunk_coords.x * CHUNK_SIZE + chunk_coords.z, chunk_coords.y * CHUNK_SIZE + chunk_coords.w
 	)
 
+func chunk_coord_to_world_coord(chunk_coords: Vector4i) -> Vector2i:
+	return Vector2i(
+		chunk_coords.x * CHUNK_SIZE + chunk_coords.z, chunk_coords.y * CHUNK_SIZE + chunk_coords.w
+	) * TILE_SIZE
 
 func tile_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 	@warning_ignore("integer_division")

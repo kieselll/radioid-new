@@ -88,7 +88,7 @@ func _physics_process(delta: float) -> void:
 		set_physics_process(false)
 		return
 
-	_target_position = GridUtils.chunk_coord_to_world_coord(_path[_current_step])
+	_target_position = GridUtils.chunk_coord_to_tile_coord(_path[_current_step])
 
 	# Recalculate path if obstacle appears
 	if _astar.astar.is_point_solid(_path[_current_step]):
