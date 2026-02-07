@@ -24,11 +24,11 @@ extends Node2D
 #region Private_Variables
 
 @onready var _multimesh_manager : Node = $multimesh_manager
-@onready var _tilemap : TileMap = $"../../TileMap"
 
-var _chunks_manager : ChunkManager
 var _current_item : BuildableData
 var _filled_array : Array = []
+
+const CHUNK_SIZE = 16
 
 # Neighbors for edge masks
 enum _tile_neigbors {
@@ -72,7 +72,6 @@ enum _tile_neigbors {
 func _ready() -> void:
 	InputHandler.region_selected.connect(_on_input_handler_region_selected)
 	InputHandler.region_updated.connect(_on_input_handler_region_updated)
-	_chunks_manager = get_node(GlobalRef.get_handler(ReferenceDB.handlers_enum.chunk_manager))
 
 #endregion
 
@@ -115,7 +114,7 @@ func filter_walls(tiles : Array, built_object : BuildableData) -> Dictionary:
 	var result : Dictionary = {"valid" = [], "invalid" = []}
 
 	for tile_coord in tiles:
-		var chunk_pos : Vector4i = _chunks_manager.world_coord_to_chunk_coord(tile_coord)
+		var chunk_pos : Vector4i = tile_coord
 		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
 		var cell : int = chunk.get_cell(
 			GlobalRef.tilemap_layers_enum.walls,
@@ -134,7 +133,7 @@ func filter_terrain(tiles : Array, built_object : BuildableData) -> Dictionary:
 	var result : Dictionary = {"valid" = [], "invalid" = [], "empty" = []}
 
 	for tile_coord in tiles:
-		var chunk_pos : Vector4i = _chunks_manager.world_coord_to_chunk_coord(tile_coord)
+		var chunk_pos : Vector4i = tile_coord
 		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
 		var cell : int = chunk.get_cell(
 			GlobalRef.tilemap_layers_enum.terrain,
@@ -156,7 +155,7 @@ func filter_ground(tiles : Array, built_object : BuildableData) -> Dictionary:
 	var result : Dictionary = {"valid" = [], "invalid" = []}
 
 	for tile_coord in tiles:
-		var chunk_pos : Vector4i = _chunks_manager.world_coord_to_chunk_coord(tile_coord)
+		var chunk_pos : Vector4i = tile_coord
 		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
 		var cell : int = chunk.get_cell(
 			GlobalRef.tilemap_layers_enum.ground,
@@ -208,70 +207,109 @@ func filter_ground(tiles : Array, built_object : BuildableData) -> Dictionary:
 #region Rect_Array_Manipulations
 @warning_ignore_start("int_as_enum_without_cast")
 
-func _get_rect_border_points_and_neighbors(selection_rect : Rect2i, is_filled : bool = false) -> Array:
+func _get_rect_border_points_and_neighbors(selection_rect : TileMapRect, is_filled : bool = false) -> Array:
 	var points := []
-	var w := selection_rect.size.x
-	var h := selection_rect.size.y
+	var chunk_min := Vector2i(selection_rect.start.x, selection_rect.start.y)
+	var chunk_max := Vector2i(selection_rect.end.x, selection_rect.end.y)
+	var tile_min := Vector2i(selection_rect.start.z, selection_rect.start.w)
+	var tile_max := Vector2i(selection_rect.end.z, selection_rect.end.w)
+	var width := (chunk_max.x - chunk_min.x) * CHUNK_SIZE + tile_max.x - tile_min.x + 1
+	var height := (chunk_max.y - chunk_min.y) * CHUNK_SIZE + tile_max.y - tile_min.y + 1
 
-	var min_x := selection_rect.position.x
-	var min_y := selection_rect.position.y
-	var max_x := min_x + w
-	var max_y := min_y + h
+	# Temp vars for runtime
+	var min_xx = 0
+	var max_xx = 0
+	var min_yy = 0
+	var max_yy = 0
+
+	selection_rect = selection_rect.normalize()
 
 	# Single tile
-	if w == 0 and h == 0:
-		return [{"coords" = Vector2i(min_x, min_y), "mask" = _tile_neigbors.CENTER}]
+	if width == 1 and height == 1:
+		return [{"coords" = selection_rect.start, "mask" = _tile_neigbors.CENTER}]
 
 	# Horizontal line
-	if h == 0:
-		for x in range(min_x, max_x + 1):
-			var mask = _tile_neigbors.CENTER
-			if x < max_x: mask |= _tile_neigbors.LEFT
-			if x > min_x: mask |= _tile_neigbors.RIGHT
-			points.append({"coords" = Vector2i(x,min_y), "mask" = mask})
+	if height == 1:
+		min_xx = tile_min.x
+		max_xx = CHUNK_SIZE - 1
+		for c_x in range(chunk_min.x, chunk_max.x + 1):
+			if c_x != chunk_min.x: min_xx = 0
+			if c_x == chunk_max.x: max_xx = tile_max.x
+			for x in range(min_xx, max_xx + 1):
+				var mask = _tile_neigbors.CENTER
+				if x < max_xx or c_x < chunk_max.x: mask |= _tile_neigbors.LEFT
+				if x > min_xx or c_x > chunk_min.x: mask |= _tile_neigbors.RIGHT
+				points.append({"coords" = Vector4i(c_x, chunk_min.y, x,tile_min.y), "mask" = mask})
+
 		return points
 
 	# Vertical line
-	if w == 0:
-		for y in range(min_y, max_y + 1):
-			var mask = _tile_neigbors.CENTER
-			if y < max_y: mask |= _tile_neigbors.BOTTOM
-			if y > min_y: mask |= _tile_neigbors.TOP
-			points.append({"coords" = Vector2i(min_x, y), "mask" = mask})
+	if width == 1:
+		min_yy = tile_min.y
+		max_yy = CHUNK_SIZE - 1
+		for c_y in range(chunk_min.y, chunk_max.y + 1):
+			if c_y != chunk_min.y: min_yy = 0
+			if c_y == chunk_max.y: max_yy = tile_max.y
+			for y in range(min_yy, max_yy + 1):
+				var mask = _tile_neigbors.CENTER
+				if y < max_yy or c_y < chunk_max.y: mask |= _tile_neigbors.BOTTOM
+				if y > min_yy or c_y > chunk_min.y: mask |= _tile_neigbors.TOP
+				points.append({"coords" = Vector4i(chunk_min.x, c_y, tile_min.x, y), "mask" = mask})
 		return points
 
 	# Filled rectangle or line-like
-	if h == 1 or w == 1 or is_filled:
-		for x in range(min_x, max_x + 1):
-			for y in range(min_y, max_y + 1):
-				var mask = 0b111111111
-				if x == min_x: mask &= ~(_tile_neigbors.TOP_RIGHT | _tile_neigbors.RIGHT | _tile_neigbors.BOTTOM_RIGHT)
-				if x == max_x: mask &= ~(_tile_neigbors.TOP_LEFT  | _tile_neigbors.LEFT  | _tile_neigbors.BOTTOM_LEFT)
-				if y == max_y: mask &= ~(_tile_neigbors.BOTTOM_LEFT | _tile_neigbors.BOTTOM | _tile_neigbors.BOTTOM_RIGHT)
-				if y == min_y: mask &= ~(_tile_neigbors.TOP_LEFT | _tile_neigbors.TOP | _tile_neigbors.TOP_RIGHT)
-				points.append({"coords" = Vector2i(x, y), "mask" = mask})
+	if height == 2 or width == 2 or is_filled:
+		min_xx = tile_min.x
+		max_xx = CHUNK_SIZE - 1
+		for c_x in range(chunk_min.x, chunk_max.x + 1):
+			min_yy = tile_min.y
+			max_yy = CHUNK_SIZE - 1
+			if c_x != chunk_min.x: min_xx = 0
+			if c_x == chunk_max.x: max_xx = tile_max.x
+			for c_y in range(chunk_min.y, chunk_max.y + 1):
+				if c_y != chunk_min.y: min_yy = 0
+				if c_y == chunk_max.y: max_yy = tile_max.y
+				for x in range(min_xx, max_xx + 1):
+					for y in range(min_yy, max_yy + 1):
+						var mask = 0b111111111
+						if x == min_xx: mask &= ~(_tile_neigbors.TOP_RIGHT | _tile_neigbors.RIGHT | _tile_neigbors.BOTTOM_RIGHT)
+						if x == max_xx: mask &= ~(_tile_neigbors.TOP_LEFT  | _tile_neigbors.LEFT  | _tile_neigbors.BOTTOM_LEFT)
+						if y == max_yy: mask &= ~(_tile_neigbors.BOTTOM_LEFT | _tile_neigbors.BOTTOM | _tile_neigbors.BOTTOM_RIGHT)
+						if y == min_yy: mask &= ~(_tile_neigbors.TOP_LEFT | _tile_neigbors.TOP | _tile_neigbors.TOP_RIGHT)
+						points.append({"coords" = Vector4i(c_x, c_y, x, y), "mask" = mask})
 		return points
 
 	# Border rectangle
-	for x in range(min_x, max_x + 1):
-		var mask = _tile_neigbors.CENTER
-		if x < max_x: mask |= _tile_neigbors.LEFT
-		if x > min_x: mask |= _tile_neigbors.RIGHT
+	min_xx = tile_min.x
+	max_xx = CHUNK_SIZE - 1
+	for c_x in range(chunk_min.x, chunk_max.x + 1):
+		if c_x != chunk_min.x: min_xx = 0
+		if c_x == chunk_max.x: max_xx = tile_max.x
+		for x in range(min_xx, max_xx + 1):
+			var mask = _tile_neigbors.CENTER
+			if x < max_xx or c_x != chunk_max.x: mask |= _tile_neigbors.LEFT
+			if x > min_xx or c_x != chunk_min.x: mask |= _tile_neigbors.RIGHT
 
-		if x == max_x or x == min_x:
-			points.append({"coords" = Vector2i(x, min_y), "mask" = mask | _tile_neigbors.BOTTOM})
-			points.append({"coords" = Vector2i(x, max_y), "mask" = mask | _tile_neigbors.TOP})
-		else:
-			points.append({"coords" = Vector2i(x, min_y), "mask" = mask})
-			points.append({"coords" = Vector2i(x, max_y), "mask" = mask})
+			if (x == max_xx and c_x == chunk_max.x) or (x == min_xx and c_x == chunk_min.x):
+				points.append({"coords" = Vector4i(c_x, chunk_min.y, x, tile_min.y), "mask" = mask | _tile_neigbors.BOTTOM})
+				points.append({"coords" = Vector4i(c_x, chunk_max.y, x, tile_max.y), "mask" = mask | _tile_neigbors.TOP})
+			else:
+				points.append({"coords" = Vector4i(c_x, chunk_min.y, x, tile_min.y), "mask" = mask})
+				points.append({"coords" = Vector4i(c_x, chunk_max.y, x, tile_max.y), "mask" = mask})
 
-	for y in range(min_y + 1, max_y):
-		var mask = _tile_neigbors.CENTER
-		if y < max_y: mask |= _tile_neigbors.BOTTOM
-		if y > min_y: mask |= _tile_neigbors.TOP
+	min_yy = tile_min.y
+	max_yy = CHUNK_SIZE - 1
+	for c_y in range(chunk_min.y, chunk_max.y + 1):
+		if c_y != chunk_min.y: min_yy = 0
+		if c_y == chunk_max.y: max_yy = tile_max.y
+		for y in range(min_yy, max_yy + 1):
+			if c_y == chunk_max.y and y == max_yy or c_y == chunk_min.y and y == min_yy: continue
+			var mask = _tile_neigbors.CENTER
+			if y < max_yy or c_y != chunk_max.y: mask |= _tile_neigbors.BOTTOM
+			if y > min_yy or c_y != chunk_min.y: mask |= _tile_neigbors.TOP
 
-		points.append({"coords" = Vector2i(min_x, y), "mask" = mask})
-		points.append({"coords" = Vector2i(max_x, y), "mask" = mask})
+			points.append({"coords" = Vector4i(chunk_min.x, c_y, tile_min.x, y), "mask" = mask})
+			points.append({"coords" = Vector4i(chunk_max.x, c_y, tile_max.x, y), "mask" = mask})
 
 	return points
 
@@ -316,46 +354,46 @@ func _neighbor_array_to_map_rect_array(neighbor_array : Array, texture_data : Bu
 
 #region Input_Processing
 
-func _on_input_handler_region_selected(_rect: Rect2i) -> void:
+func _on_input_handler_region_selected(_rect: TileMapRect) -> void:
 	_multimesh_manager.erase_mesh_instances()
 	if _current_item:
 		fill_array(filter_tiles(_filled_array, _current_item).valid, _current_item, true)
 
 
-func _on_input_handler_region_updated(rect: Rect2i) -> void:
+func _on_input_handler_region_updated(rect: TileMapRect) -> void:
+	# If there's an item selected and it can autotile
 	if _current_item and _current_item.texture_params.can_autotile:
-
+		# We calculate the individual tiles of the selected rect and the neighbor bitmask of each tile
 		var neighbors = _get_rect_border_points_and_neighbors(
 			rect,
 			_current_item.selection_filled
 		)
-
+		# Then we determine the texture rect that the tile should take according to the neighbor bitmask
 		var rects = _neighbor_array_to_map_rect_array(
 			neighbors,
 			_current_item.texture_params
 		)
+		# Temporary map for finding rects by their coord (for the tile sorting)
+		var rect_map = {}
 
-		_filled_array = rects.map(func(pair): return pair.coords)
+		# Building the rect map
+		for pair in rects:
+			rect_map[pair.coords] = pair.rect
+
+		# Finding the coords at which all the tiles have been built
+		_filled_array = rect_map.keys()
+		# Storing the filtered tiles in a dictionary of format: "valid" : Array[Vector2i], "invalid" : Array[Vector2i].
 		var filtered_coords_dict : Dictionary = filter_tiles(_filled_array, _current_item)
 
-		var filtered_grect_dict : Dictionary = {"valid" = [], "invalid" = []}
+		var filtered_valid_world_rect_dict = {}
+		for coord in filtered_coords_dict.valid:
+			filtered_valid_world_rect_dict[GridUtils.chunk_coord_to_world_coord(coord)] = rect_map[coord]
 
-		# Convert coords to world + attach rect
-		filtered_grect_dict.valid = filtered_coords_dict.valid.map(
-			func(coord): return {
-				"coords" = _tilemap.map_to_local(coord),
-				"rect" = rects[rects.find_custom(func(e): return e.coords == coord)].rect
-			}
-		)
+		var filtered_invalid_world_rect_dict = {}
+		for coord in filtered_coords_dict.invalid:
+			filtered_invalid_world_rect_dict[GridUtils.chunk_coord_to_world_coord(coord)] = rect_map[coord]
 
-		filtered_grect_dict.invalid = filtered_coords_dict.invalid.map(
-			func(coord): return {
-				"coords" = _tilemap.map_to_local(coord),
-				"rect" = rects[rects.find_custom(func(e): return e.coords == coord)].rect
-			}
-		)
-
-		_multimesh_manager.create_mesh_instances(filtered_grect_dict)
+		_multimesh_manager.create_mesh_instances({"valid" = filtered_valid_world_rect_dict, "invalid" = filtered_invalid_world_rect_dict})
 
 
 func _on_ui_manager_building_selected(id: int) -> void:
@@ -407,10 +445,9 @@ func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void
 	)
 
 	for coord in tiles:
-		var chunk_coords : Vector4i = _chunks_manager.world_coord_to_chunk_coord(coord)
-		GlobalRef.get_chunk(Vector2i(chunk_coords.x, chunk_coords.y)).set_cell(
+		GlobalRef.get_chunk(Vector2i(coord.x, coord.y)).set_cell(
 			built_object.id,
-			Vector2i(chunk_coords.z, chunk_coords.w),
+			Vector2i(coord.z, coord.w),
 			built_object.queued_layer if queued else built_object.layer)
 
 
