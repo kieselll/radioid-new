@@ -34,36 +34,32 @@ func find_nearest_tile_coord(call_coords: Vector4i, coords_array: Array):
 	return nearest_coord
 
 
-func get_neighbor_tiles(pos: Vector2, is_map := false) -> Array:
-	printerr("FIX ME")
+func get_neighbor_tiles(pos: Vector4i) -> Array:
 	var output = []
 
-	var offsets = (
-		[
-			Vector2(1, 1),
-			Vector2(1, 0),
-			Vector2(1, -1),
-			Vector2(0, 1),
-			Vector2(0, -1),
-			Vector2(-1, 1),
-			Vector2(-1, 0),
-			Vector2(-1, -1)
+	var offsets = [
+			Vector4i(0, 0, 1, 1),
+			Vector4i(0, 0, 1, 0),
+			Vector4i(0, 0, 1, -1),
+			Vector4i(0, 0, 0, 1),
+			Vector4i(0, 0, 0, -1),
+			Vector4i(0, 0, -1, 1),
+			Vector4i(0, 0, -1, 0),
+			Vector4i(0, 0, -1, -1)
 		]
-		if is_map
-		else [
-			Vector2(TILE_SIZE, TILE_SIZE),
-			Vector2(TILE_SIZE, 0),
-			Vector2(TILE_SIZE, -TILE_SIZE),
-			Vector2(0, TILE_SIZE),
-			Vector2(0, -TILE_SIZE),
-			Vector2(-TILE_SIZE, TILE_SIZE),
-			Vector2(-TILE_SIZE, 0),
-			Vector2(-TILE_SIZE, -TILE_SIZE)
-		]
-	)
 
 	for i in offsets:
-		output.append(pos + i)
+		var new_element
+		if (pos + i).z > CHUNK_SIZE:
+			new_element = pos + i + Vector4i(1, 0, -CHUNK_SIZE, 0)
+		if (pos + i).z < 0:
+			new_element = pos + i + Vector4i(-1, 0, CHUNK_SIZE, 0)
+		if (pos + i).w > CHUNK_SIZE:
+			new_element = pos + i + Vector4i(0, 1, 0, -CHUNK_SIZE)
+		if (pos + i).w < 0:
+			new_element = pos + i + Vector4i(0, -1, 0, CHUNK_SIZE)
+
+		output.append(new_element)
 
 	return output
 
