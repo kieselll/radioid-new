@@ -32,6 +32,7 @@ func _ready() -> void:
 	SceneTransition.finish_trans()
 
 	for i in menu_buttons:
+		i.pivot_offset_ratio = Vector2(0.5, 0.5)
 		i.mouse_entered.connect(_process_button_anims_and_sounds.bind(i, true))
 		i.mouse_exited.connect(_process_button_anims_and_sounds.bind(i, false))
 
@@ -55,13 +56,10 @@ func _on_window_size_changed():
 
 
 func _animate_button(
-	button: Button, button_scale: Vector2, button_position: Vector2, color: Color
+	button: Button, button_scale: Vector2, color: Color
 ) -> void:
 	var tween = create_tween().set_parallel(true).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(button, "scale", button_scale, 0.3).set_trans(Tween.TRANS_CIRC)
-	tween.parallel().tween_property(button, "position", button_position, 0.3).set_trans(
-		Tween.TRANS_CIRC
-	)
 	tween.parallel().tween_property(button.get_theme_stylebox("normal"), "bg_color", color, 0.3)
 
 
@@ -97,7 +95,6 @@ func _process_button_anims_and_sounds(button: Button, entered: bool):
 		_animate_button(
 			button,
 			Vector2(1.1, 1.1),
-			button.position - button.size / 20,
 			button_color_array[menu_buttons.find(button)]
 		)
 		audiostream.stream = button_hover_sound
@@ -107,9 +104,6 @@ func _process_button_anims_and_sounds(button: Button, entered: bool):
 		_animate_button(
 			button,
 			Vector2(1, 1),
-			Vector2(
-				0, menu_buttons.find(button) * (($MarginContainer/VBoxContainer.size.y - 9) / 4 + 3)
-			),
 			default_button_color
 		)
 		print(button.size)
