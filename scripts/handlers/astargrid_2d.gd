@@ -3,35 +3,77 @@ class_name GlobalPathfinder
 extends Node
 ## This [i]scene node[/i] is made for calculating paths for enemy/colonist AI.
 ## Need to add multithreading later
+## Also need to add dirty portal nodes !IMPORTANT! CRITICAL
+
+#				 /$$    /$$   /$$$$$$    /$$$$$$    /$$$$$$$
+#				|  $$  /$$/  |____  $$  /$$__  $$  /$$_____/
+#				 \  $$/$$/    /$$$$$$$ | $$  \__/ |  $$$$$$
+#				  \  $$$/    /$$__  $$ | $$        \____  $$
+#				   \  $/    |  $$$$$$$ | $$        /$$$$$$$/
+#				    \_/      \_______/ |__/       |_______/
 
 ## The dictionary that holds all [AstarGrid2D] instances for all the chunks.
 var astargrids: Dictionary[Vector2i, AStarGrid2D] = {}
-var portals_by_id: Dictionary[int, ChunkPortal] = {}
+var portals_by_id: Dictionary[String, ChunkPortal] = {}
 var portals_by_coords: Dictionary[Vector2i, Array] = {}
-var portal_nodes: Dictionary[int, Array] = {}
+var portal_nodes: Dictionary[String, Array] = {}
 var chunk_manager: ChunkManager
 var dirty_chunks: Array[Vector2i] = []
 var recalc_timer: Timer
-
-# Custom Astar variables:
-var open_list : Array = []
-var closed_list : Array = []
-
+var astarportal = AstarPortal2D.new(self)
 
 class ChunkPortal:
-	var id: int
+	var id: String
 	var chunk_coords: Vector2i
 	var side: Vector2i
 	var start: int
 	var end: int
 
 	@warning_ignore("shadowed_variable")
-	func _init(coords: Vector2i, side: Vector2i, start: int, end: int, id: int) -> void:
+	func _init(coords: Vector2i, side: Vector2i, start: int, end: int, id: String) -> void:
 		self.chunk_coords = coords
 		self.side = side
 		self.start = start
 		self.end = end
 		self.id = id
+
+	func encode():
+		var result: PackedByteArray
+		var side_index: int
+
+		match side:
+			Vector2i(-1, 0):
+				side_index = 1
+			Vector2i(1, 0):
+				side_index = 2
+			Vector2i(0, -1):
+				side_index = 3
+			Vector2i(0, 1):
+				side_index = 4
+			_:
+				side_index = 0
+
+		result.encode_s64(0, self.coords.x)
+		result.encode_s64(64, self.coords.y)
+		result.encode_u8(128, self.side_index)
+		result.encode_u8(136, self.start)
+		result.encode_u8(144, self.end)
+
+		return result
+
+	func decode(bytes: PackedByteArray):
+		if not bytes.size() == 152:
+			push_error("TRIED TO DECODE NAVIGATION DATA WITH WRONG SIZE!")
+
+
+#				 /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$
+#				|_  $$_/ | $$$ | $$ |_  $$_/ |__  $$__/
+#				  | $$   | $$$$| $$   | $$      | $$
+#				  | $$   | $$ $$ $$   | $$      | $$
+#				  | $$   | $$  $$$$   | $$      | $$
+#				  | $$   | $$\  $$$   | $$      | $$
+#				 /$$$$$$ | $$ \  $$  /$$$$$$    | $$
+#				|______/ |__/  \__/ |______/    |__/
 
 
 func _ready() -> void:
@@ -43,26 +85,68 @@ func _ready() -> void:
 	recalc_timer.timeout.connect(recalc_dirty_chunks)
 
 
+#				 /$$$$$$$              /$$
+#				| $$__  $$            | $$
+#				| $$  \ $$   /$$$$$$  | $$$$$$$   /$$   /$$   /$$$$$$
+#				| $$  | $$  /$$__  $$ | $$__  $$ | $$  | $$  /$$__  $$
+#				| $$  | $$ | $$$$$$$$ | $$  \ $$ | $$  | $$ | $$  \ $$
+#				| $$  | $$ | $$_____/ | $$  | $$ | $$  | $$ | $$  | $$
+#				| $$$$$$$/ |  $$$$$$$ | $$$$$$$/ |  $$$$$$/ |  $$$$$$$
+#				|_______/   \_______/ |_______/   \______/   \____  $$
+#				                                             /$$  \ $$
+#				                                            |  $$$$$$/
+#				                                             \______/
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.keycode == KEY_P:
+		get_rough_path(Vector4i(1,1,0,0), Vector4i(1,1,0,0))
+
+# Something was here
+#
+#   ⁞O       ⁞O       ⁞O        ⁞O
+#       ⁞O       ⁞O        ⁞O
+#
+
+
+#				  /$$$$$$   /$$                              /$$
+#				 /$$__  $$ | $$                             | $$
+#				| $$  \__/ | $$$$$$$   /$$   /$$  /$$$$$$$  | $$   /$$
+#				| $$       | $$__  $$ | $$  | $$ | $$__  $$ | $$  /$$/
+#				| $$       | $$  \ $$ | $$  | $$ | $$  \ $$ | $$$$$$/
+#				| $$    $$ | $$  | $$ | $$  | $$ | $$  | $$ | $$_  $$
+#				|  $$$$$$/ | $$  | $$ |  $$$$$$/ | $$  | $$ | $$ \  $$
+#				 \______/  |__/  |__/  \______/  |__/  |__/ |__/  \__/
+
+#				 /$$                              /$$
+#				| $$                             |__/
+#				| $$         /$$$$$$    /$$$$$$   /$$   /$$$$$$$
+#				| $$        /$$__  $$  /$$__  $$ | $$  /$$_____/
+#				| $$       | $$  \ $$ | $$  \ $$ | $$ | $$
+#				| $$       | $$  | $$ | $$  | $$ | $$ | $$
+#				| $$$$$$$$ |  $$$$$$/ |  $$$$$$$ | $$ |  $$$$$$$
+#				|________/  \______/   \____  $$ |__/  \_______/
+#				                       /$$  \ $$
+#				                      |  $$$$$$/
+#				                       \______/
+
 
 func _on_chunk_manager_chunk_deleted(coords: Vector2i) -> void:
 	# If a chunk is deleted, its astar gets deleted too (need to add saving later)
 	if astargrids.has(coords):
 		astargrids.erase(coords)
 	if portals_by_coords.has(coords):
-		for i in portals_by_coords[coords]:
-			if portal_nodes.has(i):
-				for j in portal_nodes[i].duplicate():
-					portal_nodes[j].erase(i)
-				portal_nodes.erase(i)
-			portals_by_id.erase(i)
-		portals_by_coords.erase(coords)
+		# We get the IDs of the portals in said chunk
+		for i in portals_by_coords[coords].duplicate():
+			erase_portal(i)
+	portals_by_coords.erase(coords)
 
 
 func _on_chunk_manager_chunk_generated(coords: Vector2i) -> void:
 	# Astar and vars init
 	if portals_by_coords.has(coords):
 		for i in portals_by_coords[coords]:
-			if portals_by_id.has(i): portals_by_id.erase(i)
+			if portals_by_id.has(i):
+				portals_by_id.erase(i)
 	portals_by_coords[coords] = []
 	var new_astar = AStarGrid2D.new()
 	new_astar.cell_size = Vector2i(32, 32)
@@ -94,6 +178,36 @@ func _on_chunk_manager_chunk_generated(coords: Vector2i) -> void:
 	handle_portals_by_coords(coords)
 
 
+#				 /$$                   /$$
+#				| $$                  | $$
+#				| $$$$$$$    /$$$$$$  | $$   /$$$$$$    /$$$$$$    /$$$$$$    /$$$$$$$
+#				| $$__  $$  /$$__  $$ | $$  /$$__  $$  /$$__  $$  /$$__  $$  /$$_____/
+#				| $$  \ $$ | $$$$$$$$ | $$ | $$  \ $$ | $$$$$$$$ | $$  \__/ |  $$$$$$
+#				| $$  | $$ | $$_____/ | $$ | $$  | $$ | $$_____/ | $$        \____  $$
+#				| $$  | $$ |  $$$$$$$ | $$ | $$$$$$$/ |  $$$$$$$ | $$        /$$$$$$$/
+#				|__/  |__/  \_______/ |__/ | $$____/   \_______/ |__/       |_______/
+#				                           | $$
+#				                           | $$
+#				                           |__/
+
+
+func calculate_portal_coords(side: Vector2i, start: int, end: int) -> Vector2i:
+	@warning_ignore("integer_division")
+	var middle_coord: int = (start + end) / 2
+
+	# Calculating the actual grid coords depending on start/end + side
+	match side:
+		Vector2i(-1, 0):
+			return Vector2i(0, middle_coord)
+		Vector2i(1, 0):
+			return Vector2i(15, middle_coord)
+		Vector2i(0, -1):
+			return Vector2i(middle_coord, 0)
+		Vector2i(0, 1):
+			return Vector2i(middle_coord, 15)
+		_:
+			return Vector2i(start, end)
+
 func handle_portals_by_coords(coords) -> void:
 	var astar = astargrids[coords]
 	for a in portals_by_coords[coords].size():
@@ -104,10 +218,12 @@ func handle_portals_by_coords(coords) -> void:
 			continue
 		# Get the matching portal index from the neighbor chunk (opposite side)
 		var portal_match: int = portals_by_coords[coords + side_a].find_custom(
-			func(element: int): return portals_by_id.has(element) and portals_by_id[element].side == -side_a
+			func(element: String):
+				return portals_by_id.has(element) and portals_by_id[element].side == -side_a
 		)
 		# check if the matching portal has the same start and same end to the studied one (same span basically)
-		if (portal_match != -1
+		if (
+			portal_match != -1
 			and (
 				portals_by_id[portals_by_coords[coords + side_a][portal_match]].start
 				== portals_by_id[portals_by_coords[coords][a]].start
@@ -117,15 +233,23 @@ func handle_portals_by_coords(coords) -> void:
 				== portals_by_id[portals_by_coords[coords][a]].end
 			)
 		):
-			# Create 2 portal nodes, append the connected portal ID and the weight as a Vector2
+			# Create 2 portal nodes, append the connected portal ID and the weight as an Array
 			if not portal_nodes.has(portals_by_coords[coords][a]):
-				portal_nodes[portals_by_coords[coords][a]] = [Vector2(portals_by_coords[coords + side_a][portal_match], 1)]
+				portal_nodes[portals_by_coords[coords][a]] = [
+					[portals_by_coords[coords + side_a][portal_match], 1]
+				]
 			else:
-				portal_nodes[portals_by_coords[coords][a]].append(Vector2(portals_by_coords[coords + side_a][portal_match], 1))
+				portal_nodes[portals_by_coords[coords][a]].append(
+					[portals_by_coords[coords + side_a][portal_match], 1]
+				)
 			if not portal_nodes.has(portals_by_coords[coords + side_a][portal_match]):
-				portal_nodes[portals_by_coords[coords + side_a][portal_match]] = [Vector2(portals_by_coords[coords][a], 1)]
+				portal_nodes[portals_by_coords[coords + side_a][portal_match]] = [
+					[portals_by_coords[coords][a], 1]
+				]
 			else:
-				portal_nodes[portals_by_coords[coords + side_a][portal_match]].append(Vector2(portals_by_coords[coords][a], 1))
+				portal_nodes[portals_by_coords[coords + side_a][portal_match]].append(
+					[portals_by_coords[coords][a], 1]
+				)
 		# Check all other portals in the same chunk. The a + 1 part guarantees no repetitions and gives some optimization in extreme cases
 		for b in range(a + 1, portals_by_coords[coords].size()):
 			# Initializing the coordinates and the portals' IDs as separate variables
@@ -134,31 +258,9 @@ func handle_portals_by_coords(coords) -> void:
 			var i = portals_by_coords[coords][a]
 			var j = portals_by_coords[coords][b]
 
-			# Determining the portals' coords for pathfinding by finding the middle of the span and storing them
-			@warning_ignore_start("integer_division")
-			var icoord: int = (portals_by_id[i].start + portals_by_id[i].end) / 2
-			var jcoord: int = (portals_by_id[j].start + portals_by_id[j].end) / 2
-			@warning_ignore_restore("integer_division")
-
 			# Calculating the actual grid coords depending on start/end + side
-			match portals_by_id[i].side:
-				Vector2i(-1, 0):
-					c_1 = Vector2i(0, icoord)
-				Vector2i(1, 0):
-					c_1 = Vector2i(15, icoord)
-				Vector2i(0, -1):
-					c_1 = Vector2i(icoord, 0)
-				Vector2i(0, 1):
-					c_1 = Vector2i(icoord, 15)
-			match portals_by_id[j].side:
-				Vector2i(-1, 0):
-					c_2 = Vector2i(0, jcoord)
-				Vector2i(1, 0):
-					c_2 = Vector2i(15, jcoord)
-				Vector2i(0, -1):
-					c_2 = Vector2i(jcoord, 0)
-				Vector2i(0, 1):
-					c_2 = Vector2i(jcoord, 15)
+			c_1 = calculate_portal_coords(portals_by_id[i].side, portals_by_id[i].start, portals_by_id[i].end)
+			c_2 = calculate_portal_coords(portals_by_id[j].side, portals_by_id[j].start, portals_by_id[j].end)
 
 			# Trying to get a path between the 2 studied portals
 			var path = astar.get_id_path(c_1, c_2)
@@ -170,13 +272,13 @@ func handle_portals_by_coords(coords) -> void:
 					calculated_weight += astar.get_point_weight_scale(point)
 				# Adding a new portal connecton
 				if not portal_nodes.has(i):
-					portal_nodes[i] = [Vector2(j, calculated_weight)]
+					portal_nodes[i] = [[j, calculated_weight]]
 				else:
-					portal_nodes[i].append(Vector2(j, calculated_weight))
+					portal_nodes[i].append([j, calculated_weight])
 				if not portal_nodes.has(j):
-					portal_nodes[j] = [Vector2(i, calculated_weight)]
+					portal_nodes[j] = [[i, calculated_weight]]
 				else:
-					portal_nodes[j].append(Vector2(i, calculated_weight))
+					portal_nodes[j].append([i, calculated_weight])
 
 
 # God damn, what a monolith! Good luck to anyone who has to read this right now, I did my best at making this comprehensible
@@ -191,7 +293,7 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 	var neighbor_constant = 15 - self_constant
 
 	# If there is no neighbor on the studied side (direction), we return prematurely
-	if not astargrids.has(coords + direction):
+	if not astargrids.has(coords + direction) or not astargrids.has(coords):
 		return
 
 	# Going along the top edge horizontally
@@ -223,17 +325,25 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 			# Which means we register the previous coordinate as the end of the portal
 			portal_end = i - 1
 			# And we save the portal
-			var id = portals_by_id.size()
+			var id = (
+				"%d, %d; %d, %d; %d-%d"
+				% [coords.x, coords.y, direction.x, direction.y, portal_start, portal_end]
+			)
 			portals_by_id[id] = ChunkPortal.new(coords, direction, portal_start, portal_end, id)
-			portals_by_coords[coords].append(id)
+			if not portals_by_coords[coords].has(id):
+				portals_by_coords[coords].append(id)
 			# As well as registering the fact that this tile was not a portal
 			was_prev_portal = false
 	# Finally, if we finished going over the tiles and the portal we started making never ended...
 	if was_prev_portal:
 		# We save it
-		var id = portals_by_id.size()
+		var id = (
+			"%d, %d; %d, %d; %d-%d"
+			% [coords.x, coords.y, direction.x, direction.y, portal_start, 15]
+		)
 		portals_by_id[id] = ChunkPortal.new(coords, direction, portal_start, 15, id)
-		portals_by_coords[coords].append(id)
+		if not portals_by_coords[coords].has(id):
+			portals_by_coords[coords].append(id)
 	# If the neighbor chunk hasn't initialized its portals yet, we exit
 	if not portals_by_coords.has(coords + direction):
 		return
@@ -245,28 +355,117 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 		dirty_chunks.append(coords + direction)
 
 
+func get_rough_path(start: Vector4i, end: Vector4i):
+	const START_ID = "START"
+	const END_ID = "END"
+
+	# Creating 2 virtual portals for the start and end
+	portals_by_id[START_ID] = ChunkPortal.new(
+		Vector2i(start.x, start.y), Vector2i.ZERO, 0, 0, START_ID
+	)
+	portals_by_id[END_ID] = ChunkPortal.new(Vector2i(end.x, end.y), Vector2i.ZERO, 0, 0, END_ID)
+
+	portals_by_coords[Vector2i(start.x, start.y)].append(START_ID)
+	portals_by_coords[Vector2i(end.x, end.y)].append(END_ID)
+
+	portal_nodes[START_ID] = []
+	portal_nodes[END_ID] = []
+
+# Set up neighbors of start portal
+	for port in portals_by_coords[Vector2i(start.x, start.y)]:
+		var astar = astargrids[Vector2i(start.x, start.y)]
+		var path_start = Vector2i(start.x, start.y)
+		var path_end = calculate_portal_coords(portals_by_id[port].side, portals_by_id[port].start, portals_by_id[port].end)
+		var path = astargrids[Vector2i(start.x, start.y)].get_id_path(path_start, path_end)
+		if not path.is_empty():
+			var calculated_weight = 0
+			for i in path:
+				calculated_weight += astar.get_point_weight_scale(i)
+			portal_nodes[START_ID].append([port, calculated_weight])
+
+# Set up neighbors of end portal
+	for port in portals_by_coords[Vector2i(end.x, end.y)]:
+		var astar = astargrids[Vector2i(end.x, end.y)]
+		var path_start = Vector2i(end.x, end.y)
+		var path_end = calculate_portal_coords(portals_by_id[port].side, portals_by_id[port].start, portals_by_id[port].end)
+		var path = astargrids[Vector2i(end.x, end.y)].get_id_path(path_start, path_end)
+		if not path.is_empty():
+			var calculated_weight = 0
+			for i in path:
+				calculated_weight += astar.get_point_weight_scale(i)
+			portal_nodes[END_ID].append([port, calculated_weight])
+
+	return astarportal.get_path(START_ID, END_ID)
+
+
+func erase_portal(id: String) -> void:
+	# We only delete a portal if it exists in the first place
+	if portal_nodes.has(id):
+		# Iterating over that portal's connections
+		for pair in portal_nodes[id]:
+			# If the connected portal SOMEHOW doesn't exist, we skip it
+			if not portal_nodes.has(pair[0]):
+				continue
+			# We find at what position is that portal
+			var portal_pos_other = portal_nodes[pair[0]].find_custom(
+				func(element): return element[0] == id
+			)
+			if portal_pos_other == -1:
+				continue
+			# Then erase that portal as a connection of the nodes
+			portal_nodes[pair[0]].pop_at(portal_pos_other)
+		portal_nodes.erase(id)
+		# Basically if the chunk is listed in the chunks_by_coords
+		if (
+			portals_by_id.has(id)
+			and portals_by_coords.has(portals_by_id[id].chunk_coords)
+			and portals_by_coords[portals_by_id[id].chunk_coords].has(id)
+		):
+			# We erase it from there too
+			portals_by_coords[portals_by_id[id].chunk_coords].erase(id)
+			portals_by_id.erase(id)
+
+
+#				 /$$        /$$   /$$$$$$                                               /$$
+#				| $$       |__/  /$$__  $$                                             | $$
+#				| $$        /$$ | $$  \__/   /$$$$$$    /$$$$$$$  /$$   /$$   /$$$$$$$ | $$   /$$$$$$
+#				| $$       | $$ | $$$$      /$$__  $$  /$$_____/ | $$  | $$  /$$_____/ | $$  /$$__  $$
+#				| $$       | $$ | $$_/     | $$$$$$$$ | $$       | $$  | $$ | $$       | $$ | $$$$$$$$
+#				| $$       | $$ | $$       | $$_____/ | $$       | $$  | $$ | $$       | $$ | $$_____/
+#				| $$$$$$$$ | $$ | $$       |  $$$$$$$ |  $$$$$$$ |  $$$$$$$ |  $$$$$$$ | $$ |  $$$$$$$
+#				|________/ |__/ |__/        \_______/  \_______/  \____  $$  \_______/ |__/  \_______/
+#				                                                  /$$  | $$
+#				                                                 |  $$$$$$/
+#				                                                  \______/
+
+
 func recalc_dirty_chunks():
-	var dirty_chunks_copy = dirty_chunks
+	var dirty_chunks_copy = dirty_chunks.duplicate()
 	dirty_chunks.clear()
 	for i in dirty_chunks_copy:
+		if not portals_by_coords.has(i): continue
+		for portal_id in portals_by_coords[i].duplicate():
+			erase_portal(portal_id)
 		for dir in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
 			handle_chunk_edge(i, dir)
 		handle_portals_by_coords(i)
 
 
-
-func get_rough_path(start : Vector4i, end : Vector4i):
-	const START_ID = -1
-	const END_ID = -2
-
-
+#				  /$$$$$$   /$$$$$$$   /$$$$$$
+#				 /$$__  $$ | $$__  $$ |_  $$_/
+#				| $$  \ $$ | $$  \ $$   | $$
+#				| $$$$$$$$ | $$$$$$$/   | $$
+#				| $$__  $$ | $$____/    | $$
+#				| $$  | $$ | $$         | $$
+#				| $$  | $$ | $$        /$$$$$$
+#				|__/  |__/ |__/       |______/
 
 
 ## Function for agents to retrieve a path with source [param from] and destination [param to][br]
 ## The [param partial] parameter determines whether a partial path is returned.[br]
 ## Handles cases where destination might be outside of Astar bounds.[br]
-## DOES NOT WORK BETWEEN CHUNKS YET![br]
-## DOES NOT HANDLE OUT-OF-BOUNDS CASES CORRECTLY YET!
+## [color=red]DOES NOT WORK BETWEEN CHUNKS YET![br]
+## DOES NOT HANDLE OUT-OF-BOUNDS CASES CORRECTLY YET![/color]
 func request_path(from: Vector4i, to: Vector4i, partial: bool) -> PackedVector4Array:
 	var astar = astargrids[Vector2i(from.x, from.y)]
 	var path: Array[Vector4i] = []
@@ -283,9 +482,11 @@ func request_path(from: Vector4i, to: Vector4i, partial: bool) -> PackedVector4A
 	# If the start and end are in the same chunk
 	if from.x == to.x and from.y == to.y:
 		var temp_path = astar.get_id_path(Vector2i(from.z, from.w), Vector2i(to.z, to.w), partial)
-		path = temp_path.map(func(element : Vector2i): return Vector4i(to.x, to.y, element.x, element.y))
+		path = temp_path.map(
+			func(element: Vector2i): return Vector4i(to.x, to.y, element.x, element.y)
+		)
 	else:
-		push_error("HANDLE DIFFERENT CHUNKS")
+		get_rough_path(from, to)
 	return path
 
 
@@ -294,3 +495,9 @@ func request_path(from: Vector4i, to: Vector4i, partial: bool) -> PackedVector4A
 func mark_tile_solid(coords: Vector4i, solid: bool = true) -> void:
 	var astar = astargrids[Vector2i(coords.x, coords.y)]
 	astar.set_point_solid(Vector2i(coords.z, coords.w), solid)
+
+func get_portal_connections(portal_id: String) -> Array:
+	return portal_nodes[portal_id] if portal_nodes.has(portal_id) else []
+
+func get_portal(portal_id : String) -> ChunkPortal:
+	return portals_by_id[portal_id] if portals_by_id.has(portal_id) else null
