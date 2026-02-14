@@ -3,49 +3,25 @@ extends Control
 var file_access: FileAccess
 var current_action
 var previous_key
-var changed_actions = {
-	"up" = (InputMap.action_get_events("up")[0]), 
-	"left" = (InputMap.action_get_events("left")[0]), 
-	"down" = (InputMap.action_get_events("down")[0]), 
-	"right" = (InputMap.action_get_events("right")[0]), 
-	"zoom_in" = (InputMap.action_get_events("zoom_in")[0]), 
-	"zoom_out" = (InputMap.action_get_events("zoom_out")[0])
-}
+var changed_actions : Dictionary[String, InputEvent]
 
-@onready var settings_nodes = {
-	"graphics" = {
-		"window_type" = $Tabs/PanelContainer/Graphics/ScrollContainer/VBoxContainer/window_type/window_type_selector, 
-		"frame_rate_limit" = $Tabs/PanelContainer/Graphics/ScrollContainer/VBoxContainer/frame_rate_limit/custom_fps_limit, 
-		"particle_amount" = $Tabs/PanelContainer/Graphics/ScrollContainer/VBoxContainer/particle_amount_slider,
-		"brightness" = $Tabs/PanelContainer/Graphics/ScrollContainer/VBoxContainer/brightness_slider
-	},
-	
-	"gameplay" = {
-		"default_difficuty" = $Tabs/PanelContainer/Gameplay/ScrollContainer/VBoxContainer/default_difficulty/default_difficulty_selector
-	},
-	
-	"controls" = {
-		"camera_movement_sensitivity" = $Tabs/PanelContainer/Controls/ScrollContainer/VBoxContainer/camera_move_sensitivity_slider,
-		"camera_zoom_sensitivity" = $Tabs/PanelContainer/Controls/ScrollContainer/VBoxContainer/camera_zoom_sensitivity_slider, 
-		"invert_camera_movement" = $Tabs/PanelContainer/Controls/ScrollContainer/VBoxContainer/invert_camera_movement_toggle, 
-		"invert_camera_zoom" = $Tabs/PanelContainer/Controls/ScrollContainer/VBoxContainer/invert_camera_zoom_toggle
-	},
-	
-	"audio" = {
-		"main_volume" = $Tabs/PanelContainer/Audio/ScrollContainer/VBoxContainer/main_volume_slider, 
-		"sfx_volume" = $Tabs/PanelContainer/Audio/ScrollContainer/VBoxContainer/sfx_volume_slider,
-		"music_volume" = $Tabs/PanelContainer/Audio/ScrollContainer/VBoxContainer/music_volume_slider, 
-	},
-	
-	"saves" = {
-		"game_path" = $Tabs/PanelContainer/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit, 
-		"autosave_frequency" = $Tabs/PanelContainer/Saves/ScrollContainer/VBoxContainer/autosave_frequency_slider, 
-	}
-}
+@export var path_text_edit : LineEdit
+
+@export var graphics : Dictionary[String, Node] = {}
+@export var gameplay : Dictionary[String, Node] = {}
+@export var controls : Dictionary[String, Node] = {}
+@export var audio : Dictionary[String, Node] = {}
+@export var saves : Dictionary[String, Node] = {}
+
+@export var option_buttons_map : Dictionary[OptionButton, Array]
+@export var controls_map : Dictionary[TextureButton, String]
+@export var control_labels : Dictionary[String, Label]
+
+var settings_nodes
 
 func erase_key(action: StringName) -> void :
 	previous_key = InputMap.action_get_events(action)[0]
-	get_node("Tabs/Keycodes/ScrollContainer/VBoxContainer/%s/keycode_label" % action).text = "Listening for input"
+	control_labels[action].text = "Listening for input"
 	current_action = action
 	GlobalLogger.write_to_logs(self, "Updating %s action" %action)
 
@@ -60,6 +36,23 @@ func update_actions() -> void :
 		InputMap.action_add_event(i, changed_actions[i])
 
 func _ready() -> void :
+	settings_nodes = {
+		"graphics" = graphics,
+		"gameplay" = gameplay,
+		"controls" = controls,
+		"audio" = audio,
+		"saves" = saves,
+	}
+
+	changed_actions = {
+		"up" = (InputMap.action_get_events("up")[0]),
+		"left" = (InputMap.action_get_events("left")[0]),
+		"down" = (InputMap.action_get_events("down")[0]),
+		"right" = (InputMap.action_get_events("right")[0]),
+		"zoom_in" = (InputMap.action_get_events("zoom_in")[0]),
+		"zoom_out" = (InputMap.action_get_events("zoom_out")[0])
+	}
+
 	GlobalLogger.write_to_logs(self, "Current scene: Options")
 	SceneTransition.finish_trans()
 	var settings_dict = GlobalCfg.load_settings()
@@ -73,6 +66,21 @@ func _ready() -> void :
 			if node is LineEdit: node.text = settings_dict[section][key]
 	GlobalLogger.write_to_logs(self, "Settings loaded!")
 
+	for category in settings_nodes.keys():
+		for key in settings_nodes[category].keys():
+			var node = settings_nodes[category][key]
+			if node is Slider:
+				node.value_changed.connect(_on_value_modified.bind(category, key))
+			elif node is TextEdit:
+				node.text_changed.connect(_on_value_modified.bind(category, key))
+			elif node is CheckButton:
+				node.toggled.connect(_on_value_modified.bind(category, key))
+			elif node is OptionButton:
+				node.item_selected.connect(_on_option_selected.bind(category, key, option_buttons_map[node]))
+
+	for node : TextureButton in controls_map.keys():
+		node.pressed.connect(_on_reset_button_pressed.bind(controls_map[node]))
+
 func _on_save_button_pressed() -> void :
 	update_settings()
 	GlobalCfg.write_dict_to_settings()
@@ -80,68 +88,31 @@ func _on_save_button_pressed() -> void :
 	await SceneTransition.done
 	get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
-func _on_window_type_selector_item_selected(index: int) -> void :
-	GlobalCfg.alter_setting("graphics", "window_type", index)
-func _on_custom_fps_limit_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("graphics", "frame_rate_limit", value)
-func _on_particle_amount_slider_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("graphics", "particle_amount", value)
-func _on_brightness_slider_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("graphics", "brightness", value)
+func _on_value_modified(value : Variant, category : String, key : String) -> void:
+	GlobalCfg.alter_setting(category, key, value)
 
-func _on_default_difficulty_selector_item_selected(index: int) -> void :
-	GlobalCfg.alter_setting("gameplay", "default_difficuty", index)
+func _on_option_selected(value : float, category : String, key : String, map : Array) -> void:
+	GlobalCfg.alter_setting(category, key, map[value])
 
-func _on_camera_move_sensitivity_slider_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("controls", "camera_movement_sensitivity", value)
-func _on_camera_zoom_sensitivity_slider_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("controls", "camera_zoom_sensitivity", value)
-func _on_invert_camera_movement_toggle_toggled(toggled_on: bool) -> void :
-	GlobalCfg.alter_setting("controls", "invert_camera_movement", toggled_on)
-func _on_invert_zoom_camera_movement_toggle_toggled(toggled_on: bool) -> void :
-	GlobalCfg.alter_setting("controls", "invert_camera_zoom_movement", toggled_on)
-func _on_invert_camera_zoom_toggle_toggled(toggled_on: bool) -> void :
-	GlobalCfg.alter_setting("controls", "invert_camera_zoom", toggled_on)
-
-func _on_main_volume_slider_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("audio", "main_volume", value)
-func _on_sfx_volume_slider_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("audio", "sfx_volume", value)
-func _on_music_volume_slider_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("audio", "music_volume", value)
+func _on_reset_button_pressed(action : String) -> void:
+	erase_key(action)
 
 func _on_path_line_edit_text_changed(new_text: String) -> void :
 	if not new_text.is_absolute_path():
-		$Tabs/PanelContainer/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit.add_theme_color_override("font_color", Color.CRIMSON)
+		path_text_edit.add_theme_color_override("font_color", Color.CRIMSON)
 	else:
-		$Tabs/PanelContainer/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit.remove_theme_color_override("font_color")
+		path_text_edit.remove_theme_color_override("font_color")
 	GlobalCfg.alter_setting("saves", "save_path", new_text)
-func _on_autosave_frequency_slider_value_changed(value: float) -> void :
-	GlobalCfg.alter_setting("saves", "autosave_frequency", value)
-
-
-func _on_up_reset_button_pressed() -> void :
-	erase_key("up")
-func _on_left_reset_button_pressed() -> void :
-	erase_key("left")
-func _on_down_reset_button_pressed() -> void :
-	erase_key("down")
-func _on_right_reset_button_pressed() -> void :
-	erase_key("right")
-func _on_zoom_in_reset_button_pressed() -> void :
-	erase_key("zoom_in")
-func _on_zoom_out_reset_button_pressed() -> void :
-	erase_key("zoom_out")
 
 func _input(event: InputEvent) -> void:
 	if current_action != null and event is InputEventKey and event.is_pressed():
 		if not event.is_echo():
 			if event.keycode != KEY_ESCAPE:
-				get_node("Tabs/Keycodes/ScrollContainer/VBoxContainer/%s/keycode_label" % current_action).text = event.as_text()
+				control_labels[current_action].text = event.as_text()
 				changed_actions[current_action] = event
 				GlobalLogger.write_to_logs(self, "Recieved key, changed action in dictionary")
 			else:
-				get_node("Tabs/Keycodes/ScrollContainer/VBoxContainer/%s/keycode_label" % current_action).text = previous_key.as_text()
+				control_labels[current_action].text = previous_key.as_text()
 				changed_actions[current_action] = previous_key
 				GlobalLogger.write_to_logs(self, "Recieved Esc, canceled action change.")
 			current_action = null
