@@ -166,7 +166,6 @@ func filter_ground(tiles : Array, built_object : BuildableData) -> Dictionary:
 			result.valid.append(tile_coord)
 		else:
 			result.invalid.append(tile_coord)
-			print(cell)
 
 	return result
 

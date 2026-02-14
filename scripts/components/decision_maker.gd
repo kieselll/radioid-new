@@ -77,14 +77,6 @@ func calculate_action_priority_modifier(
 	)
 	var skill_level: int
 	var priority = 0 if action_name == &"wander_action" else base_priority
-	print(
-		"\ndistance_from ",
-		_movement_component.get_local_position(),
-		" to ",
-		location,
-		" is ",
-		_movement_component.get_local_position().distance_squared_to(location)
-	)
 	if _ability_manager.action_name_to_ability_name(action_name):
 		skill_level = _ability_manager.get_ability_level(
 			_ability_manager.action_name_to_ability_name(action_name)
@@ -103,7 +95,6 @@ func _on_action_machine_action_done() -> void:
 	if _current_action.action_name != &"wander_action":
 		_action_queue.erase(_current_action)
 	_action_queue.sort_custom(_queue_sort)
-	print(_movement_component._local_position)
 	_current_action = _action_queue[0]
 	_action_machine.start_action(_current_action.action_name, _current_action.args)
 

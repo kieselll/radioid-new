@@ -21,7 +21,6 @@ func _ready() -> void:
 
 
 func start_action(action_name: String, args = {}) -> void:
-	print("started ", action_name, args)
 	if current_action:
 		current_action.stop()
 	current_action = actions[action_name]

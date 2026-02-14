@@ -106,7 +106,6 @@ func _process_button_anims_and_sounds(button: Button, entered: bool):
 			Vector2(1, 1),
 			default_button_color
 		)
-		print(button.size)
 
 
 func _on_rigid_body_2d_mouse_entered() -> void:
