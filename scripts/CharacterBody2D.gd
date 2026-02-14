@@ -46,7 +46,7 @@ func rotate_sprite(direction: Vector2):
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and Input.is_physical_key_pressed(KEY_P):
+	if event is InputEventKey and Input.is_physical_key_pressed(KEY_Q):
 		print(characteristics.stats["tiredness"])
 		print(characteristics.stats["health"])
 		print($"../TileMap".local_to_map(position))
