@@ -27,7 +27,7 @@ var _cells: Array = []  # 3D tile storage
 var dirty: bool
 var _multimesh_instances: Dictionary[int, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
 var _chunk_manager: ChunkManager
-var _tilemap: TileMap
+
 
 const LAYER_COUNT = 7
 const CHUNK_SIZE = 16
@@ -354,12 +354,13 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 	var result = 0
 	var chunk = self
 
+	var chunk_pos = Vector2i(
+		GridUtils.world_coord_to_chunk_coord(position).x,
+		GridUtils.world_coord_to_chunk_coord(position).y
+	)
+
 	for i in offsets.size():
 		var o = coords + offsets[i]
-		var chunk_pos = Vector2i(
-			GridUtils.world_coord_to_chunk_coord(position).x,
-			GridUtils.world_coord_to_chunk_coord(position).y
-		)
 
 		if o.x < 0:
 			chunk_pos += Vector2i(-1, 0)
@@ -400,30 +401,31 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 ## UV update for tile and neighbors
 func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 	var chunk = self
+	var my_chunk_pos = Vector2i(
+		GridUtils.world_coord_to_chunk_coord(position).x,
+		GridUtils.world_coord_to_chunk_coord(position).y,
+	)
+
 	for off in (
 		offsets
 		if BuildableDB.get_tile(get_cell(layer, coords)).texture_params.can_autotile
 		else [Vector2i.ZERO]
 	):
 		var p = coords + off
-		var chunk_pos = Vector2i(
-			GridUtils.world_coord_to_chunk_coord(position).x,
-			GridUtils.world_coord_to_chunk_coord(position).y,
-		)
 
 		if p.x < 0:
-			chunk_pos += Vector2i(-1, 0)
+			my_chunk_pos += Vector2i(-1, 0)
 			p.x = CHUNK_SIZE - 1
 		elif p.x >= CHUNK_SIZE:
-			chunk_pos += Vector2i(1, 0)
+			my_chunk_pos += Vector2i(1, 0)
 			p.x = 0
 		if p.y < 0:
-			chunk_pos += Vector2i(0, -1)
+			my_chunk_pos += Vector2i(0, -1)
 			p.y = CHUNK_SIZE - 1
 		elif p.y >= CHUNK_SIZE:
-			chunk_pos += Vector2i(0, 1)
+			my_chunk_pos += Vector2i(0, 1)
 			p.y = 0
-		chunk = GlobalRef.get_chunk(chunk_pos)
+		chunk = GlobalRef.get_chunk(my_chunk_pos)
 
 		if chunk == null:
 			continue

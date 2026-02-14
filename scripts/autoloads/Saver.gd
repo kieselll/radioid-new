@@ -10,6 +10,7 @@ var _current_index_file : FileAccess
 
 var write_timer : Timer = Timer.new()
 var _chunks_to_save : Array = []
+var data_indices : Dictionary[Vector2i, int]
 
 class SaveMeta:
 	var creation_date : Dictionary
@@ -62,6 +63,15 @@ func load_save(dirname : String) -> SaveMeta:
 	var _new_save = get_save_meta(dirname)
 	_current_world_file = _open_file(_current_save_path + "/world.dat")
 	_current_index_file = _open_file(_current_save_path + "/index.dat")
+	_current_index_file.seek(0)
+	while _current_index_file.get_position() + 16 < _current_index_file.get_length():
+		var buf = _current_index_file.get_buffer(16)
+		if buf.size() < 16:
+				return
+		var x = buf.decode_s32(0)
+		var y = buf.decode_s32(4)
+		var index = buf.decode_u64(8)
+		data_indices[Vector2i(x, y)] = index
 	return _new_save
 
 func get_save_meta(dirname : String) -> SaveMeta:
@@ -85,57 +95,16 @@ func read_chunk(coords : Vector2i):
 	if memory_chunk != -1:
 		return bytes_to_var(_chunks_to_save[memory_chunk].data)
 	# If the chunk wasn't found in the memory, we search for it on the disk
-	# We start from the end of the index file, because we use an append-only architecture
-	_current_index_file.seek_end()
-	# Creatng a variable for the chunk data position in the save file (in bytes)
-	var position : int = 0
-	# While the start of the file isn't overshot by the buffer size
-	while _current_index_file.get_position() - 16 >= 0:
-		# We move the cursor towards the start by the default buffer size (16)
-		_current_index_file.seek(_current_index_file.get_position() - 16)
-		# Then we get the buffer
-		var buffer = _current_index_file.get_buffer(16)
-		# And advance the cursor by 16 bytes to the front AGAIN
-		# because apparently files are meant to be read from start to end, not the opposite
-		_current_index_file.seek(_current_index_file.get_position() - 16)
-		# If the buffer is corrupted, we search further
-		if not buffer or buffer.size() < 16: continue
-		# If not, we save the read coords
-		var read_coords := Vector2i(buffer.decode_s32(0), buffer.decode_s32(4))
-		# Compare them to the coords we search for
-		if read_coords == coords:
-			# And save the position
-			position = buffer.decode_s64(8)
-			# Then we move to that position in the actual save file
-			_current_world_file.seek(position)
-			# Read the buffer size from the chunk header
-			var buffer_size = _current_world_file.get_buffer(8).decode_u64(0)
-			# And then return the BINARY chunk
-			return bytes_to_var(_current_world_file.get_buffer(buffer_size))
-	return null
+	if not _current_world_file or not data_indices.has(coords): return null
+	_current_world_file.seek(data_indices[coords])
+	print("Reading chunk ", coords, " at offset ", data_indices[coords], " file size: ", _current_world_file.get_length())
+	# Read the buffer size from the chunk header
+	var buffer_size = _current_world_file.get_buffer(8).decode_u64(0)
+	# And then return the BINARY chunk
+	return bytes_to_var(_current_world_file.get_buffer(buffer_size))
 
 func update_chunk_index(coords: Vector2i, new_position: int) -> void:
-		_current_index_file.seek(0)
-		while _current_index_file.get_position() < _current_index_file.get_length():
-				var entry_pos = _current_index_file.get_position()
-				var buf = _current_index_file.get_buffer(16)
-				if buf.size() < 16:
-						return
-				var x = buf.decode_s32(0)
-				var y = buf.decode_s32(4)
-				if coords == Vector2i(x, y):
-						_current_index_file.seek(entry_pos + 8)
-						var pos_buf = PackedByteArray()
-						pos_buf.resize(8)
-						pos_buf.encode_s64(0, new_position)
-						_current_index_file.store_buffer(pos_buf)
-						return
-		var entry = PackedByteArray()
-		entry.resize(16)
-		entry.encode_s32(0, coords.x)
-		entry.encode_s32(4, coords.y)
-		entry.encode_s64(8, new_position)
-		_current_index_file.store_buffer(entry)
+	data_indices[coords] = new_position
 
 func save_nav_data(portals_by_id : Dictionary, portal_nodes : Dictionary[int, Array]):
 	var mode
@@ -192,7 +161,7 @@ func _on_write_timer_timeout():
 		_chunks_to_save.clear()
 
 func _open_file(path : String) -> FileAccess:
-	return FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE)
+	return FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE_READ)
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
