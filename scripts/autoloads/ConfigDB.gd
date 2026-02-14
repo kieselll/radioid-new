@@ -14,24 +14,24 @@ const _default_settings = {
 		"particle_amount" = 2,
 		"brightness" = 50
 	},
-	
+
 	"gameplay" = {
-		"default_difficuty" = 1
+		"default_difficulty" = 1
 	},
-	
+
 	"controls" = {
 		"camera_movement_sensitivity" = 100,
 		"camera_zoom_sensitivity" = 100,
 		"invert_camera_movement" = 0,
 		"invert_camera_zoom" = 0
 	},
-	
+
 	"audio" = {
 		"main_volume" = 100,
 		"sfx_volume" = 100,
 		"music_volume" = 50
 	},
-	
+
 	"saves" = {
 		"game_path" = "user://",
 		"autosave_frequency" = 4
