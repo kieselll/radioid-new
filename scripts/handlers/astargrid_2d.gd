@@ -98,8 +98,8 @@ func _ready() -> void:
 #				                                             \______/
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.keycode == KEY_P:
-		get_rough_path(Vector4i(1,1,0,0), Vector4i(1,1,0,0))
+	if event is InputEventKey and event.keycode == KEY_P and event.is_pressed():
+		print(request_path(Vector4i(0,0,0,0), Vector4i(2,-1,0,0), false))
 
 # Something was here
 #
@@ -359,11 +359,17 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 	const START_ID = "START"
 	const END_ID = "END"
 
+	if portals_by_coords[Vector2i(end.x, end.y)].has(START_ID) : portals_by_coords[Vector2i(end.x, end.y)].erase(START_ID)
+	if portals_by_coords[Vector2i(end.x, end.y)].has(END_ID) : portals_by_coords[Vector2i(end.x, end.y)].erase(END_ID)
+	if portals_by_id.has(START_ID) : portals_by_id.erase(START_ID)
+	if portals_by_id.has(END_ID) : portals_by_id.erase(END_ID)
+	if portal_nodes.has(START_ID) : portal_nodes.erase(START_ID)
+	if portal_nodes.has(END_ID) : portal_nodes.erase(END_ID)
+
 	# Creating 2 virtual portals for the start and end
 	portals_by_id[START_ID] = ChunkPortal.new(
-		Vector2i(start.x, start.y), Vector2i.ZERO, 0, 0, START_ID
-	)
-	portals_by_id[END_ID] = ChunkPortal.new(Vector2i(end.x, end.y), Vector2i.ZERO, 0, 0, END_ID)
+		Vector2i(start.x, start.y), Vector2i.ZERO, start.z, start.w, START_ID)
+	portals_by_id[END_ID] = ChunkPortal.new(Vector2i(end.x, end.y), Vector2i.ZERO, end.z, end.w, END_ID)
 
 	portals_by_coords[Vector2i(start.x, start.y)].append(START_ID)
 	portals_by_coords[Vector2i(end.x, end.y)].append(END_ID)
@@ -373,8 +379,9 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 
 # Set up neighbors of start portal
 	for port in portals_by_coords[Vector2i(start.x, start.y)]:
+		if port == START_ID: continue
 		var astar = astargrids[Vector2i(start.x, start.y)]
-		var path_start = Vector2i(start.x, start.y)
+		var path_start = Vector2i(start.z, start.w)
 		var path_end = calculate_portal_coords(portals_by_id[port].side, portals_by_id[port].start, portals_by_id[port].end)
 		var path = astargrids[Vector2i(start.x, start.y)].get_id_path(path_start, path_end)
 		if not path.is_empty():
@@ -382,11 +389,15 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 			for i in path:
 				calculated_weight += astar.get_point_weight_scale(i)
 			portal_nodes[START_ID].append([port, calculated_weight])
+			if not portal_nodes.has(port):
+				portal_nodes[port] = []
+			portal_nodes[port].append([START_ID, calculated_weight])
 
 # Set up neighbors of end portal
 	for port in portals_by_coords[Vector2i(end.x, end.y)]:
+		if port == END_ID: continue
 		var astar = astargrids[Vector2i(end.x, end.y)]
-		var path_start = Vector2i(end.x, end.y)
+		var path_start = Vector2i(end.z, end.w)
 		var path_end = calculate_portal_coords(portals_by_id[port].side, portals_by_id[port].start, portals_by_id[port].end)
 		var path = astargrids[Vector2i(end.x, end.y)].get_id_path(path_start, path_end)
 		if not path.is_empty():
@@ -394,6 +405,10 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 			for i in path:
 				calculated_weight += astar.get_point_weight_scale(i)
 			portal_nodes[END_ID].append([port, calculated_weight])
+			if not portal_nodes.has(port):
+				portal_nodes[port] = []
+			if not portal_nodes[port].any(func(element): return element[0] == END_ID):
+				portal_nodes[port].append([END_ID, calculated_weight])
 
 	return astarportal.get_path(START_ID, END_ID)
 
@@ -467,26 +482,36 @@ func recalc_dirty_chunks():
 ## [color=red]DOES NOT WORK BETWEEN CHUNKS YET![br]
 ## DOES NOT HANDLE OUT-OF-BOUNDS CASES CORRECTLY YET![/color]
 func request_path(from: Vector4i, to: Vector4i, partial: bool) -> PackedVector4Array:
-	var astar = astargrids[Vector2i(from.x, from.y)]
 	var path: Array[Vector4i] = []
-	# CRITICAL This is deprecated, please check the bounds via the astar dict (if the chunk astar exists at given cords)
-	if not (
-		astar.is_in_boundsv(Vector2i(from.z, from.w)) and astar.is_in_boundsv(Vector2i(to.z, to.w))
-	):
-		# Add fallbeck for release build (CRITICAL)
-		GlobalLogger.write_to_logs(
-			self, "[CRITICAL ERROR]: Requested path has element out of bounds!"
-		)
-		GlobalLogger.open_log_file()
-		get_tree().quit()
 	# If the start and end are in the same chunk
 	if from.x == to.x and from.y == to.y:
+		var astar = astargrids[Vector2i(from.x, from.y)]
 		var temp_path = astar.get_id_path(Vector2i(from.z, from.w), Vector2i(to.z, to.w), partial)
 		path = temp_path.map(
 			func(element: Vector2i): return Vector4i(to.x, to.y, element.x, element.y)
 		)
 	else:
-		get_rough_path(from, to)
+		var rough_path = get_rough_path(from, to)
+		for i in range(rough_path.size() - 1):
+			var key = rough_path[i]
+			var portal = portals_by_id[key]
+			var next_portal = portals_by_id[rough_path[i + 1]]
+			var astar = astargrids[portal.chunk_coords]
+			var raw_path := astar.get_id_path(
+			calculate_portal_coords(portal.side, portal.start, portal.end),
+			calculate_portal_coords(next_portal.side, next_portal.start, next_portal.end)
+			)
+
+			path.append_array(
+				raw_path.map(func(e):
+					return Vector4i(
+						portal.chunk_coords.x,
+						portal.chunk_coords.y,
+						e.x,
+						e.y
+						)
+					)
+				)
 	return path
 
 
