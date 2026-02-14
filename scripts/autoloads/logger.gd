@@ -37,11 +37,7 @@ func open_log_file():
 func write_to_logs(sender: Node, log_string: String) -> void:
 	_log_file.store_line(
 		(
-			str(sender.get_path())
-			+ " - "
-			+ log_string
-			+ ": "
-			+ Time.get_time_string_from_system()
+			Time.get_time_string_from_system()
 			+ ":"
 			+ str(
 				int(
@@ -51,6 +47,10 @@ func write_to_logs(sender: Node, log_string: String) -> void:
 					)
 				)
 			)
+			+ ": "
+			+ log_string
+			+ " - "
+			+ str(sender.get_path())
 		)
 	)
 	_log_file.flush()
