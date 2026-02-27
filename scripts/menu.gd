@@ -29,7 +29,11 @@ func _ready() -> void:
 	GlobalLogger.write_to_logs(self, "Current scene: Main menu")
 	window = get_window()
 	window.title = "Radioid: Main menu"
-	SceneTransition.finish_trans()
+	SceneTransition.show_dev_icon()
+	await  SceneTransition.done
+	SceneTransition.start_animation(0.5)
+	await SceneTransition.done
+	SceneTransition.finish_trans(0.2)
 
 	for i in menu_buttons:
 		i.pivot_offset_ratio = Vector2(0.5, 0.5)
