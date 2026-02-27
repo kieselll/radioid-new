@@ -20,7 +20,7 @@ extends Node
 #				   \  $/    |  $$$$$$$ | $$        /$$$$$$$/
 #				    \_/      \_______/ |__/       |_______/
 
-var _path: Array[Vector4i] = []
+var _path: PackedVector4Array = []
 var _current_step: int = 0
 var _target_position: Vector2i
 var _direction: Vector2
@@ -88,11 +88,11 @@ func _physics_process(delta: float) -> void:
 		set_physics_process(false)
 		return
 
-	_target_position = GridUtils.chunk_coord_to_tile_coord(_path[_current_step])
+	_target_position = GridUtils.chunk_coord_to_world_coord(_path[_current_step])
 
 	# Recalculate path if obstacle appears
-	if _astar.astar.is_point_solid(_path[_current_step]):
-		_update_path(_local_position, _path[-1], false)
+	if _astar.is_tile_solid(_path[_current_step]):
+		_update_path(_local_position, _path[-1])
 
 	_direction = (Vector2(_target_position) - _parent.position).normalized()
 
@@ -135,10 +135,10 @@ func _physics_process(delta: float) -> void:
 #				|__/  |__/ |__/       |______/
 
 
-func move_to_coord(to: Vector4i, partial_path: bool = false) -> void:
+func move_to_coord(to: Vector4i) -> void:
 	GlobalLogger.write_to_logs(self, "Moving to coords %v..." % to)
 	var from = _local_position if _local_position else GridUtils.world_coord_to_chunk_coord(_parent.position)
-	_update_path(from, to, partial_path)
+	_update_path(from, to)
 	set_physics_process(true)
 
 
@@ -155,6 +155,14 @@ func get_local_position() -> Vector4i:
 func is_moving() -> bool:
 	return owner.velocity != Vector2.ZERO
 
+
+func set_path(path : PackedVector4Array):
+	_path = path
+	print(path)
+	set_physics_process(true)
+
+	if _path.is_empty():
+		push_warning("No path found for %s to target" % [_parent.name])
 
 #				 /$$$$$$$              /$$                           /$$
 #				| $$__  $$            |__/                          | $$
@@ -180,10 +188,6 @@ func is_moving() -> bool:
 #				                       \______/
 
 
-func _update_path(from: Vector4i, to: Vector4i, partial: bool) -> void:
-	#_path = _astar.request_path(from, to, partial)
+func _update_path(from: Vector4i, to: Vector4i) -> void:
+	_astar.request_path(from, to, set_path)
 	_current_step = 0
-
-	if _path.is_empty():
-		arrived_at_destination.emit()
-		push_warning("No path found for %s to %s" % [_parent.name, to])
