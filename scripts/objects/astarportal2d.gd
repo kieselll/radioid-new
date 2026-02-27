@@ -57,9 +57,12 @@ func get_path(start: String, end: String) -> Array:
 
 	var path = []
 	var backward_node = end
-	while backward_node != start:
+	while true:
 		path.append(closed_list[backward_node].id)
 		backward_node = closed_list[backward_node].parent
+		if backward_node == start:
+			break
+	path.append(start)
 	path.reverse()
 	return path
 
