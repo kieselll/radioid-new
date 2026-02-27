@@ -1,8 +1,9 @@
-[gd_scene load_steps=13 format=3 uid="uid://dxrabdlx3km2v"]
+[gd_scene format=3 uid="uid://dxrabdlx3km2v"]
 
 [ext_resource type="Script" uid="uid://pfc6e5gry0fp" path="res://scripts/autoloads/scene_transition/mesh_logo.gd" id="1_0wykx"]
 [ext_resource type="Script" uid="uid://dxmonsd1bdfao" path="res://scripts/autoloads/scene_transition/scene_transition.gd" id="1_rujfs"]
 [ext_resource type="Theme" uid="uid://qb0c3yxrvyka" path="res://resources/theme.tres" id="3_dlbfy"]
+[ext_resource type="Texture2D" uid="uid://drljawax7aqtg" path="res://textures/ui/photo_2026-02-02_21-30-30.jpg" id="4_lgvtp"]
 
 [sub_resource type="Animation" id="Animation_rujfs"]
 length = 0.001
@@ -126,6 +127,42 @@ tracks/9/keys = {
 "update": 1,
 "values": [false]
 }
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("MeshInstance2D:modulate")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("TextureRect:visible")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("TextureRect:modulate")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
 
 [sub_resource type="Animation" id="Animation_2sgj6"]
 resource_name = "blow_up_planet"
@@ -238,6 +275,34 @@ tracks/8/keys = {
 "values": [true]
 }
 
+[sub_resource type="Animation" id="Animation_lgvtp"]
+resource_name = "dev_name"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("TextureRect:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.5, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(2.5600278, 2.5600278, 2.5600278, 1), Color(2.5600278, 2.5600278, 2.5600278, 1), Color(2.5600278, 2.5600278, 2.5600278, 0)]
+}
+
 [sub_resource type="Animation" id="Animation_0wykx"]
 resource_name = "fade_in"
 length = 0.3
@@ -252,6 +317,46 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Color(0, 0, 0, 0), Color(0, 0, 0, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("MeshInstance2D:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_rla2t"]
+resource_name = "fade_in_planet"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance2D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 0), Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("MeshInstance2D:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_ovque"]
@@ -269,12 +374,26 @@ tracks/0/keys = {
 "update": 0,
 "values": [Color(0, 0, 0, 1), Color(0, 0, 0, 0)]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("MeshInstance2D:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(0, 0, 0, 0)]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_0wykx"]
 _data = {
 &"RESET": SubResource("Animation_rujfs"),
 &"blow_up_planet": SubResource("Animation_2sgj6"),
+&"dev_name": SubResource("Animation_lgvtp"),
 &"fade_in": SubResource("Animation_0wykx"),
+&"fade_in_planet": SubResource("Animation_rla2t"),
 &"fade_out": SubResource("Animation_ovque")
 }
 
@@ -303,11 +422,32 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[node name="SceneTransition" type="CanvasLayer"]
+[sub_resource type="LabelSettings" id="LabelSettings_lgvtp"]
+font_size = 40
+font_color = Color(1.818063, 1.7893764, 0, 1)
+outline_size = 3
+outline_color = Color(0.22162035, 0.17012078, 0, 1)
+
+[sub_resource type="Environment" id="Environment_rla2t"]
+background_mode = 3
+background_canvas_max_layer = 1
+tonemap_mode = 4
+glow_levels/1 = 8.45
+glow_levels/2 = 5.82
+glow_levels/3 = 3.72
+glow_levels/4 = 3.57
+glow_levels/5 = 2.32
+glow_levels/6 = 1.86
+glow_levels/7 = 3.48
+glow_intensity = 1.98
+glow_strength = 1.1
+glow_bloom = 0.01
+adjustment_enabled = true
+
+[node name="SceneTransition" type="CanvasLayer" unique_id=1466670245]
 script = ExtResource("1_rujfs")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-visible = false
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1379160989]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -318,12 +458,10 @@ size_flags_vertical = 3
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_0wykx")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=146505752]
+libraries/ = SubResource("AnimationLibrary_0wykx")
 
-[node name="MeshInstance2D" type="MeshInstance2D" parent="."]
+[node name="MeshInstance2D" type="MeshInstance2D" parent="." unique_id=1896625628]
 visible = false
 position = Vector2(593, 331)
 rotation = -1.9611821
@@ -331,7 +469,7 @@ scale = Vector2(0.7, 0.7)
 texture = SubResource("GradientTexture2D_rujfs")
 script = ExtResource("1_0wykx")
 
-[node name="Polygon2D" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D" type="Polygon2D" parent="MeshInstance2D" unique_id=246849323]
 position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(76.00781, 231.00781)
 antialiased = true
@@ -339,7 +477,7 @@ texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(174.40784, -231.0394, -76.10132, -231.07434, -280.78812, -88.20221, -178, -73, -154.93231, -96.906494, -123, -130, -46, -90, -45, -188, 60, -150)
 uv = PackedVector2Array(498.8912, 249.50092, 247.3236, 248.93561, 45.917114, 396.1115, 145.42491, 407.00995, 168.4926, 383.10345, 200.42491, 350.00995, 277.42496, 390.00995, 278.42496, 292.00995, 383.42496, 330.00995)
 
-[node name="Polygon2D2" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D2" type="Polygon2D" parent="MeshInstance2D" unique_id=1821409761]
 position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(-212.30011, -227.80316)
 antialiased = true
@@ -347,7 +485,7 @@ texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(165.08966, 328.7392, 133.3399, 361.68884, 180.57562, 448.18805, 205.39935, 349.56403)
 uv = PackedVector2Array(199.16803, 350.98364, 167.41827, 383.9333, 214.65399, 470.4325, 239.47772, 371.80847)
 
-[node name="Polygon2D3" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D3" type="Polygon2D" parent="MeshInstance2D" unique_id=320240473]
 position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(-89.15967, -246.8114)
 antialiased = true
@@ -355,7 +493,7 @@ texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(120.151855, 289.78796, 118.62042, 387.49463, 235.11688, 450.81097, 225.151, 327.6884)
 uv = PackedVector2Array(278.42722, 292.9861, 276.89578, 390.69278, 393.39224, 454.00912, 383.42636, 330.88654)
 
-[node name="Polygon2D4" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D4" type="Polygon2D" parent="MeshInstance2D" unique_id=1252302078]
 position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(80.02161, 114.6351)
 antialiased = true
@@ -363,7 +501,7 @@ texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(-158.78906, 19.30954, -95.40234, 134.86334, -99.56299, 134.73724, -105.48865, 133.85468, -113.746826, 132.59387, -122.698425, 131.33313, -131.46088, 129.31586, -137.41284, 127.87756, -143.4408, 126.499756, -149.46875, 124.691345, -154.63556, 123.27051, -159.5871, 121.63434, -164.96918, 119.95514, -168.75818, 118.44812, -173.3692, 116.740234, -178.00598, 115.07312, -183.00745, 112.93707, -187.01904, 111.0094, -190.97855, 109.13385, -194.93805, 107.10199, -198.94965, 105.17438, -202.54443, 103.03833, -205.40985, 101.11066, -209.31726, 98.766235, -212.49161, 97.05597, -215.53241, 94.95331, -218.4115, 93.23877, -221.41995, 91.10376, -223.73535, 89.825195, -226.42032, 87.64368, -230.36386, 84.79089, -233.21664, 82.18982, -237.24411, 79.16925, -240.26471, 76.819885, -182.15247, 43.283844)
 uv = PackedVector2Array(168.10039, 383.8529, 231.4871, 499.40668, 227.32646, 499.28058, 221.4008, 498.398, 213.14262, 497.1372, 204.19102, 495.87646, 195.42857, 493.8592, 189.47661, 492.4209, 183.44865, 491.0431, 177.4207, 489.23468, 172.25389, 487.81384, 167.30235, 486.17767, 161.92027, 484.49847, 158.13127, 482.99146, 153.52025, 481.28357, 148.88347, 479.61646, 143.882, 477.4804, 139.8704, 475.55273, 135.9109, 473.6772, 131.9514, 471.64532, 127.939804, 469.7177, 124.34502, 467.58167, 121.4796, 465.654, 117.57219, 463.30957, 114.39784, 461.5993, 111.35704, 459.49664, 108.47795, 457.7821, 105.4695, 455.6471, 103.1541, 454.36853, 100.46913, 452.187, 96.52559, 449.33423, 93.672806, 446.73315, 89.64534, 443.7126, 86.62474, 441.36322, 144.73698, 407.8272)
 
-[node name="Polygon2D5" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D5" type="Polygon2D" parent="MeshInstance2D" unique_id=720138479]
 position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(-159.3425, 165.59058)
 antialiased = true
@@ -371,7 +509,7 @@ texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(57.101868, -7.6054993, -0.7903137, 25.948486, -2.21167, 24.94806, -6.5526733, 20.891052, -11.461151, 16.585388, -15.551544, 12.839447, -19.512756, 8.662933, -23.387878, 4.572571, -26.473022, 0.54248047, -30.8078, -4.180481, -35.390717, -9.41687, -38.36557, -13.409393, -41.937958, -17.948395, -45.194763, -22.809296)
 uv = PackedVector2Array(145.58844, 407.65582, 87.56397, 441.22504, 86.27491, 440.2094, 81.93391, 436.1524, 77.02543, 431.84674, 72.935036, 428.10077, 68.97382, 423.92426, 65.098694, 419.83392, 62.01355, 415.80383, 57.678772, 411.08087, 53.095856, 405.84448, 50.121002, 401.85193, 48.046448, 398.79883, 46.363342, 396.646)
 
-[node name="Polygon2D6" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D6" type="Polygon2D" parent="MeshInstance2D" unique_id=1029810181]
 position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(27.500366, 201.43732)
 antialiased = true
@@ -379,14 +517,14 @@ texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(-34.493652, -79.768555, -59.32953, 18.399902, -43.322937, 48.06256, -40.34503, 48.080994, -36.41504, 48.187927, -30.827454, 48.21466, -24.571472, 48.241394, -18.69458, 48.2843, -14.521545, 48.154907, -9.054565, 47.83142, -4.7197266, 47.281494, 1.2971802, 46.537476, 7.456787, 45.510254, 14.366577, 44.542664, -20.182983, -73.03555)
 uv = PackedVector2Array(239.92569, 371.09998, 215.08981, 469.26843, 231.0964, 498.9311, 234.07431, 498.94952, 238.0043, 499.05646, 243.59189, 499.0832, 249.84787, 499.10992, 255.72476, 499.15283, 259.8978, 499.02344, 265.36478, 498.69995, 269.69962, 498.15002, 275.71652, 497.406, 281.87613, 496.37878, 288.78592, 495.4112, 254.23636, 377.83298)
 
-[node name="Polygon2D7" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D7" type="Polygon2D" parent="MeshInstance2D" unique_id=565516218]
 offset = Vector2(28.503662, 200.88416)
 antialiased = true
 texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(-21.037354, -71.88513, 12.432617, 44.90869, 19.934265, 44.026123, 27.372925, 42.450134, 34.748535, 40.49597, 41.304626, 38.730835, 48.581055, 36.675903, 54.88495, 34.49817, 60.673157, 32.263123, 64.742004, 30.658447, 70.18634, 28.595398, 75.79907, 26.30542, 81.74872, 23.483154, 86.55426, 21.042297, 90.90204, 18.982788, 95.32617, 16.618164, 99.67401, 14.024719, 103.10651, 11.660095, 106.76782, 9.295532, 110.42914, 7.159729, 113.745605, 5.182251, 117.4765, 3.0179443, 117.084045, 1.8157349)
 uv = PackedVector2Array(254.30695, 377.7098, 287.77692, 494.50363, 295.27856, 493.62106, 302.71722, 492.04507, 310.09283, 490.0909, 316.64893, 488.32578, 323.92535, 486.27084, 330.22925, 484.0931, 336.01746, 481.85806, 340.0863, 480.2534, 345.53064, 478.19034, 351.14337, 475.90036, 357.09302, 473.0781, 361.89856, 470.63724, 366.24634, 468.57773, 370.67047, 466.2131, 375.0183, 463.61966, 378.4508, 461.25504, 382.11212, 458.89047, 385.77344, 456.75467, 389.0899, 454.7772, 392.8208, 452.61288, 392.42834, 451.41068)
 
-[node name="Polygon2D8" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D8" type="Polygon2D" parent="MeshInstance2D" unique_id=2113977085]
 position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(188.98218, 167.29565)
 antialiased = true
@@ -394,7 +532,7 @@ texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(-53.35962, -86.34915, -44.402588, 37.30725, -38.522766, 32.924805, -32.95807, 28.47522, -28.299805, 24.625671, -24.347168, 21.139954, -19.26361, 16.350891, -14.139038, 11.71579, -9.017456, 6.8313904, -5.572937, 3.042389, -1.4902344, -1.5798035, 2.053955, -5.7303467, 5.3988647, -9.964844, 9.630798, -15.156891, 12.61084, -19.741577, 17.080872, -26.160126, 20.003601, -30.97403, 23.885315, -36.998383, -30.799377, -102.94342)
 uv = PackedVector2Array(383.8318, 330.19757, 392.78882, 453.85397, 398.66864, 449.47153, 404.23334, 445.02194, 408.8916, 441.1724, 412.8382, 437.25815, 418.10614, 433.4222, 423.05237, 428.2625, 428.29614, 423.23816, 431.81897, 419.82208, 435.41296, 414.98267, 439.24536, 410.81638, 442.59027, 406.58188, 446.8222, 401.38983, 449.80225, 396.80515, 454.27228, 390.3866, 457.195, 385.5727, 461.07672, 379.54834, 406.39203, 313.6033)
 
-[node name="Polygon2D9" type="Polygon2D" parent="MeshInstance2D"]
+[node name="Polygon2D9" type="Polygon2D" parent="MeshInstance2D" unique_id=2140660576]
 position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(189.97656, 166.75153)
 antialiased = true
@@ -402,7 +540,7 @@ texture = SubResource("GradientTexture2D_rujfs")
 polygon = PackedVector2Array(-31.495972, -101.755066, 22.352722, -35.808228, 26.592346, -41.831604, 30.18805, -48.18344, 33.093567, -53.387787, 36.551147, -60.324554, 39.24463, -66.85773, 41.479675, -72.416626, 44.55713, -79.26758, 48.09369, -88.69827, 50.312622, -95.77127, 53.641113, -107.76767, 56.69586, -120.47928, 58.602783, -131.00558, 59.74695, -139.70123, 60.358032, -153.0321, 60.495728, -166.84143)
 uv = PackedVector2Array(406.09674, 313.38593, 459.94543, 379.33276, 464.18506, 373.3094, 467.78076, 366.95755, 470.68628, 361.7532, 474.14386, 354.81644, 476.83734, 348.28326, 479.0724, 342.72437, 482.14984, 335.8734, 485.6864, 326.44272, 487.90533, 319.36972, 491.23383, 307.37332, 494.28857, 294.6617, 496.1955, 284.1354, 497.33966, 275.43976, 498.44214, 263.63248, 499.10718, 248.8621)
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1984310294]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
@@ -411,19 +549,50 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_dlbfy")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=903176191]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 16
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer" unique_id=2052961930]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Loading world"
 horizontal_alignment = 1
 
-[node name="ProgressBar" type="ProgressBar" parent="PanelContainer/VBoxContainer"]
+[node name="ProgressBar" type="ProgressBar" parent="PanelContainer/VBoxContainer" unique_id=1493497238]
 layout_mode = 2
 theme = ExtResource("3_dlbfy")
 theme_override_styles/fill = SubResource("StyleBoxFlat_lgvtp")
 value = 30.43
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=791650998]
+visible = false
+texture_filter = 2
+anchors_preset = -1
+anchor_left = 0.35
+anchor_top = 0.35
+anchor_right = 0.65
+anchor_bottom = 0.65
+offset_left = -23.0
+offset_right = 23.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_lgvtp")
+expand_mode = 3
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="TextureRect" unique_id=175858414]
+layout_mode = 0
+anchor_left = -0.08988759
+anchor_top = 1.0967079
+anchor_right = 1.0975486
+anchor_bottom = 1.3076133
+offset_right = -3.0517578e-05
+offset_bottom = 1.5258789e-05
+text = "JustBananaPeels studios"
+label_settings = SubResource("LabelSettings_lgvtp")
+metadata/_edit_use_anchors_ = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=771561451]
+environment = SubResource("Environment_rla2t")
