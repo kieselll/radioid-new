@@ -114,16 +114,42 @@ func save_nav_data(portals_by_id : Dictionary[String, GlobalPathfinder.ChunkPort
 	var data_file = _open_file(_save_dir_path + "/navigation/data.dat")
 
 	data_file.seek_end()
+	index_file.seek_end()
 
-	for i in portal_nodes:
-		index_data.resize(portal_nodes[i].size())
-		for j in portal_nodes[i]:
-			var encoded_data = portals_by_id[j].encode()
-			data.append_array(encoded_data)
-			index_data.encode_u64(index_data.size(), encoded_data.size() + data_file.get_position())
+	for portal in portals_by_id.values():
+		var ascii_id : PackedByteArray = portal.id.to_ascii_buffer()
+		index_data.resize(index_data.size() + 1)
+		index_data.encode_u8(index_data.size() - 1, ascii_id.size())
+		index_data.append_array(ascii_id)
+		index_data.resize(index_data.size() + 8)
+		index_data.encode_u64(index_data.size() - 8, data_file.get_position() + data.size())
+		# Is always 12 bytes long
+		data.append_array(portal.encode())
+		# Number of portal connections
+		data.resize(data.size() + 1)
+		data.encode_u8(data.size() - 1, portal_connections[portal.id].size())
+		for i in portal_connections[portal.id]:
+			# ID length
+			data.resize(data.size() + 1)
+			data.encode_u8(data.size(), i.id.to_ascii_buffer().size())
+			# Actual ID
+			data.append_array(i.id.to_ascii_buffer())
+			# Number of connections
+			data.resize(data.size() + 1)
+			data.encode_u8(data.size() - 1, portal_connections[portal.id][i].size())
+			for j in portal_connections[portal.id][i]:
+				data.resize(data.size() + 8)
+				# 8 bytes in total, per connection
+				data.encode_u8(data.size() - 8, j["root"].x)
+				data.encode_u8(data.size() - 7, j["root"].y)
+				data.encode_u8(data.size() - 6, j["coords"].x)
+				data.encode_u8(data.size() - 5, j["coords"].y)
+				data.encode_float(data.size() - 4, j["weight"])
 
 	data_file.store_buffer(data)
 	index_file.store_buffer(index_data)
+	data_file.close()
+	index_file.close()
 
 
 func _ready() -> void:
