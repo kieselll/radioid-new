@@ -159,4 +159,12 @@ func _notification(what):
 			if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
 				save_chunk(i)
 		_on_write_timer_timeout()
+		var data_indices_buffer : PackedByteArray = []
+		for i in data_indices.size():
+			var key = data_indices.keys()[i]
+			data_indices_buffer.encode_s64(24*i, key.x)
+			data_indices_buffer.encode_s64(24*i + 8, key.y)
+			data_indices_buffer.encode_u64(24*i + 16, data_indices[key])
+
+		_current_index_file.store_buffer(data_indices_buffer)
 		get_tree().quit()
