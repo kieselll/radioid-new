@@ -69,7 +69,10 @@ func get_path(start: String, end: String) -> Array:
 func _discover_nodes(parent: Portal) -> void:
 	for i in pathfinder.get_portal_connections(parent.id):
 		var portal = pathfinder.get_portal(i[0])
-		if closed_list.keys().has(i[0]): continue
+		if closed_list.keys().has(i[0]) and parent.g_value + i[1] < closed_list[i[0]].g_value:
+			closed_list.erase(i[0])
+		elif closed_list.keys().has(i[0]):
+			continue
 		open_list.append(Portal.new(
 			i[0],
 			pathfinder.calculate_portal_coords(portal.side, portal.start, portal.end),
