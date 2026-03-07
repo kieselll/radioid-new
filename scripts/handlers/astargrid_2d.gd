@@ -73,6 +73,17 @@ class ChunkPortal:
 		if not bytes.size() == 152:
 			push_error("TRIED TO DECODE NAVIGATION DATA WITH WRONG SIZE!")
 			# CRITICAL THIS DOENTS WORK YET
+
+class DijkstraGraphNode:
+	# INFO the weight in the open list is the actual edge weight, but in the closed list it's the total weight to the node
+	var weight : int
+	var coords : Vector2i
+	var root : Vector2i
+	@warning_ignore("shadowed_variable")
+	func _init(weight : int, coords : Vector2i, root: Vector2i) -> void:
+		self.weight = weight
+		self.coords = coords
+		self.root = root
 #endregion
 
 #				 /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$
@@ -217,16 +228,6 @@ func calculate_portal_coords(side: Vector2i, start: int, end: int) -> Vector2i:
 		_:
 			return Vector2i(start, end)
 
-class DijkstraGraphNode:
-	# INFO the weight in the open list is the actual edge weight, but in the closed list it's the total weight to the node
-	var weight : int
-	var coords : Vector2i
-	var root : Vector2i
-	@warning_ignore("shadowed_variable")
-	func _init(weight : int, coords : Vector2i, root: Vector2i) -> void:
-		self.weight = weight
-		self.coords = coords
-		self.root = root
 
 ## Calculates the best path between all portals in a chunk at coords [member chunk_coords] via Dijkstra.
 ## Returns a [Dictionary] of format:[br]
@@ -246,6 +247,7 @@ class DijkstraGraphNode:
 ##     }
 ## }
 ## [/codeblock]
+## Portal A, B and C are IDs!!!!
 func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 	# Dijkstra inside the chunk to find best portal-to-portal path
 	# All edges that lead to a node are the weight of that node (an edge's weight can be different depending on the direction,
