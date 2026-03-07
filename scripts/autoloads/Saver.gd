@@ -97,7 +97,6 @@ func read_chunk(coords : Vector2i):
 	# If the chunk wasn't found in the memory, we search for it on the disk
 	if not _current_world_file or not data_indices.has(coords): return null
 	_current_world_file.seek(data_indices[coords])
-	print("Reading chunk ", coords, " at offset ", data_indices[coords], " file size: ", _current_world_file.get_length())
 	# Read the buffer size from the chunk header
 	var buffer_size = _current_world_file.get_buffer(8).decode_u64(0)
 	# And then return the BINARY chunk
