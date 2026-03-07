@@ -61,6 +61,7 @@ class ChunkPortal:
 			_:
 				side_index = 0
 
+		result.resize(12)
 		result.encode_s64(0, self.coords.x)
 		result.encode_s64(8, self.coords.y)
 		result.encode_u8(9, self.side_index)
