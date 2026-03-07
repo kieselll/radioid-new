@@ -105,22 +105,13 @@ func read_chunk(coords : Vector2i):
 func update_chunk_index(coords: Vector2i, new_position: int) -> void:
 	data_indices[coords] = new_position
 
-func save_nav_data(portals_by_id : Dictionary, portal_nodes : Dictionary[int, Array]):
-	var mode
+func save_nav_data(portals_by_id : Dictionary[String, GlobalPathfinder.ChunkPortal], portal_connections : Dictionary):
 	var index_data : PackedByteArray = []
 	var data : PackedByteArray = []
 
-	if not FileAccess.file_exists(_save_dir_path + "/navigation/index.dat"):
-		mode = FileAccess.WRITE
-	else:
-		mode = FileAccess.READ_WRITE
-	var index_file = FileAccess.open(_save_dir_path + "/navigation/index.dat", mode)
+	var index_file = _open_file(_save_dir_path + "/navigation/index.dat")
 
-	if not FileAccess.file_exists(_save_dir_path + "/navigation/data.dat"):
-		mode = FileAccess.WRITE
-	else:
-		mode = FileAccess.READ_WRITE
-	var data_file = FileAccess.open(_save_dir_path + "/navigation/data.dat", mode)
+	var data_file = _open_file(_save_dir_path + "/navigation/data.dat")
 
 	data_file.seek_end()
 
