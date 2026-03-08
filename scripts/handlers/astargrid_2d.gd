@@ -62,9 +62,9 @@ class ChunkPortal:
 				side_index = 0
 
 		result.resize(12)
-		result.encode_s64(0, self.coords.x)
-		result.encode_s64(8, self.coords.y)
-		result.encode_u8(9, self.side_index)
+		result.encode_s64(0, self.chunk_coords.x)
+		result.encode_s64(8, self.chunk_coords.y)
+		result.encode_u8(9, side_index)
 		result.encode_u8(10, self.start)
 		result.encode_u8(11, self.end)
 
