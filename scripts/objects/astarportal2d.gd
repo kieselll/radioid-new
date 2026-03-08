@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AstarPortal2D
 
-var open_list: Array = []
+var open_list: BinaryHeap
 var closed_list: Dictionary = {}
 var current_node: String
 var pathfinder: GlobalPathfinder
@@ -47,11 +47,11 @@ func get_path(start: String, end: String) -> Array:
 	current_node = start
 	while current_node != end:
 		_discover_nodes(closed_list[current_node])
-		current_node = open_list[0].id
-		closed_list[open_list[0].id] = open_list[0]
-		open_list[0] = open_list[-1]
+		current_node = open_list.get_front().id
+		closed_list[open_list.get_front().id] = open_list.get_front()
+		open_list.move_last_to_front()
 		open_list.pop_back()
-		bubble_down_heap()
+		open_list.bubble_down_heap_custom(func(a : Portal, b : Portal) -> bool: return a.f_value < b.f_value)
 		if open_list.is_empty() or open_list.size() >= 150:
 			return []
 
@@ -80,35 +80,4 @@ func _discover_nodes(parent: Portal) -> void:
 			path_goal,
 			parent.id
 			))
-		bubble_up_heap()
-
-func bubble_up_heap() -> void:
-	var current_index := open_list.size() - 1
-	@warning_ignore_start("integer_division")
-	# While root not reached and the parent's f value is bigger than the current node's (which violates the heap's rules), we swap the current node and the parent
-	while not current_index == 0 and open_list[(current_index - 1) / 2].f_value > open_list[current_index].f_value:
-		var parent_index = (current_index - 1) / 2
-		var temp_parent = open_list[parent_index]
-		open_list[parent_index] = open_list[current_index]
-		open_list[current_index] = temp_parent
-		# Change current node to parent
-		current_index = parent_index
-	@warning_ignore_restore("integer_division")
-
-func bubble_down_heap() -> void:
-	var current_index = 0
-	while current_index * 2 + 1 < open_list.size():
-		var left = current_index * 2 + 1
-		var right = current_index * 2 + 2
-		# Only check right child if it exists
-		var has_right = right < open_list.size()
-		if open_list[left].f_value < open_list[current_index].f_value\
-		or (has_right and open_list[right].f_value < open_list[current_index].f_value):
-			var temp_child_index = right if has_right and open_list[left].f_value > open_list[right].f_value\
-			else left
-			var temp_child = open_list[temp_child_index]
-			open_list[temp_child_index] = open_list[current_index]
-			open_list[current_index] = temp_child
-			current_index = temp_child_index
-		else:
-			break
+		open_list.bubble_up_heap_custom(func(a : Portal, b : Portal) -> bool: return a.f_value > b.f_value)
