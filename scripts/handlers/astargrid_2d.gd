@@ -21,6 +21,8 @@ var portals_by_id: Dictionary[String, ChunkPortal] = {}
 var portals_by_coords: Dictionary[Vector2i, Array] = {}
 ## Portal ID is the key, an array of IDs is the value
 var portal_nodes: Dictionary[String, Array] = {}
+## Keys are chunk coords, values are whatever the [method calculate_portal_connections] func returns
+var portal_connections = {}
 var chunk_manager: ChunkManager
 var dirty_chunks: Array[Vector2i] = []
 var recalc_timer: Timer
@@ -606,6 +608,7 @@ func recalc_dirty_chunks():
 		for dir in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
 			handle_chunk_edge(i, dir)
 		handle_portals_by_coords(i)
+		if not dirty_chunks.has(i): portal_connections[i] = calculate_portal_connections(i)
 
 func recalc_paths():
 	for i in path_request_queue.size():
