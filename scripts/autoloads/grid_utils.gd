@@ -58,6 +58,8 @@ func get_neighbor_tiles(pos: Vector4i) -> Array:
 			new_element = pos + i + Vector4i(0, 1, 0, -CHUNK_SIZE)
 		elif (pos + i).w < 0:
 			new_element = pos + i + Vector4i(0, -1, 0, CHUNK_SIZE)
+		else:
+			new_element = pos + i
 
 		output.append(new_element)
 
