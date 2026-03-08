@@ -34,7 +34,7 @@ func find_nearest_tile_coord(call_coords: Vector4i, coords_array: Array):
 	return nearest_coord
 
 
-func get_neighbor_tiles(pos: Vector4i) -> Array:
+func get_neighbor_tiles(pos: Vector4i, include_diagonals : bool) -> Array:
 	var output = []
 
 	var offsets = [
@@ -46,6 +46,11 @@ func get_neighbor_tiles(pos: Vector4i) -> Array:
 			Vector4i(0, 0, -1, 1),
 			Vector4i(0, 0, -1, 0),
 			Vector4i(0, 0, -1, -1)
+		] if include_diagonals else[
+			Vector4i(0, 0, 1, 0),
+			Vector4i(0, 0, 0, 1),
+			Vector4i(0, 0, 0, -1),
+			Vector4i(0, 0, -1, 0),
 		]
 
 	for i in offsets:
