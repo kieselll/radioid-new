@@ -296,6 +296,7 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 
 		# Initializing the variables for Djikstra
 		var open_list : Dictionary[Vector2i, DijkstraGraphNode] = {}
+		var open_heap : BinaryHeap = BinaryHeap.new()
 		var closed_list : Dictionary[Vector2i, DijkstraGraphNode] = {}
 		for tile_coord in portal_list[portal_id]:
 			var neighbors = GridUtils.get_neighbor_tiles(Vector4i(0, 0, tile_coord.x, tile_coord.y), false)

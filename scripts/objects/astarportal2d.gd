@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AstarPortal2D
 
-var open_list: BinaryHeap
+var open_list: BinaryHeap = BinaryHeap.new()
 var closed_list: Dictionary = {}
 var current_node: String
 var pathfinder: GlobalPathfinder
