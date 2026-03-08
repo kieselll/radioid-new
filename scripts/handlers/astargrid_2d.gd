@@ -276,7 +276,7 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 		if portal.side == Vector2i.ZERO:
 			portal_list[portal_id].append(Vector2i(portal.start, portal.end))
 			continue
-		for i in range(portal.start, portal.end):
+		for i in range(portal.start, portal.end + 1):
 			match portal.side:
 				Vector2i(-1, 0):
 					portal_list[portal_id].append(Vector2i(0, i))
