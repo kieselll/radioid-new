@@ -7,6 +7,7 @@ var _current_world_file : FileAccess
 var _current_index_file : FileAccess
 @export var _save_dir_path : String = "user://game/saves/"
 @export var _game_dir_path : String = "user://game/"
+@onready var pathfinder : GlobalPathfinder = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
 var write_timer : Timer = Timer.new()
 var _chunks_to_save : Array = []
@@ -193,6 +194,8 @@ func _notification(what):
 			data_indices_buffer.encode_s64(24*i, key.x)
 			data_indices_buffer.encode_s64(24*i + 8, key.y)
 			data_indices_buffer.encode_u64(24*i + 16, data_indices[key])
+
+		save_nav_data(pathfinder.portals_by_id, pathfinder.portal_connections)
 
 		_current_index_file.store_buffer(data_indices_buffer)
 		get_tree().quit()
