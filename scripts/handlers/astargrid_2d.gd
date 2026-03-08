@@ -317,9 +317,11 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 			for i in GridUtils.get_neighbor_tiles(Vector4i(0, 0, preferred_tile.coords.x, preferred_tile.coords.y), false):
 				var coord := Vector2i(i.z, i.w)
 				# If the neighbor happens to be in another chunk, we don't process it
-				if not (i.x == 0 and i.y == 0): continue
+				if not (i.x == 0 and i.y == 0):
+					continue
 				# If the neighbor is already processed, we don't need to process it again
-				if closed_list.has(coord): continue
+				if closed_list.has(coord):
+					continue
 				var tile_weight = preferred_tile.weight + astargrid.get_point_weight_scale(coord)
 				# If the tile wasn't yet explored or if it has a smaller weight, we write it to open_list
 				if (not open_list.has(coord) or tile_weight < open_list[coord].weight) and not astargrid.is_tile_solid(coord):
