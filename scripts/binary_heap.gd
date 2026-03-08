@@ -34,6 +34,7 @@ func clear() -> void:
 ## func is called as many times as necessary, receiving two heap elements as arguments.
 ## The function should return true if the first element should be bubbled up, otherwise it should return false.
 func bubble_up_heap_custom(function : Callable) -> void:
+	if is_empty(): return
 	var current_index : int = heap.size() - 1
 	@warning_ignore_start("integer_division")
 	while not current_index == 0 and function.call(heap[(current_index - 1) / 2], heap[current_index]):
@@ -48,6 +49,7 @@ func bubble_up_heap_custom(function : Callable) -> void:
 ## func is called as many times as necessary, receiving two heap elements as arguments.
 ## The function should return true if the first element should be bubbled down, otherwise it should return false.
 func bubble_down_heap_custom(function : Callable) -> void:
+	if is_empty(): return
 	var current_index : int = 0
 	while current_index * 2 + 1 < heap.size():
 		var left : int = current_index * 2 + 1
