@@ -307,13 +307,14 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 				# If the neighbor is already processed, we don't need to process it again
 				if closed_list.has(coord) or open_list.has(coord) or astargrid.is_point_solid(coord): continue
 				open_list[coord] = DijkstraGraphNode.new(astargrid.get_point_weight_scale(coord), coord, tile_coord)
+				open_heap.append(DijkstraGraphNode.new(astargrid.get_point_weight_scale(coord), coord, tile_coord))
+				open_heap.bubble_up_heap_custom(func(a : DijkstraGraphNode, b : DijkstraGraphNode) -> bool: return a.weight < b.weight)
 
 		# While there are still nodes to process
 		while not open_list.is_empty():
 			# We find the tile with the smallest weight
-			var preferred_tile = DijkstraGraphNode.new(1 << 62, Vector2i.ZERO, Vector2i.ZERO)
-			for i : DijkstraGraphNode in open_list.values():
-				if i.weight < preferred_tile.weight: preferred_tile = i
+			var preferred_tile = open_heap.pop_front()
+			open_heap.bubble_up_heap_custom(func(a : DijkstraGraphNode, b : DijkstraGraphNode) -> bool: return a.weight < b.weight)
 			# We transfer it to the closed list
 			closed_list[preferred_tile.coords] = open_list[preferred_tile.coords]
 			# And add its neighbors to the open list
