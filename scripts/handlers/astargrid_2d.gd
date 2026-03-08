@@ -324,7 +324,7 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 					continue
 				var tile_weight = preferred_tile.weight + astargrid.get_point_weight_scale(coord)
 				# If the tile wasn't yet explored or if it has a smaller weight, we write it to open_list
-				if (not open_list.has(coord) or tile_weight < open_list[coord].weight) and not astargrid.is_tile_solid(coord):
+				if (not open_list.has(coord) or tile_weight < open_list[coord].weight) and not astargrid.is_point_solid(coord):
 					open_list[coord] = DijkstraGraphNode.new(tile_weight, coord, preferred_tile.root)
 			open_list.erase(preferred_tile.coords)
 
