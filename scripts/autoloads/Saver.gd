@@ -129,8 +129,8 @@ func save_nav_data(portals_by_id : Dictionary[String, GlobalPathfinder.ChunkPort
 		data.append_array(portal.encode())
 		# Number of portal connections
 		data.resize(data.size() + 1)
-		data.encode_u8(data.size() - 1, portal_connections[portal.id].size())
-		for i in portal_connections[portal.id]:
+		data.encode_u8(data.size() - 1, portal_connections[portal.chunk_coords][portal.id].size())
+		for i in portal_connections[portal.chunk_coords][portal.id]:
 			# ID length
 			data.resize(data.size() + 1)
 			data.encode_u8(data.size(), i.id.to_ascii_buffer().size())
@@ -138,8 +138,8 @@ func save_nav_data(portals_by_id : Dictionary[String, GlobalPathfinder.ChunkPort
 			data.append_array(i.id.to_ascii_buffer())
 			# Number of connections
 			data.resize(data.size() + 1)
-			data.encode_u8(data.size() - 1, portal_connections[portal.id][i].size())
-			for j in portal_connections[portal.id][i]:
+			data.encode_u8(data.size() - 1, portal_connections[portal.chunk_coords][portal.id][i].size())
+			for j in portal_connections[portal.chunk_coords][portal.id][i]:
 				data.resize(data.size() + 8)
 				# 8 bytes in total, per connection
 				data.encode_u8(data.size() - 8, j["root"].x)
