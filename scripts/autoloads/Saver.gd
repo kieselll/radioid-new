@@ -50,12 +50,14 @@ func get_saves_list() -> Array:
 	return DirAccess.open(_save_dir_path).get_directories()
 
 func write_save(dirname : String) -> void:
-	var _write_save_path = _save_dir_path + dirname
-	if not DirAccess.dir_exists_absolute(_write_save_path):
-		DirAccess.make_dir_recursive_absolute(_write_save_path)
-	_current_world_file = _open_file(_write_save_path + "/world.dat")
-	_current_index_file = _open_file(_write_save_path + "/index.dat")
-	var _meta_file = FileAccess.open(_write_save_path + "/meta.json", FileAccess.WRITE)
+	_current_save_path = _save_dir_path + dirname
+	if not DirAccess.dir_exists_absolute(_current_save_path):
+		DirAccess.make_dir_recursive_absolute(_current_save_path)
+	if not DirAccess.dir_exists_absolute(_current_save_path + "/navigation"):
+		DirAccess.make_dir_recursive_absolute(_current_save_path + "/navigation")
+	_current_world_file = _open_file(_current_save_path + "/world.dat")
+	_current_index_file = _open_file(_current_save_path + "/index.dat")
+	var _meta_file = FileAccess.open(_current_save_path + "/meta.json", FileAccess.WRITE)
 	_meta_file.store_string(_current_save.jsonify())
 
 func load_save(dirname : String) -> SaveMeta:
