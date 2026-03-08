@@ -111,9 +111,9 @@ func save_nav_data(portals_by_id : Dictionary[String, GlobalPathfinder.ChunkPort
 	var index_data : PackedByteArray = []
 	var data : PackedByteArray = []
 
-	var index_file = _open_file(_save_dir_path + "/navigation/index.dat")
+	var index_file = _open_file(_current_save_path + "/navigation/index.dat")
 
-	var data_file = _open_file(_save_dir_path + "/navigation/data.dat")
+	var data_file = _open_file(_current_save_path + "/navigation/data.dat")
 
 	data_file.seek_end()
 	index_file.seek_end()
