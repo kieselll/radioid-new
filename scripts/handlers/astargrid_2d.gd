@@ -311,7 +311,7 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 				open_heap.bubble_up_heap_custom(func(a : DijkstraGraphNode, b : DijkstraGraphNode) -> bool: return a.weight < b.weight)
 
 		# While there are still nodes to process
-		while not open_list.is_empty():
+		while not open_heap.is_empty():
 			# We find the tile with the smallest weight
 			var preferred_tile = open_heap.pop_front()
 			open_heap.bubble_up_heap_custom(func(a : DijkstraGraphNode, b : DijkstraGraphNode) -> bool: return a.weight < b.weight)
