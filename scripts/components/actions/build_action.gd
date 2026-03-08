@@ -23,7 +23,7 @@ func start(args: Dictionary = {&"partial": true}) -> void:
 	_movement_component = owner.movement_component
 	_move_state = _state_machine.get_state(&"move_state")
 	_build_state = _state_machine.get_state(&"build_state")
-	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args[&"target"])
+	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args[&"target"], true)
 	_state_machine.change_state(
 		&"move_state",
 		args.merged(

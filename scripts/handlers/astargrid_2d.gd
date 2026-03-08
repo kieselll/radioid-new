@@ -296,7 +296,7 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 		var open_list : Dictionary[Vector2i, DijkstraGraphNode] = {}
 		var closed_list : Dictionary[Vector2i, DijkstraGraphNode] = {}
 		for tile_coord in portal_list[portal_id]:
-			var neighbors = GridUtils.get_neighbor_tiles(Vector4i(0, 0, tile_coord.x, tile_coord.y))
+			var neighbors = GridUtils.get_neighbor_tiles(Vector4i(0, 0, tile_coord.x, tile_coord.y), false)
 			for neighbor in neighbors:
 				var coord := Vector2i(neighbor.z, neighbor.w)
 				# If the neighbor happens to be in another chunk, we don't process it
@@ -314,7 +314,7 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 			# We transfer it to the closed list
 			closed_list[preferred_tile.coords] = open_list[preferred_tile.coords]
 			# And add its neighbors to the open list
-			for i in GridUtils.get_neighbor_tiles(Vector4i(0, 0, preferred_tile.coords.x, preferred_tile.coords.y)):
+			for i in GridUtils.get_neighbor_tiles(Vector4i(0, 0, preferred_tile.coords.x, preferred_tile.coords.y), false):
 				var coord := Vector2i(i.z, i.w)
 				# If the neighbor happens to be in another chunk, we don't process it
 				if not (i.x == 0 and i.y == 0): continue
