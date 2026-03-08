@@ -50,13 +50,13 @@ func get_neighbor_tiles(pos: Vector4i) -> Array:
 
 	for i in offsets:
 		var new_element
-		if (pos + i).z > CHUNK_SIZE:
+		if (pos + i).z >= CHUNK_SIZE:
 			new_element = pos + i + Vector4i(1, 0, -CHUNK_SIZE, 0)
-		if (pos + i).z < 0:
+		elif (pos + i).z < 0:
 			new_element = pos + i + Vector4i(-1, 0, CHUNK_SIZE, 0)
-		if (pos + i).w > CHUNK_SIZE:
+		elif (pos + i).w >= CHUNK_SIZE:
 			new_element = pos + i + Vector4i(0, 1, 0, -CHUNK_SIZE)
-		if (pos + i).w < 0:
+		elif (pos + i).w < 0:
 			new_element = pos + i + Vector4i(0, -1, 0, CHUNK_SIZE)
 
 		output.append(new_element)
