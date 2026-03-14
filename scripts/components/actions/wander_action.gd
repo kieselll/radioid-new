@@ -28,7 +28,6 @@ func new_pos():
 		return
 	if not _random_pos:
 		var offset := Vector2i(randi_range(-5, 5), randi_range(-5, 5))
-		print(offset)
 		_random_pos = GridUtils.tile_coord_to_chunk_coord(GridUtils.chunk_coord_to_tile_coord(_movement_component.get_local_position()) + offset)
 		if _random_pos == Vector4i.ZERO:
 			_random_pos = null
