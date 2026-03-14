@@ -40,6 +40,7 @@ class SaveMeta:
 
 	func dejsonify(json_string : String) -> void:
 		var dict = JSON.parse_string(json_string)
+		if not dict: return
 		creation_date = dict["creation_date"]
 		modified_date = dict["modified_date"]
 		display_name = dict["display_name"]
@@ -59,7 +60,7 @@ func write_save(dirname : String) -> void:
 	_current_world_file = _open_file(_current_save_path + "/world.dat")
 	_current_index_file = _open_file(_current_save_path + "/index.dat")
 	var _meta_file = FileAccess.open(_current_save_path + "/meta.json", FileAccess.WRITE)
-	_meta_file.store_string(_current_save.jsonify())
+	#_meta_file.store_string(_current_save.jsonify()) DEBUG CRITICAL
 
 func load_save(dirname : String) -> SaveMeta:
 	_current_save_path = _save_dir_path + dirname
@@ -68,12 +69,13 @@ func load_save(dirname : String) -> SaveMeta:
 	_current_index_file = _open_file(_current_save_path + "/index.dat")
 	_current_index_file.seek(0)
 	while _current_index_file.get_position() + 16 < _current_index_file.get_length():
-		var buf = _current_index_file.get_buffer(16)
-		if buf.size() < 16:
-				return
-		var x = buf.decode_s32(0)
-		var y = buf.decode_s32(4)
-		var index = buf.decode_u64(8)
+		var buf = _current_index_file.get_buffer(24)
+		if buf.size() < 24:
+			printerr("Index buffer too small! Skipping.")
+			return
+		var x = buf.decode_s64(0)
+		var y = buf.decode_s64(8)
+		var index = buf.decode_u64(16)
 		data_indices[Vector2i(x, y)] = index
 	return _new_save
 
@@ -120,6 +122,7 @@ func save_nav_data(portals_by_id : Dictionary[String, GlobalPathfinder.ChunkPort
 	index_file.seek_end()
 
 	for portal in portals_by_id.values():
+		if not portal_connections.has(portal.chunk_coords): continue
 		var ascii_id : PackedByteArray = portal.id.to_ascii_buffer()
 		index_data.resize(index_data.size() + 1)
 		index_data.encode_u8(index_data.size() - 1, ascii_id.size())
@@ -165,16 +168,29 @@ func _ready() -> void:
 func _on_write_timer_timeout():
 	if get_tree().current_scene and get_tree().current_scene.name != "GameRoot": return
 	var data : PackedByteArray = []
+	var data_indices_buffer : PackedByteArray = []
 	var pos = _current_world_file.get_length()
 	_current_world_file.seek(pos)
 	for i in _chunks_to_save:
+		update_chunk_index(i.coords, pos)
 		var header = PackedByteArray([])
 		header.resize(8)
 		header.encode_u64(0, i.data.size())
 		data.append_array(header)
 		data.append_array(i.data)
-		update_chunk_index(i.coords, pos)
 		pos += i.data.size() + 8
+
+	for i in data_indices.size():
+		var key = data_indices.keys()[i]
+		data_indices_buffer.resize(data_indices_buffer.size() + 24)
+		data_indices_buffer.encode_s64(24*i, key.x)
+		data_indices_buffer.encode_s64(24*i + 8, key.y)
+		data_indices_buffer.encode_u64(24*i + 16, data_indices[key])
+
+	# Clear the index file to prevent confusion between old and new data
+	FileAccess.open(_current_save_path + "/index.dat", FileAccess.WRITE).close()
+	_current_index_file.store_buffer(data_indices_buffer)
+
 	if not data.is_empty():
 		_current_world_file.store_buffer(data)
 		_chunks_to_save.clear()
@@ -188,14 +204,7 @@ func _notification(what):
 			if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
 				save_chunk(i)
 		_on_write_timer_timeout()
-		var data_indices_buffer : PackedByteArray = []
-		for i in data_indices.size():
-			var key = data_indices.keys()[i]
-			data_indices_buffer.encode_s64(24*i, key.x)
-			data_indices_buffer.encode_s64(24*i + 8, key.y)
-			data_indices_buffer.encode_u64(24*i + 16, data_indices[key])
 
 		save_nav_data(pathfinder.portals_by_id, pathfinder.portal_connections)
 
-		_current_index_file.store_buffer(data_indices_buffer)
 		get_tree().quit()
