@@ -19,6 +19,7 @@ class_name ChunkManager
 #				    \_/      \_______/ |__/       |_______/
 
 var chunks: Dictionary[Vector2i, Node]
+var chunk_cam_coords: Vector4i = Vector4i.ZERO
 var load_queue: Array[Vector2i]
 var unload_queue: Array[Vector2i]
 
@@ -121,7 +122,7 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var chunk_cam_coords: Vector4i = GridUtils.world_coord_to_chunk_coord(cam.position)
+	chunk_cam_coords = GridUtils.world_coord_to_chunk_coord(cam.position)
 	current_chunk = Vector2i(chunk_cam_coords.x, chunk_cam_coords.y)
 
 	if old_chunk == null or old_chunk != current_chunk:
@@ -190,8 +191,7 @@ func _physics_process(_delta: float) -> void:
 
 
 func generate_new_layer(
-	coords: Vector2i, layer: GlobalRef.tilemap_layers_enum, _seed: int
-) -> Array:  # CRITICAL WIP
+	coords: Vector2i, layer: GlobalRef.tilemap_layers_enum, _seed: int) -> Array:  # CRITICAL WIP
 	var tile_array: Array = []
 	tile_array.resize(CHUNK_SIZE)
 
@@ -317,3 +317,7 @@ func instantiate_chunk(new_chunk: Chunk, coords: Vector2i) -> void:
 			)
 
 	chunk_generated.emit(coords)
+
+func get_render_quad() -> Rect2i:
+	@warning_ignore("integer_division")
+	return Rect2i(chunk_cam_coords.x - render_distance / 2, chunk_cam_coords.y - render_distance / 2, render_distance, render_distance)
