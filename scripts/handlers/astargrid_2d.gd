@@ -23,12 +23,16 @@ var portals_by_coords: Dictionary[Vector2i, Array] = {}
 var portal_nodes: Dictionary[String, Array] = {}
 ## Keys are chunk coords, values are whatever the [method calculate_portal_connections] func returns
 var portal_connections = {}
+var calculate_connections_queue = []
+var fully_initialized_chunks : Dictionary = {}
 var chunk_manager: ChunkManager
 var dirty_chunks: Array[Vector2i] = []
 var recalc_timer: Timer
 var queue_restart_timer : Timer
 var path_request_queue : Array
 var astarportal = AstarPortal2D.new(self)
+
+@export var pathfinding_calc_per_frame = 2
 #endregion
 
 #region classes
@@ -256,6 +260,9 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 	# All edges that lead to a node are the weight of that node (an edge's weight can be different depending on the direction,
 	# but that doesn't really matter in this case
 
+	var buckets : Array[Array] = []
+	var open_list : Dictionary[Vector2i, DijkstraGraphNode] = {}
+	var closed_list : Dictionary[Vector2i, DijkstraGraphNode] = {}
 	var result : Dictionary = {}
 	var astargrid = astargrids[chunk_coords]
 
@@ -291,13 +298,14 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 
 	# Add the portal tiles' neighbors to the open_list to explore later
 	for portal_id in portal_list:
+		var t_start = Time.get_ticks_msec() # DEBUG
+		var current_bucket = 0
+		open_list.clear()
+		closed_list.clear()
+		buckets.clear()
 		# Reserving a place for the portal connections to go into
 		result[portal_id] = {}
 
-		# Initializing the variables for Djikstra
-		var open_list : Dictionary[Vector2i, DijkstraGraphNode] = {}
-		var open_heap : BinaryHeap = BinaryHeap.new()
-		var closed_list : Dictionary[Vector2i, DijkstraGraphNode] = {}
 		for tile_coord in portal_list[portal_id]:
 			var neighbors = GridUtils.get_neighbor_tiles(Vector4i(0, 0, tile_coord.x, tile_coord.y), false)
 			for neighbor in neighbors:
@@ -307,14 +315,21 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 				# If the neighbor is already processed, we don't need to process it again
 				if closed_list.has(coord) or open_list.has(coord) or astargrid.is_point_solid(coord): continue
 				open_list[coord] = DijkstraGraphNode.new(astargrid.get_point_weight_scale(coord), coord, tile_coord)
-				open_heap.append(DijkstraGraphNode.new(astargrid.get_point_weight_scale(coord), coord, tile_coord))
-				open_heap.bubble_up_heap_custom(func(a : DijkstraGraphNode, b : DijkstraGraphNode) -> bool: return a.weight < b.weight)
+				if buckets.size() <= int(astargrid.get_point_weight_scale(coord)*10):
+					buckets.resize(int(astargrid.get_point_weight_scale(coord)*10) + 1)
+				if not buckets[int(astargrid.get_point_weight_scale(coord)*10)]:
+					buckets[int(astargrid.get_point_weight_scale(coord)*10)] = []
+				buckets[int(astargrid.get_point_weight_scale(coord)*10)].append(open_list[coord])
+		var t_seed = Time.get_ticks_msec() - t_start
 
 		# While there are still nodes to process
-		while not open_heap.is_empty():
+		var iterations = 0
+		while not open_list.is_empty():
+			iterations += 1
 			# We find the tile with the smallest weight
-			var preferred_tile = open_heap.pop_front()
-			open_heap.bubble_up_heap_custom(func(a : DijkstraGraphNode, b : DijkstraGraphNode) -> bool: return a.weight < b.weight)
+			while not buckets[current_bucket] or buckets[current_bucket].is_empty():
+				current_bucket += 1
+			var preferred_tile = buckets[current_bucket].pop_back()
 			# We transfer it to the closed list
 			closed_list[preferred_tile.coords] = open_list[preferred_tile.coords]
 			# And add its neighbors to the open list
@@ -330,7 +345,11 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 				# If the tile wasn't yet explored or if it has a smaller weight, we write it to open_list
 				if (not open_list.has(coord) or tile_weight < open_list[coord].weight) and not astargrid.is_point_solid(coord):
 					open_list[coord] = DijkstraGraphNode.new(tile_weight, coord, preferred_tile.root)
+					if not buckets[int(astargrid.get_point_weight_scale(coord)*10)]:
+						buckets[int(astargrid.get_point_weight_scale(coord)*10)] = []
+					buckets[int(astargrid.get_point_weight_scale(coord)*10)].append(open_list[coord])
 			open_list.erase(preferred_tile.coords)
+		var t_dijkstra = Time.get_ticks_msec() - t_start - t_seed
 
 		# For each portal in the portal list except the source one
 		for id in portal_list:
@@ -349,12 +368,19 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 				# For each tile coord in the segment, get its weight and compare it
 				for i in range(start_idx, end_idx):
 					var coord = portal_list[id][i]
-					if not closed_list.has(coord): continue
+					if not closed_list.has(coord):
+						continue
 					if closed_list[coord].weight < best_weight:
 						best_weight = closed_list[coord].weight
 						best_in_quarter = closed_list[coord]
 				# Finally, append the best portal tiles
 				result[portal_id][id].append({"root" : best_in_quarter.root, "coords" : best_in_quarter.coords, "weight" : best_in_quarter.weight})
+		var t_quarters = Time.get_ticks_msec() - t_start - t_seed - t_dijkstra
+
+		print("Portal ", portal_id, ":")
+		print("  Seed: ", t_seed, "ms")
+		print("  Dijkstra (", iterations, " iters): ", t_dijkstra, "ms")
+		print("  Quarters: ", t_quarters, "ms")
 
 	return result
 
@@ -610,7 +636,18 @@ func recalc_dirty_chunks():
 		for dir in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
 			handle_chunk_edge(i, dir)
 		handle_portals_by_coords(i)
-		if not dirty_chunks.has(i): portal_connections[i] = calculate_portal_connections(i)
+			# Only calculate if NOT already fully initialized
+		if not fully_initialized_chunks.get(i, false):
+		# Check if all 4 neighbors exist
+			var all_neighbors_ready = true
+			for dir in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
+				if not chunk_manager.get_render_quad().has_point(i + dir) and not portals_by_coords.has(i + dir):
+					all_neighbors_ready = false
+					break
+
+			if all_neighbors_ready:
+				calculate_connections_queue.append(i)
+				fully_initialized_chunks[i] = true
 
 func recalc_paths():
 	for i in path_request_queue.size():
@@ -668,8 +705,8 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 		var rough_path = get_rough_path(from, to)
 		# If there isn't one, then idk, THAT SHOULDN'T FUCKING HAPPEN
 		if not rough_path: return
-		print(rough_path)
 		for i in range(rough_path.size() - 1):
+			portal_connections[rough_path[i]] = calculate_portal_connections(rough_path[i])
 			var key = rough_path[i]
 			var portal : ChunkPortal = portals_by_id[key]
 			var next_portal : ChunkPortal = portals_by_id[rough_path[i + 1]]
