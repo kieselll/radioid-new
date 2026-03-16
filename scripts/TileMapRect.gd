@@ -21,18 +21,24 @@ func get_world_area() -> int:
 	return get_tile_area() * TILE_SIZE * TILE_SIZE
 
 func normalize() -> TileMapRect:
-	if start.x > end.x:
+	var start_world_x := start.x * CHUNK_SIZE + start.z
+	var end_world_x := end.x * CHUNK_SIZE + end.z
+	if start_world_x > end_world_x:
 		var temp_x = start.x
 		var temp_z = start.z
 		start.x = end.x
 		start.z = end.z
 		end.x = temp_x
 		end.z = temp_z
-	if start.y > end.y:
+
+	var start_world_y := start.y * CHUNK_SIZE + start.w
+	var end_world_y := end.y * CHUNK_SIZE + end.w
+	if start_world_y > end_world_y:
 		var temp_y = start.y
 		var temp_w = start.w
 		start.y = end.y
 		start.w = end.w
 		end.y = temp_y
 		end.w = temp_w
+
 	return self
