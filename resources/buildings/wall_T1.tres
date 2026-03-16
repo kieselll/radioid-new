@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=7 format=3 uid="uid://g4kvlioffs8h"]
+[gd_resource type="Resource" script_class="BuildableData" format=3 uid="uid://g4kvlioffs8h"]
 
 [ext_resource type="Script" uid="uid://bl3bxb2n1wk4q" path="res://resources/resource_scripts/BuildableFlammableData.gd" id="1"]
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://resources/resource_scripts/BuildableData.gd" id="2"]
