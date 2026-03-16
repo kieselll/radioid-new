@@ -351,7 +351,7 @@ func _create_multimesh(cell: NewCell):
 
 ## Returns a bitmask of neighboring tiles for autotiling.
 func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
-	var result = 0
+	var result = 0b000010000
 	var chunk = self
 
 	var chunk_pos = Vector2i(
