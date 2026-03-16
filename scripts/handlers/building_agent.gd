@@ -208,6 +208,7 @@ func filter_ground(tiles : Array, built_object : BuildableData) -> Dictionary:
 
 func _get_rect_border_points_and_neighbors(selection_rect : TileMapRect, is_filled : bool = false) -> Array:
 	var points := []
+	selection_rect = selection_rect.normalize()
 	var chunk_min := Vector2i(selection_rect.start.x, selection_rect.start.y)
 	var chunk_max := Vector2i(selection_rect.end.x, selection_rect.end.y)
 	var tile_min := Vector2i(selection_rect.start.z, selection_rect.start.w)
@@ -220,8 +221,6 @@ func _get_rect_border_points_and_neighbors(selection_rect : TileMapRect, is_fill
 	var max_xx = 0
 	var min_yy = 0
 	var max_yy = 0
-
-	selection_rect = selection_rect.normalize()
 
 	# Single tile
 	if width == 1 and height == 1:
