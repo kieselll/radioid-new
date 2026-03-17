@@ -57,8 +57,8 @@ func bubble_down_heap_custom(function : Callable) -> void:
 		var has_right : bool = right < heap.size()
 		if function.call(heap[left], heap[current_index])\
 		or (has_right and function.call(heap[right], heap[current_index])):
-			var temp_child_index : int = left if has_right and function.call(heap[left], heap[right])\
-			else right
+			var temp_child_index : int = right if has_right and function.call(heap[left], heap[right])\
+			else left
 			var temp_child = heap[temp_child_index]
 			heap[temp_child_index] = heap[current_index]
 			heap[current_index] = temp_child
