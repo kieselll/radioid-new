@@ -653,7 +653,7 @@ func recalc_paths():
 	for i in path_request_queue.size():
 		var stored_request : Array = path_request_queue[i]
 		request_path(stored_request[0], stored_request[1], stored_request[2])
-	path_request_queue.clear()
+		path_request_queue.remove_at(i)
 
 #				  /$$$$$$   /$$$$$$$   /$$$$$$
 #				 /$$__  $$ | $$__  $$ |_  $$_/
