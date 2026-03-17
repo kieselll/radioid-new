@@ -35,6 +35,7 @@ BuildableDB="*res://scripts/autoloads/BuildableDB.gd"
 DebugMenu="*res://scenes/autoloads/debug_menu.tscn"
 InputHandler="*res://scripts/autoloads/input_handler.gd"
 GridUtils="*uid://gbt8dd5ngoow"
+DiscordRPCLoader="*uid://capasr2uu86k"
 
 [debug]
 
@@ -48,6 +49,10 @@ mouse_cursor/custom_image="res://textures/ui/cursor.png"
 [editor]
 
 movie_writer/movie_file="C:/Users/Kirill/Desktop/Movie.avi"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/discord-rpc-gd/plugin.cfg")
 
 [file_customization]
 
