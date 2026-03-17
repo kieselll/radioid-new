@@ -352,15 +352,14 @@ func _create_multimesh(cell: NewCell):
 ## Returns a bitmask of neighboring tiles for autotiling.
 func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 	var result = 0b000010000
-	var chunk = self
-
-	var chunk_pos = Vector2i(
+	var base_chunk_pos = Vector2i(
 		GridUtils.world_coord_to_chunk_coord(position).x,
 		GridUtils.world_coord_to_chunk_coord(position).y
 	)
 
 	for i in offsets.size():
 		var o = coords + offsets[i]
+		var chunk_pos = base_chunk_pos
 
 		if o.x < 0:
 			chunk_pos += Vector2i(-1, 0)
@@ -374,7 +373,7 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 		elif o.y >= CHUNK_SIZE:
 			chunk_pos += Vector2i(0, 1)
 			o.y = 0
-		chunk = GlobalRef.get_chunk(chunk_pos)
+		var chunk = GlobalRef.get_chunk(chunk_pos)
 
 		if chunk == null:
 			continue
@@ -400,8 +399,7 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 
 ## UV update for tile and neighbors
 func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
-	var chunk = self
-	var my_chunk_pos = Vector2i(
+	var base_chunk_pos = Vector2i(
 		GridUtils.world_coord_to_chunk_coord(position).x,
 		GridUtils.world_coord_to_chunk_coord(position).y,
 	)
@@ -412,20 +410,20 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 		else [Vector2i.ZERO]
 	):
 		var p = coords + off
-
+		var chunk_pos = base_chunk_pos
 		if p.x < 0:
-			my_chunk_pos += Vector2i(-1, 0)
+			chunk_pos += Vector2i(-1, 0)
 			p.x = CHUNK_SIZE - 1
 		elif p.x >= CHUNK_SIZE:
-			my_chunk_pos += Vector2i(1, 0)
+			chunk_pos += Vector2i(1, 0)
 			p.x = 0
 		if p.y < 0:
-			my_chunk_pos += Vector2i(0, -1)
+			chunk_pos += Vector2i(0, -1)
 			p.y = CHUNK_SIZE - 1
 		elif p.y >= CHUNK_SIZE:
-			my_chunk_pos += Vector2i(0, 1)
+			chunk_pos += Vector2i(0, 1)
 			p.y = 0
-		chunk = GlobalRef.get_chunk(my_chunk_pos)
+		var chunk = GlobalRef.get_chunk(chunk_pos)
 
 		if chunk == null:
 			continue
