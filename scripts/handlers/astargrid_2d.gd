@@ -532,7 +532,6 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 func get_rough_path(start: Vector4i, end: Vector4i):
 	const START_ID = "START"
 	const END_ID = "END"
-	print("REQUESTED ROUGH PATH FROM ", start, " TO ", end)
 
 	if portals_by_coords[Vector2i(start.x, start.y)].has(START_ID) : portals_by_coords[Vector2i(start.x, start.y)].erase(START_ID)
 	if portals_by_coords[Vector2i(end.x, end.y)].has(END_ID) : portals_by_coords[Vector2i(end.x, end.y)].erase(END_ID)
