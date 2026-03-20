@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dv0ld13x2mrb3" path="res://scripts/chunk.gd" id="1_qt7hk"]
 [ext_resource type="Shader" uid="uid://durpjnyh253jp" path="res://shaders/multimesh_shader.gdshader" id="2_qt7hk"]
 [ext_resource type="Script" uid="uid://ktddc6n8yeqq" path="res://scripts/handlers/item_manager.gd" id="3_01iku"]
+[ext_resource type="Script" uid="uid://c7ek52j25itm6" path="res://scripts/Debug/DEBUG_DRAWER.gd" id="4_unaa7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_01iku"]
 shader = ExtResource("2_qt7hk")
@@ -14,3 +15,7 @@ base_material = SubResource("ShaderMaterial_01iku")
 
 [node name="ItemManager" type="Node" parent="." unique_id=1375079382]
 script = ExtResource("3_01iku")
+
+[node name="Node2D" type="Node2D" parent="." unique_id=518136136]
+z_index = 20
+script = ExtResource("4_unaa7")

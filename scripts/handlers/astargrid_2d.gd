@@ -129,6 +129,11 @@ func _ready() -> void:
 #				                                             \______/
 
 #region debug
+# R for rough
+var rpath : Array
+# E for exact
+var epath : Array
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.keycode == KEY_P and event.is_pressed():
 		request_path(Vector4i(0,0,0,0), Vector4i(2,-1,0,0), func(path): print(path))
@@ -160,6 +165,30 @@ func _input(event: InputEvent) -> void:
 #				                       /$$  \ $$
 #				                      |  $$$$$$/
 #				                       \______/
+
+func _draw() -> void:
+	if rpath and not rpath.is_empty():
+		for i in rpath.size() - 1:
+			var port : ChunkPortal = portals_by_id[rpath[i]]
+			var port_2 : ChunkPortal = portals_by_id[rpath[i + 1]]
+			var port_coords = calculate_portal_coords(port.side, port.start, port.end)
+			var port_coords_2 = calculate_portal_coords(port_2.side, port_2.start, port_2.end)
+			draw_dashed_line(
+				GridUtils.chunk_coord_to_world_coord(Vector4i(port.chunk_coords.x, port.chunk_coords.y, port_coords.x, port_coords.y)),
+				GridUtils.chunk_coord_to_world_coord(Vector4i(port_2.chunk_coords.x, port_2.chunk_coords.y, port_coords_2.x, port_coords_2.y)),
+				Color.RED
+				)
+			draw_circle(GridUtils.chunk_coord_to_world_coord(Vector4i(port.chunk_coords.x, port.chunk_coords.y, port_coords.x, port_coords.y)), 5, Color.RED)
+	if epath and not epath.is_empty():
+		for i in epath.size() - 1:
+			draw_dashed_line(
+				GridUtils.chunk_coord_to_world_coord(epath[i]),
+				GridUtils.chunk_coord_to_world_coord(epath[i + 1]),
+				Color.GREEN
+			)
+			draw_circle(GridUtils.chunk_coord_to_world_coord(epath[i]), 3, Color.GREEN)
+		draw_circle(GridUtils.chunk_coord_to_world_coord(epath[-1]), 10, Color.YELLOW)
+
 
 func _on_chunk_manager_chunk_deleted(coords: Vector2i) -> void:
 	# If a chunk is deleted, its astar gets deleted too (need to add saving later)
@@ -584,7 +613,8 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 			if not portal_nodes[port].any(func(element): return element[0] == END_ID):
 				portal_nodes[port].append([END_ID, calculated_weight])
 
-	return astarportal.get_path(START_ID, END_ID)
+	rpath = astarportal.get_path(START_ID, END_ID)
+	return rpath
 
 func erase_portal(id: String) -> void:
 	# We only delete a portal if it exists in the first place
@@ -734,6 +764,9 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 						)
 					)
 				)
+			previous_pos = best_variant["coords"]
+	queue_redraw()
+	epath = path
 	callback.call(path)
 
 ## Marks tile as solid for the Astar pathfinders.[br]

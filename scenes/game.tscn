@@ -269,7 +269,8 @@ script = ExtResource("9_8qswn")
 
 [node name="autosave_timer" type="Timer" parent="handlers/process_handler" unique_id=185979755]
 
-[node name="GlobalPathfinder" type="Node" parent="handlers" unique_id=1018771243]
+[node name="GlobalPathfinder" type="Node2D" parent="handlers" unique_id=1382495677]
+z_index = 2000
 script = ExtResource("10_rm0al")
 metadata/_custom_type_script = "uid://bn4gl6qp36s43"
 
@@ -751,6 +752,7 @@ format = 2
 
 [node name="test_pawn" parent="." unique_id=1034495733 instance=ExtResource("40_vgxg3")]
 z_index = 2
+position = Vector2(116.99999, 105.99999)
 scale = Vector2(0.06, 0.06)
 floor_constant_speed = true
 characteristics = SubResource("Resource_8ool0")
