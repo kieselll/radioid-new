@@ -439,7 +439,4 @@ func is_tile_solid(coords: Vector4i) -> bool:
 
 func get_portal_connections(portal_id: String) -> Array:
 	return portal_nodes[portal_id] if portal_nodes.has(portal_id) else []
-
-func get_portal(portal_id : String) -> ChunkPortal:
-	return portals_by_id[portal_id] if portals_by_id.has(portal_id) else null
 #endregion
