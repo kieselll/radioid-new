@@ -1,16 +1,9 @@
 @icon("res://textures/editor_icons/trail.svg")
 class_name GlobalPathfinder
-extends Node
-## This [i]scene node[/i] is made for calculating paths for enemy/colonist AI.
-## Need to add multithreading later
-## Also need to add dirty portal nodes !IMPORTANT! CRITICAL
-
-#				 /$$    /$$   /$$$$$$    /$$$$$$    /$$$$$$$
-#				|  $$  /$$/  |____  $$  /$$__  $$  /$$_____/
-#				 \  $$/$$/    /$$$$$$$ | $$  \__/ |  $$$$$$
-#				  \  $$$/    /$$__  $$ | $$        \____  $$
-#				   \  $/    |  $$$$$$$ | $$        /$$$$$$$/
-#				    \_/      \_______/ |__/       |_______/
+extends Node2D
+## This node is made for calculating paths for enemy/colonist AI.
+## Need to add multithreading later if needed
+## Currently being refactored from portals to tiles
 
 #region vars
 ## The dictionary that holds all [AstarGrid2D] instances for all the chunks.
@@ -169,16 +162,14 @@ func _input(event: InputEvent) -> void:
 func _draw() -> void:
 	if rpath and not rpath.is_empty():
 		for i in rpath.size() - 1:
-			var port : ChunkPortal = portals_by_id[rpath[i]]
-			var port_2 : ChunkPortal = portals_by_id[rpath[i + 1]]
-			var port_coords = calculate_portal_coords(port.side, port.start, port.end)
-			var port_coords_2 = calculate_portal_coords(port_2.side, port_2.start, port_2.end)
+			var port : Vector4i = rpath[i]
+			var port_2 : Vector4i = rpath[i + 1]
 			draw_dashed_line(
-				GridUtils.chunk_coord_to_world_coord(Vector4i(port.chunk_coords.x, port.chunk_coords.y, port_coords.x, port_coords.y)),
-				GridUtils.chunk_coord_to_world_coord(Vector4i(port_2.chunk_coords.x, port_2.chunk_coords.y, port_coords_2.x, port_coords_2.y)),
+				GridUtils.chunk_coord_to_world_coord(port),
+				GridUtils.chunk_coord_to_world_coord(port_2),
 				Color.RED
 				)
-			draw_circle(GridUtils.chunk_coord_to_world_coord(Vector4i(port.chunk_coords.x, port.chunk_coords.y, port_coords.x, port_coords.y)), 5, Color.RED)
+			draw_circle(GridUtils.chunk_coord_to_world_coord(port), 5, Color.RED)
 	if epath and not epath.is_empty():
 		for i in epath.size() - 1:
 			draw_dashed_line(
