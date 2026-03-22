@@ -146,58 +146,30 @@ func handle_portals_by_coords(coords) -> void:
 	var astar = astargrids[coords]
 	for a in portals_by_coords[coords].size():
 		# Get the side the studied portal is on
-		var side_a = portals_by_id[portals_by_coords[coords][a]].side
+		var side_a = calculate_node_side(portals_by_coords[coords][a])
 		# Exit prematurely if there isn't a neighbor on that side (E.G. chunk is on the edge of the render quadrant
 		if not portals_by_coords.has(coords + side_a):
 			continue
 		# Get the matching portal index from the neighbor chunk (opposite side)
-		var portal_match: int = portals_by_coords[coords + side_a].find_custom(
-			func(element: String):
-				return portals_by_id.has(element) and portals_by_id[element].side == -side_a
-		)
-		# check if the matching portal has the same start and same end to the studied one (same span basically)
-		if (
-			portal_match != -1
-			and (
-				portals_by_id[portals_by_coords[coords + side_a][portal_match]].start
-				== portals_by_id[portals_by_coords[coords][a]].start
-			)
-			and (
-				portals_by_id[portals_by_coords[coords + side_a][portal_match]].end
-				== portals_by_id[portals_by_coords[coords][a]].end
-			)
-		):
-			# Create 2 portal nodes, append the connected portal ID and the weight as an Array
-			if not portal_nodes.has(portals_by_coords[coords][a]):
-				portal_nodes[portals_by_coords[coords][a]] = [
-					[portals_by_coords[coords + side_a][portal_match], 1]
-				]
-			else:
-				portal_nodes[portals_by_coords[coords][a]].append(
-					[portals_by_coords[coords + side_a][portal_match], 1]
-				)
-			if not portal_nodes.has(portals_by_coords[coords + side_a][portal_match]):
-				portal_nodes[portals_by_coords[coords + side_a][portal_match]] = [
-					[portals_by_coords[coords][a], 1]
-				]
-			else:
-				portal_nodes[portals_by_coords[coords + side_a][portal_match]].append(
-					[portals_by_coords[coords][a], 1]
-				)
+		# It's 3 to throw an error if something goes wrong
+		var significant_coord = 3
+		# If the tile is at either of the x extremities of the chunk/ that means the y coord is changing
+		if side_a.x != 0:
+			significant_coord = 1
+		# If the tile is at either of the y extremities of the chunk/ that means the x coord is changing
+		elif side_a.y != 0:
+			significant_coord = 0
+		if significant_coord != 3:
+			var portal_match = portals_by_coords[coords + side_a].find_custom(func(element): return element[significant_coord] == portals_by_coords[coords][a][significant_coord])
+			if not portal_nodes.has(portals_by_coords[coords][a]): portal_nodes[portals_by_coords[coords][a]] = [[portal_match, 1]]
+			else: portal_nodes[portals_by_coords[coords][a]].append([portal_match, 1])
 		# Check all other portals in the same chunk. The a + 1 part guarantees no repetitions and gives some optimization in extreme cases
 		for b in range(a + 1, portals_by_coords[coords].size()):
-			# Initializing the coordinates and the portals' IDs as separate variables
-			var c_1: Vector2i
-			var c_2: Vector2i
 			var i = portals_by_coords[coords][a]
 			var j = portals_by_coords[coords][b]
 
-			# Calculating the actual grid coords depending on start/end + side
-			c_1 = calculate_portal_coords(portals_by_id[i].side, portals_by_id[i].start, portals_by_id[i].end)
-			c_2 = calculate_portal_coords(portals_by_id[j].side, portals_by_id[j].start, portals_by_id[j].end)
-
 			# Trying to get a path between the 2 studied portals
-			var path = astar.get_id_path(c_1, c_2)
+			var path = astar.get_id_path(Vector2i(i.z, i.w), Vector2i(j.z, j.w))
 
 			if not path.is_empty():
 				var calculated_weight: float = 0
