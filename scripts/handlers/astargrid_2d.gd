@@ -424,6 +424,73 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 	epath = path
 	callback.call(path)
 
+func recalc_paths():
+	for i in path_request_queue.size():
+		var stored_request : Array = path_request_queue[i]
+		request_path(stored_request[0], stored_request[1], stored_request[2])
+		path_request_queue.remove_at(i)
+#endregion
+
+#region portal stuff (outdated)
+func erase_portal(id: String) -> void:
+	# We only delete a portal if it exists in the first place
+	if portal_nodes.has(id):
+		# Iterating over that portal's connections
+		for pair in portal_nodes[id]:
+			# If the connected portal SOMEHOW doesn't exist, we skip it
+			if not portal_nodes.has(pair[0]):
+				continue
+			# We find at what position is that portal
+			var portal_pos_other = portal_nodes[pair[0]].find_custom(
+				func(element): return element[0] == id
+			)
+			if portal_pos_other == -1:
+				continue
+			# Then erase that portal as a connection of the nodes
+			portal_nodes[pair[0]].pop_at(portal_pos_other)
+		portal_nodes.erase(id)
+		# Basically if the chunk is listed in the chunks_by_coords
+		if (
+			portals_by_id.has(id)
+			and portals_by_coords.has(portals_by_id[id].chunk_coords)
+			and portals_by_coords[portals_by_id[id].chunk_coords].has(id)
+		):
+			# We erase it from there too
+			portals_by_coords[portals_by_id[id].chunk_coords].erase(id)
+			portals_by_id.erase(id)
+
+func get_portal(portal_id : String) -> Vector4i:
+	return portals_by_id[portal_id] if portals_by_id.has(portal_id) else null
+#endregion
+
+#region chunks stuff
+func recalc_dirty_chunks():
+	var dirty_chunks_copy = dirty_chunks.duplicate()
+	dirty_chunks.clear()
+	for i in dirty_chunks_copy:
+		if not portals_by_coords.has(i): continue
+		for portal_id in portals_by_coords[i].duplicate():
+			erase_portal(portal_id)
+		for dir in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
+			handle_chunk_edge(i, dir)
+		handle_portals_by_coords(i)
+			# Only calculate if NOT already fully initialized
+		if not fully_initialized_chunks.get(i, false):
+		# Check if all 4 neighbors exist
+			var all_neighbors_ready = true
+			for dir in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
+				if not chunk_manager.get_render_quad().has_point(i + dir) and not portals_by_coords.has(i + dir):
+					all_neighbors_ready = false
+					break
+
+			if all_neighbors_ready:
+				calculate_connections_queue.append(i)
+				fully_initialized_chunks[i] = true
+#endregion
+
+#region helpers
+func calculate_node_side(node_coords : Vector4i):
+	return Vector2i(int((node_coords.z - 7.5)/7.5), int((node_coords.w - 7.5)/7.5))
 #endregion
 
 #region API
