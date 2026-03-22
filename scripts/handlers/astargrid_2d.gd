@@ -86,16 +86,7 @@ class DijkstraGraphNode:
 		self.root = root
 #endregion
 
-#				 /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$
-#				|_  $$_/ | $$$ | $$ |_  $$_/ |__  $$__/
-#				  | $$   | $$$$| $$   | $$      | $$
-#				  | $$   | $$ $$ $$   | $$      | $$
-#				  | $$   | $$  $$$$   | $$      | $$
-#				  | $$   | $$\  $$$   | $$      | $$
-#				 /$$$$$$ | $$ \  $$  /$$$$$$    | $$
-#				|______/ |__/  \__/ |______/    |__/
-
-
+#region lifecycle
 func _ready() -> void:
 	chunk_manager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.chunk_manager))
 	recalc_timer = Timer.new()
@@ -108,18 +99,7 @@ func _ready() -> void:
 	add_child(queue_restart_timer)
 	queue_restart_timer.start(0.2)
 	queue_restart_timer.timeout.connect(recalc_paths)
-
-#				 /$$$$$$$              /$$
-#				| $$__  $$            | $$
-#				| $$  \ $$   /$$$$$$  | $$$$$$$   /$$   /$$   /$$$$$$
-#				| $$  | $$  /$$__  $$ | $$__  $$ | $$  | $$  /$$__  $$
-#				| $$  | $$ | $$$$$$$$ | $$  \ $$ | $$  | $$ | $$  \ $$
-#				| $$  | $$ | $$_____/ | $$  | $$ | $$  | $$ | $$  | $$
-#				| $$$$$$$/ |  $$$$$$$ | $$$$$$$/ |  $$$$$$/ |  $$$$$$$
-#				|_______/   \_______/ |_______/   \______/   \____  $$
-#				                                             /$$  \ $$
-#				                                            |  $$$$$$/
-#				                                             \______/
+#endregion
 
 #region debug
 # R for rough
@@ -136,28 +116,6 @@ func _input(event: InputEvent) -> void:
 #   ⁞O       ⁞O       ⁞O        ⁞O
 #       ⁞O       ⁞O        ⁞O
 #
-#endregion
-
-#				  /$$$$$$   /$$                              /$$
-#				 /$$__  $$ | $$                             | $$
-#				| $$  \__/ | $$$$$$$   /$$   /$$  /$$$$$$$  | $$   /$$
-#				| $$       | $$__  $$ | $$  | $$ | $$__  $$ | $$  /$$/
-#				| $$       | $$  \ $$ | $$  | $$ | $$  \ $$ | $$$$$$/
-#				| $$    $$ | $$  | $$ | $$  | $$ | $$  | $$ | $$_  $$
-#				|  $$$$$$/ | $$  | $$ |  $$$$$$/ | $$  | $$ | $$ \  $$
-#				 \______/  |__/  |__/  \______/  |__/  |__/ |__/  \__/
-
-#				 /$$                              /$$
-#				| $$                             |__/
-#				| $$         /$$$$$$    /$$$$$$   /$$   /$$$$$$$
-#				| $$        /$$__  $$  /$$__  $$ | $$  /$$_____/
-#				| $$       | $$  \ $$ | $$  \ $$ | $$ | $$
-#				| $$       | $$  | $$ | $$  | $$ | $$ | $$
-#				| $$$$$$$$ |  $$$$$$/ |  $$$$$$$ | $$ |  $$$$$$$
-#				|________/  \______/   \____  $$ |__/  \_______/
-#				                       /$$  \ $$
-#				                      |  $$$$$$/
-#				                       \______/
 
 func _draw() -> void:
 	if rpath and not rpath.is_empty():
@@ -180,7 +138,9 @@ func _draw() -> void:
 			draw_circle(GridUtils.chunk_coord_to_world_coord(epath[i]), 3, Color.GREEN)
 		draw_circle(GridUtils.chunk_coord_to_world_coord(epath[-1]), 10, Color.YELLOW)
 
+#endregion
 
+#region chunk events
 func _on_chunk_manager_chunk_deleted(coords: Vector2i) -> void:
 	# If a chunk is deleted, its astar gets deleted too (need to add saving later)
 	if astargrids.has(coords):
@@ -225,18 +185,7 @@ func _on_chunk_manager_chunk_generated(coords: Vector2i) -> void:
 	for i in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
 		handle_chunk_edge(coords, i)
 	handle_portals_by_coords(coords)
-
-#				 /$$                   /$$
-#				| $$                  | $$
-#				| $$$$$$$    /$$$$$$  | $$   /$$$$$$    /$$$$$$    /$$$$$$    /$$$$$$$
-#				| $$__  $$  /$$__  $$ | $$  /$$__  $$  /$$__  $$  /$$__  $$  /$$_____/
-#				| $$  \ $$ | $$$$$$$$ | $$ | $$  \ $$ | $$$$$$$$ | $$  \__/ |  $$$$$$
-#				| $$  | $$ | $$_____/ | $$ | $$  | $$ | $$_____/ | $$        \____  $$
-#				| $$  | $$ |  $$$$$$$ | $$ | $$$$$$$/ |  $$$$$$$ | $$        /$$$$$$$/
-#				|__/  |__/  \_______/ |__/ | $$____/   \_______/ |__/       |_______/
-#				                           | $$
-#				                           | $$
-#				                           |__/
+#endregion
 
 func calculate_portal_coords(side: Vector2i, start: int, end: int) -> Vector2i:
 	@warning_ignore("integer_division")
@@ -404,6 +353,7 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 
 	return result
 
+#region portal initializing (outdated)
 func handle_portals_by_coords(coords) -> void:
 	var astar = astargrids[coords]
 	for a in portals_by_coords[coords].size():
@@ -477,6 +427,7 @@ func handle_portals_by_coords(coords) -> void:
 					portal_nodes[j].append([i, calculated_weight])
 
 # God damn, what a monolith! Good luck to anyone who has to read this right now, I did my best at making this comprehensible
+## Function that saves portals on a chunk's edge
 func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 	# Vars for creating portals between chunks
 	# Was the previous tile also a valid portal?
@@ -548,7 +499,9 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 	):
 		# We mark the chunk dirty to later reevaluate the portals and the connections between
 		dirty_chunks.append(coords + direction)
+#endregion
 
+#region path stuff
 func get_rough_path(start: Vector4i, end: Vector4i):
 	const START_ID = "START"
 	const END_ID = "END"
@@ -634,18 +587,6 @@ func erase_portal(id: String) -> void:
 			portals_by_coords[portals_by_id[id].chunk_coords].erase(id)
 			portals_by_id.erase(id)
 
-#				 /$$        /$$   /$$$$$$                                               /$$
-#				| $$       |__/  /$$__  $$                                             | $$
-#				| $$        /$$ | $$  \__/   /$$$$$$    /$$$$$$$  /$$   /$$   /$$$$$$$ | $$   /$$$$$$
-#				| $$       | $$ | $$$$      /$$__  $$  /$$_____/ | $$  | $$  /$$_____/ | $$  /$$__  $$
-#				| $$       | $$ | $$_/     | $$$$$$$$ | $$       | $$  | $$ | $$       | $$ | $$$$$$$$
-#				| $$       | $$ | $$       | $$_____/ | $$       | $$  | $$ | $$       | $$ | $$_____/
-#				| $$$$$$$$ | $$ | $$       |  $$$$$$$ |  $$$$$$$ |  $$$$$$$ |  $$$$$$$ | $$ |  $$$$$$$
-#				|________/ |__/ |__/        \_______/  \_______/  \____  $$  \_______/ |__/  \_______/
-#				                                                  /$$  | $$
-#				                                                 |  $$$$$$/
-#				                                                  \______/
-
 func recalc_dirty_chunks():
 	var dirty_chunks_copy = dirty_chunks.duplicate()
 	dirty_chunks.clear()
@@ -674,16 +615,6 @@ func recalc_paths():
 		var stored_request : Array = path_request_queue[i]
 		request_path(stored_request[0], stored_request[1], stored_request[2])
 		path_request_queue.remove_at(i)
-
-#				  /$$$$$$   /$$$$$$$   /$$$$$$
-#				 /$$__  $$ | $$__  $$ |_  $$_/
-#				| $$  \ $$ | $$  \ $$   | $$
-#				| $$$$$$$$ | $$$$$$$/   | $$
-#				| $$__  $$ | $$____/    | $$
-#				| $$  | $$ | $$         | $$
-#				| $$  | $$ | $$        /$$$$$$
-#				|__/  |__/ |__/       |______/
-
 ## Function for agents to retrieve a path with source [param from] and destination [param to][br]
 ## The [param partial] parameter determines whether a partial path is returned.[br]
 ## Handles cases where destination might be outside of Astar bounds.[br]
@@ -775,3 +706,4 @@ func get_portal_connections(portal_id: String) -> Array:
 
 func get_portal(portal_id : String) -> ChunkPortal:
 	return portals_by_id[portal_id] if portals_by_id.has(portal_id) else null
+#endregion
