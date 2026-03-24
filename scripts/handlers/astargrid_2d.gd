@@ -357,7 +357,7 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 		)
 	# If the start and end are in different chunks
 	else:
-		# We get the rought path
+		# We get the rough path
 		var rough_path = get_rough_path(from, to)
 		# If there isn't one, then idk, THAT SHOULDN'T FUCKING HAPPEN
 		if not rough_path: return
