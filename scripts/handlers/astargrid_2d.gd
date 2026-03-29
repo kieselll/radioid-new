@@ -518,7 +518,6 @@ func recalc_paths():
 		var stored_request : Array = path_request_queue[i]
 		request_path(stored_request[0], stored_request[1], stored_request[2])
 		path_request_queue.remove_at(i)
-	path_request_queue.clear()
 #endregion
 
 #region portal stuff (outdated)
