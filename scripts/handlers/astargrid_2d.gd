@@ -514,8 +514,11 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 	callback.call(path)
 
 func recalc_paths():
+	for i in path_request_queue.size():
+		var stored_request : Array = path_request_queue[i]
 	for stored_request in path_request_queue.duplicate():
 		request_path(stored_request[0], stored_request[1], stored_request[2])
+		path_request_queue.remove_at(i)
 	path_request_queue.clear()
 #endregion
 
