@@ -110,7 +110,17 @@ func read_chunk(coords : Vector2i):
 func update_chunk_index(coords: Vector2i, new_position: int) -> void:
 	data_indices[coords] = new_position
 
-func save_nav_data(portals_by_id : Dictionary[String, GlobalPathfinder.ChunkPortal], portal_connections : Dictionary):
+func _encode_portal_coords(portal: Vector4i) -> PackedByteArray:
+	var result := PackedByteArray()
+	result.resize(18)
+	result.encode_s64(0, portal.x)
+	result.encode_s64(8, portal.y)
+	result.encode_u8(16, portal.z)
+	result.encode_u8(17, portal.w)
+	return result
+
+
+func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary):
 	var index_data : PackedByteArray = []
 	var data : PackedByteArray = []
 
@@ -121,29 +131,31 @@ func save_nav_data(portals_by_id : Dictionary[String, GlobalPathfinder.ChunkPort
 	data_file.seek_end()
 	index_file.seek_end()
 
-	for portal in portals_by_id.values():
-		if not portal_connections.has(portal.chunk_coords): continue
-		var ascii_id : PackedByteArray = portal.id.to_ascii_buffer()
-		index_data.resize(index_data.size() + 1)
-		index_data.encode_u8(index_data.size() - 1, ascii_id.size())
-		index_data.append_array(ascii_id)
+	for portal in portals:
+		if not portal_connections.has(portal):
+			continue
+
+		var target_portals: Array = []
+		for target_portal in portal_connections[portal]:
+			if target_portal is Vector4i:
+				target_portals.append(target_portal)
+		if target_portals.is_empty():
+			continue
+
+		var encoded_portal := _encode_portal_coords(portal)
+		index_data.append_array(encoded_portal)
 		index_data.resize(index_data.size() + 8)
 		index_data.encode_u64(index_data.size() - 8, data_file.get_position() + data.size())
-		# Is always 12 bytes long
-		data.append_array(portal.encode())
+		data.append_array(encoded_portal)
 		# Number of portal connections
 		data.resize(data.size() + 1)
-		data.encode_u8(data.size() - 1, portal_connections[portal.chunk_coords][portal.id].size())
-		for i in portal_connections[portal.chunk_coords][portal.id]:
-			# ID length
-			data.resize(data.size() + 1)
-			data.encode_u8(data.size(), i.id.to_ascii_buffer().size())
-			# Actual ID
-			data.append_array(i.id.to_ascii_buffer())
+		data.encode_u8(data.size() - 1, target_portals.size())
+		for target_portal in target_portals:
+			data.append_array(_encode_portal_coords(target_portal))
 			# Number of connections
 			data.resize(data.size() + 1)
-			data.encode_u8(data.size() - 1, portal_connections[portal.chunk_coords][portal.id][i].size())
-			for j in portal_connections[portal.chunk_coords][portal.id][i]:
+			data.encode_u8(data.size() - 1, portal_connections[portal][target_portal].size())
+			for j in portal_connections[portal][target_portal]:
 				data.resize(data.size() + 8)
 				# 8 bytes in total, per connection
 				data.encode_u8(data.size() - 8, j["root"].x)
@@ -205,6 +217,6 @@ func _notification(what):
 				save_chunk(i)
 		_on_write_timer_timeout()
 
-		save_nav_data(pathfinder.portals_by_id, pathfinder.portal_connections)
+		save_nav_data(pathfinder.portals, pathfinder.portal_connections)
 
 		get_tree().quit()

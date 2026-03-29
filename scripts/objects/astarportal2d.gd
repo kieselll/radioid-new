@@ -4,22 +4,22 @@ class_name AstarPortal2D
 var open_list: BinaryHeap = BinaryHeap.new()
 var closed_list: Dictionary = {} # portal_id -> Portal
 var open_g_scores: Dictionary = {} # portal_id -> best known g currently/openly discovered
-var current_node: String
+var current_node
 var pathfinder: GlobalPathfinder
 var path_goal: Vector2i
 
 class Portal:
 	extends Resource
 
-	var id: String
+	var id
 	var g_value: float
 	var h_value: float
 	var f_value: float
 	var coords: Vector2i
-	var parent: String
+	var parent
 
 	@warning_ignore_start("shadowed_variable")
-	func _init(id: String, coords: Vector2i, g_value: float, path_goal: Vector2i, parent: String = "") -> void:
+	func _init(id, coords: Vector2i, g_value: float, path_goal: Vector2i, parent = "") -> void:
 		self.id = id
 		self.coords = coords
 		self.g_value = g_value
@@ -39,7 +39,7 @@ func _init(pathfinder: GlobalPathfinder) -> void:
 	self.pathfinder = pathfinder
 
 
-func get_path(start: String, end: String) -> Array:
+func get_path(start, end) -> Array:
 	open_list.clear()
 	closed_list.clear()
 	open_g_scores.clear()
@@ -50,14 +50,11 @@ func get_path(start: String, end: String) -> Array:
 	var start_portal = pathfinder.get_portal(start)
 	var end_portal = pathfinder.get_portal(end)
 
-	print("START IS ", start_portal.chunk_coords, ", ", start_portal.start, ", ", start_portal.end)
-	print("END IS ", end_portal.chunk_coords, ", ", end_portal.start, ", ", end_portal.end)
-
-	path_goal = pathfinder.calculate_portal_coords(end_portal.side, end_portal.start, end_portal.end)
+	path_goal = pathfinder.calculate_portal_coords(end_portal)
 
 	var start_node := Portal.new(
 		start,
-		pathfinder.calculate_portal_coords(start_portal.side, start_portal.start, start_portal.end),
+		pathfinder.calculate_portal_coords(start_portal),
 		0.0,
 		path_goal,
 		""
@@ -96,7 +93,7 @@ func get_path(start: String, end: String) -> Array:
 
 func _discover_nodes(parent: Portal) -> void:
 	for connection in pathfinder.get_portal_connections(parent.id):
-		var neighbor_id: String = connection[0]
+		var neighbor_id = connection[0]
 		var move_cost: float = connection[1]
 		var new_g := parent.g_value + move_cost
 
@@ -109,7 +106,7 @@ func _discover_nodes(parent: Portal) -> void:
 			var portal = pathfinder.get_portal(neighbor_id)
 			var node := Portal.new(
 				neighbor_id,
-				pathfinder.calculate_portal_coords(portal.side, portal.start, portal.end),
+				pathfinder.calculate_portal_coords(portal),
 				new_g,
 				path_goal,
 				parent.id
@@ -123,12 +120,12 @@ func _discover_nodes(parent: Portal) -> void:
 				closed_list.erase(neighbor_id)
 
 
-func _reconstruct_path(start: String, end: String) -> Array:
+func _reconstruct_path(start, end) -> Array:
 	if not closed_list.has(end):
 		return []
 
 	var path: Array = []
-	var node_id := end
+	var node_id = end
 
 	while node_id != "":
 		path.append(node_id)
