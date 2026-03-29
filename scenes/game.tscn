@@ -272,7 +272,6 @@ script = ExtResource("9_8qswn")
 [node name="GlobalPathfinder" type="Node2D" parent="handlers" unique_id=1382495677]
 z_index = 2000
 script = ExtResource("10_rm0al")
-pathfinding_calc_per_frame = null
 metadata/_custom_type_script = "uid://bn4gl6qp36s43"
 
 [node name="job_manager" type="Node" parent="handlers" unique_id=1226258330]

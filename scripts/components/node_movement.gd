@@ -158,6 +158,7 @@ func is_moving() -> bool:
 
 func set_path(path : PackedVector4Array):
 	_path = path
+	print("GOT PATH ", path)
 	set_physics_process(true)
 
 	if _path.is_empty():

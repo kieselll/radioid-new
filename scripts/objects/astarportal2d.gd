@@ -127,7 +127,7 @@ func _reconstruct_path(start, end) -> Array:
 	var path: Array = []
 	var node_id = end
 
-	while node_id != "":
+	while true:
 		path.append(node_id)
 		if node_id == start:
 			break
