@@ -83,7 +83,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_local_position = GridUtils.world_coord_to_chunk_coord(_parent.position)
 
-	if _path.is_empty():
+	if _path.is_empty() or _current_step >= _path.size():
 		_parent.velocity = Vector2.ZERO
 		set_physics_process(false)
 		return
@@ -99,15 +99,21 @@ func _physics_process(delta: float) -> void:
 	_parent.velocity = lerp(_parent.velocity, _direction * speed, 100 * delta / movement_smoothness)
 
 	if _parent.position.distance_to(_target_position) <= approach_threshold:
+		# Snap to the waypoint before advancing so the logical tile position matches the path node we just reached.
+		_parent.position = _target_position
+		_local_position = _path[_current_step]
 		_current_step += 1
 
 		if _current_step >= _path.size():
 			GlobalLogger.write_to_logs(
 				self, "Arrived at %v. Stopping..." % _path[_current_step - 1]
 			)
+			print("MY POSITION IS ", _local_position)
+			_parent.velocity = Vector2.ZERO
 			_path.clear()
 			arrived_at_destination.emit()
 			set_physics_process(false)
+			return
 
 	if _parent.velocity != Vector2.ZERO:
 		_parent.move_and_slide()
@@ -158,7 +164,19 @@ func is_moving() -> bool:
 
 func set_path(path : PackedVector4Array):
 	_path = path
+	_current_step = 0
+	var current_position := GridUtils.world_coord_to_chunk_coord(_parent.position)
+	if not _path.is_empty() and Vector4i(_path[0]) == current_position:
+		_current_step = 1
 	print("GOT PATH ", path)
+
+	if _current_step >= _path.size():
+		_path.clear()
+		_parent.velocity = Vector2.ZERO
+		arrived_at_destination.emit()
+		set_physics_process(false)
+		return
+
 	set_physics_process(true)
 
 	if _path.is_empty():
@@ -190,4 +208,3 @@ func set_path(path : PackedVector4Array):
 
 func _update_path(from: Vector4i, to: Vector4i) -> void:
 	_astar.request_path(from, to, set_path)
-	_current_step = 0
