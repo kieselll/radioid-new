@@ -409,87 +409,30 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 		# We get the rough path
 		var rough_path = get_rough_path(from, to)
 		if not rough_path: return
-		var first_calculated_connections = calculate_portal_connections(Vector2i(rough_path[0].x, rough_path[0].y))
-		for i in first_calculated_connections:
-			portal_connections[i] = first_calculated_connections[i]
 		# If there isn't one, then idk, THAT SHOULDN'T FUCKING HAPPEN
 		# Iterating through the rough path
 		var previous_pos: Vector4i = from
 		for i in range(rough_path.size() - 1):
-			# Cache the portal connections for later saving and use
-			var next_portal: Vector4i = rough_path[i + 1]
-			var calculated_connections = calculate_portal_connections(Vector2i(next_portal.x, next_portal.y))
-			for j in calculated_connections:
-				portal_connections[j] = calculated_connections[j]
-			# ID of current portal
 			var portal: Vector4i = rough_path[i]
 			var portal_chunk := Vector2i(portal.x, portal.y)
+			var next_portal: Vector4i = rough_path[i + 1]
 			var next_chunk := Vector2i(next_portal.x, next_portal.y)
+			# Rough portal paths alternate between intra-chunk segments and chunk transitions.
+			# We only stitch the segments that stay inside a chunk and skip the cross-chunk hops.
+			if portal_chunk != next_chunk:
+				previous_pos = next_portal
+				continue
+
+			if previous_pos.x != portal.x or previous_pos.y != portal.y:
+				previous_pos = portal
+
 			var astar = astargrids[portal_chunk]
-			var best_variant : Dictionary = {"root" = null, "coords" = null, "weight" = INF}
-
-			if portal_connections.has(portal) and portal_connections[portal].has(next_portal):
-				for j in portal_connections[portal][next_portal]:
-					var dx_1 = abs(best_variant["root"].x - previous_pos.z) if not best_variant["root"] == null else 0
-					var dy_1 = abs(best_variant["root"].y - previous_pos.w) if not best_variant["root"] == null else 0
-					var heur_1 = max(dx_1, dy_1) + 0.414 * min(dx_1, dy_1)
-
-					var dx_2 = abs(j["root"].x - previous_pos.z) if not j["root"] == null else 0
-					var dy_2 = abs(j["root"].y - previous_pos.w) if not j["root"] == null else 0
-					var heur_2 = max(dx_2, dy_2) + 0.414 * min(dx_2, dy_2)
-
-					if j["weight"] + heur_2 < best_variant["weight"] + heur_1:
-						best_variant = j
-			# This variant guarantees that there will be at least 2 portals after the current one. If there isn't, soemthing is very wrong
-			else:
-				if i + 2 >= rough_path.size():
-					continue
-				var next_next_portal = rough_path[i + 2]
-				if not portal_connections.has(next_portal) or not portal_connections[next_portal].has(next_next_portal):
-					continue
-				for j in portal_connections[next_portal][next_next_portal]:
-					var dx_1 = abs(best_variant["root"].x - previous_pos.z) if not best_variant["root"] == null else 0
-					var dy_1 = abs(best_variant["root"].y - previous_pos.w) if not best_variant["root"] == null else 0
-					var heur_1 = max(dx_1, dy_1) + 0.414 * min(dx_1, dy_1)
-
-					var dx_2 = abs(j["root"].x - previous_pos.z) if not j["root"] == null else 0
-					var dy_2 = abs(j["root"].y - previous_pos.w) if not j["root"] == null else 0
-					var heur_2 = max(dx_2, dy_2) + 0.414 * min(dx_2, dy_2)
-
-					if j["weight"] + heur_2 < best_variant["weight"] + heur_1:
-						best_variant = j
-			if best_variant["coords"] == null:
-				continue
-			# If the connection goes between chunks, we shouldn't process it at all
-			if portal_chunk != next_chunk and portal != rough_path[0]:
-				var dir_x = sign(best_variant["root"].x - previous_pos.z)
-				var dir_y = sign(best_variant["root"].y - previous_pos.w)
-
-				path.append(Vector4i(
-					portal_chunk.x,
-					portal_chunk.y,
-					previous_pos.z + dir_x,
-					previous_pos.w + dir_y
-				))
-				path.append(Vector4i(
-					next_chunk.x,
-					next_chunk.y,
-					best_variant["coords"].x,
-					best_variant["coords"].y
-				))
-
-				previous_pos = Vector4i(
-					next_chunk.x,
-					next_chunk.y,
-					best_variant["coords"].x,
-					best_variant["coords"].y
-				)
-				continue
-
 			var raw_path := astar.get_id_path(
 			Vector2i(previous_pos.z, previous_pos.w),
-			best_variant["coords"]
+			Vector2i(next_portal.z, next_portal.w)
 			)
+			if raw_path.is_empty():
+				continue
 
 			path.append_array(
 				raw_path.map(func(e):
@@ -502,10 +445,10 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 					)
 				)
 			previous_pos = Vector4i(
-				portal_chunk.x,
-				portal_chunk.y,
-				best_variant["coords"].x,
-				best_variant["coords"].y
+				next_chunk.x,
+				next_chunk.y,
+				next_portal.z,
+				next_portal.w
 			)
 	queue_redraw()
 	epath = path
