@@ -212,11 +212,12 @@ func _open_file(path : String) -> FileAccess:
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		for i in GlobalRef.chunks.keys():
-			if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
-				save_chunk(i)
-		_on_write_timer_timeout()
+		if get_tree().current_scene.name == "game":
+			for i in GlobalRef.chunks.keys():
+				if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
+					save_chunk(i)
+			_on_write_timer_timeout()
 
-		save_nav_data(pathfinder.portals, pathfinder.portal_connections)
+			save_nav_data(pathfinder.portals, pathfinder.portal_connections)
 
 		get_tree().quit()

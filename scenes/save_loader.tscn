@@ -1,6 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://boo7t1tktnecb"]
+[gd_scene format=3 uid="uid://boo7t1tktnecb"]
 
-[ext_resource type="Script" uid="uid://qdc81f6mbyiv" path="res://scripts/save_loader_ui.gd" id="1_i57nb"]
+[ext_resource type="Script" uid="uid://c42kgupx3pfng" path="res://scripts/save_loader_ui.gd" id="1_i57nb"]
 [ext_resource type="Shader" uid="uid://dq77r7w65bws0" path="res://shaders/stars.gdshader" id="2_l8jtl"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_mbqv2"]
@@ -16,7 +16,7 @@ shader_parameter/resolution = Vector2(150, 90)
 shader_parameter/noise_texture = SubResource("NoiseTexture2D_uhr5j")
 shader_parameter/density = 25.0
 
-[node name="SaveLoader" type="Control"]
+[node name="SaveLoader" type="Control" unique_id=1329440840]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -25,7 +25,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_i57nb")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=491717419]
 z_index = -1
 material = SubResource("ShaderMaterial_pqyoe")
 layout_mode = 1
