@@ -152,7 +152,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_uon5e")
 [node name="Tabs" type="TabContainer" parent="PanelContainer" unique_id=1492256978]
 layout_mode = 2
 theme_override_styles/tab_selected = SubResource("StyleBoxFlat_o7i7e")
-current_tab = 4
+current_tab = 1
 
 [node name="Graphics" type="PanelContainer" parent="PanelContainer/Tabs" unique_id=1911138398]
 visible = false
@@ -275,7 +275,6 @@ theme_override_styles/slider = SubResource("StyleBoxLine_bbbdu")
 metadata/_edit_group_ = true
 
 [node name="Gameplay" type="PanelContainer" parent="PanelContainer/Tabs" unique_id=1092337449]
-visible = false
 layout_mode = 2
 theme = ExtResource("3")
 metadata/_tab_index = 1
@@ -317,7 +316,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 size_flags_horizontal = 2
 selected = 2
-item_count = 4
+item_count = 5
 popup/item_0/text = "Easy"
 popup/item_0/id = 0
 popup/item_1/text = "Medium"
@@ -326,6 +325,8 @@ popup/item_2/text = "Hard"
 popup/item_2/id = 2
 popup/item_3/text = "Hardcore"
 popup/item_3/id = 3
+popup/item_4/text = "Death"
+popup/item_4/id = 4
 metadata/_edit_group_ = true
 
 [node name="Controls" type="PanelContainer" parent="PanelContainer/Tabs" unique_id=315347281]
@@ -488,6 +489,7 @@ value = 100.0
 metadata/_edit_group_ = true
 
 [node name="Keycodes" type="PanelContainer" parent="PanelContainer/Tabs" unique_id=1494588864]
+visible = false
 layout_mode = 2
 theme = ExtResource("3")
 metadata/_tab_index = 4
