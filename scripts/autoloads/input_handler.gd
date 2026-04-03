@@ -147,12 +147,14 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 			DebugMenu.visible = not DebugMenu.visible
 
 		KEY_ESCAPE:
+			if not get_tree().current_scene.name != "game": return
 			if not _blur_layer.visible:
 				show_pause()
 			else:
 				hide_pause()
 
 		KEY_F1:
+			if not get_tree().current_scene.name != "game": return
 			if _ui_layer.visible:
 				GlobalLogger.write_to_logs(self, "UI was hidden")
 				_ui_layer.hide()
@@ -161,6 +163,7 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 				_ui_layer.show()
 
 		KEY_I:
+			if not get_tree().current_scene.name != "game": return
 			var mouse_position = GridUtils.world_coord_to_chunk_coord(get_global_mouse_position())
 			print("GROUND: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.ground])
 			print("TERRAIN: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.terrain])
