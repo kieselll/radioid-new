@@ -49,6 +49,7 @@ shader = ExtResource("8")
 shader_parameter/resolution = Vector2(150, 90)
 shader_parameter/noise_texture = SubResource("NoiseTexture2D_70i5f")
 shader_parameter/density = 25.0
+shader_parameter/time_offset = 0.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_70i5f"]
 size = Vector2(111.5, 121)

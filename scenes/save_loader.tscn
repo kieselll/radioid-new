@@ -15,8 +15,9 @@ shader = ExtResource("2_l8jtl")
 shader_parameter/resolution = Vector2(150, 90)
 shader_parameter/noise_texture = SubResource("NoiseTexture2D_uhr5j")
 shader_parameter/density = 25.0
+shader_parameter/time_offset = 0.0
 
-[node name="SaveLoader" type="Control" unique_id=1329440840]
+[node name="SaveLoader" type="Control" unique_id=1329440840 node_paths=PackedStringArray("background")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,6 +25,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_i57nb")
+background = NodePath("ColorRect")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=491717419]
 z_index = -1

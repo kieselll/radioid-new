@@ -54,7 +54,7 @@ var current_item: BuildableData
 @onready
 var _resume_button := $/root/GameRoot/Control/popup_layer/pause_menu/VBoxContainer/resume_button
 @onready var _ui_layer := $/root/GameRoot/Control/CanvasLayer
-@onready var _blur_layer := $/root/GameRoot/Control/popup_layer/Panel3  # эффект блюра / инверсии
+@onready var _blur_layer := $/root/GameRoot/Control/popup_layer/Panel3
 @onready var _save_confirm := $/root/GameRoot/Control/popup_layer/save_confirmation_menu
 
 @onready var _popup_layer := $/root/GameRoot/Control/popup_layer

@@ -37,15 +37,17 @@ content_margin_top = 5.0
 content_margin_right = 5.0
 content_margin_bottom = 5.0
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_6j7t3"]
-size = Vector2(290, 400)
-
 [node name="SaveCardBlueprint" type="PanelContainer" unique_id=1913277381]
 custom_minimum_size = Vector2(290, 400)
-offset_left = -145.0
-offset_top = -200.0
-offset_right = 145.0
-offset_bottom = 200.0
+anchors_preset = -1
+anchor_left = 0.126
+anchor_top = 0.30900002
+anchor_right = 0.126
+anchor_bottom = 0.30900002
+offset_left = -321.152
+offset_top = -449.232
+offset_right = 30.847992
+offset_bottom = 48.768005
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
@@ -92,8 +94,10 @@ theme_override_styles/focus = SubResource("StyleBoxEmpty_yn4tl")
 bbcode_enabled = true
 text = "Date :"
 
-[node name="Area2D" type="Area2D" parent="." unique_id=975162240]
+[node name="Button" type="Button" parent="VBoxContainer" unique_id=2124746342]
+layout_mode = 2
+text = "Play"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=431462310]
-position = Vector2(145, 200)
-shape = SubResource("RectangleShape2D_6j7t3")
+[node name="Button2" type="Button" parent="VBoxContainer" unique_id=1353670349]
+layout_mode = 2
+text = "Delete save"

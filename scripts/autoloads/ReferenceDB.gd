@@ -60,12 +60,13 @@ func get_chunk(coords: Vector2i) -> Node:
 #endregion
 
 #region Scenes
-enum scenes_enum { pawn, progressbar, save_card }
+enum scenes_enum { pawn, progressbar, save_card, game }
 
 var scenes = {
 	scenes_enum.pawn: "pawn.tscn",
 	scenes_enum.progressbar: "progressbar.tscn",
-	scenes_enum.save_card: "save_card_blueprint.tscn"
+	scenes_enum.save_card: "save_card_blueprint.tscn",
+	scenes_enum.game: "game.tscn"
 }
 
 

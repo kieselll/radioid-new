@@ -11,13 +11,14 @@ func _ready() -> void:
 	SceneTransition.finish_trans()
 
 
-func _on_button_2_pressed():
+func _on_back_button_pressed():
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
 
-func _on_button_pressed():
+func _on_create_world_button_pressed():
+
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	get_tree().change_scene_to_file("res://scenes/game.tscn")

@@ -15,6 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="idkrim"
+config/version="0.0.1 pre-alpha"
 run/main_scene="res://scenes/menu.tscn"
 config/auto_accept_quit=false
 config/features=PackedStringArray("4.6", "Mobile")
