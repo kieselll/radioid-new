@@ -50,14 +50,12 @@ var current_item: BuildableData
 #				| $$       |  $$$$$$$ | $$      /$$$$$$$/
 #				|__/        \_______/ |__/     |_______/
 
-@onready var _pause_menu := $/root/GameRoot/Control/popup_layer/pause_menu
-@onready
-var _resume_button := $/root/GameRoot/Control/popup_layer/pause_menu/VBoxContainer/resume_button
-@onready var _ui_layer := $/root/GameRoot/Control/CanvasLayer
-@onready var _blur_layer := $/root/GameRoot/Control/popup_layer/Panel3
-@onready var _save_confirm := $/root/GameRoot/Control/popup_layer/save_confirmation_menu
-
-@onready var _popup_layer := $/root/GameRoot/Control/popup_layer
+var _pause_menu : PanelContainer
+var _resume_button : Button
+var _ui_layer : CanvasLayer
+var _blur_layer : Panel
+var _save_confirm : PanelContainer
+var _popup_layer : CanvasLayer
 
 #				  /$$$$$$   /$$                                   /$$
 #				 /$$__  $$ |__/                                  | $$
@@ -91,6 +89,14 @@ signal movement_key_pressed(direction: Vector2i, delta: float)
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	#_resume_button.pressed.connect(_on_resume_button_pressed) CRITICAL
+
+func world_init():
+	_pause_menu = $/root/GameRoot/Control/popup_layer/pause_menu
+	_resume_button = $/root/GameRoot/Control/popup_layer/pause_menu/VBoxContainer/resume_button
+	_ui_layer = $/root/GameRoot/Control/CanvasLayer
+	_blur_layer = $/root/GameRoot/Control/popup_layer/Panel3
+	_save_confirm = $/root/GameRoot/Control/popup_layer/save_confirmation_menu
+	_popup_layer = $/root/GameRoot/Control/popup_layer
 
 
 func _physics_process(delta: float) -> void:
@@ -246,7 +252,7 @@ func show_pause() -> void:
 	_blur_layer.show()
 
 	var tween := create_tween().set_trans(Tween.TRANS_LINEAR).parallel()
-	tween.tween_property(_pause_menu, "modulate", Color(1, 1, 1, 1), 0.5)
+	tween.tween_property(_pause_menu, "modulate", Color(1, 1, 1, 1), 0.25)
 
 	get_tree().paused = true
 	get_viewport().set_input_as_handled()
@@ -259,7 +265,7 @@ func hide_pause() -> void:
 	GlobalLogger.write_to_logs(self, "Pause menu is closed")
 
 	var tween := create_tween().set_trans(Tween.TRANS_LINEAR).parallel()
-	tween.tween_property(_pause_menu, "modulate", Color(1, 1, 1, 0), 0.5)
+	tween.tween_property(_pause_menu, "modulate", Color(1, 1, 1, 0), 0.25)
 	await tween.finished
 
 	_pause_menu.hide()
