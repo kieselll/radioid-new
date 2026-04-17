@@ -82,6 +82,10 @@ func load_save(dirname : String) -> SaveMeta:
 		data_indices[Vector2i(x, y)] = index
 	return _new_save
 
+func delete_save(dirname : String) -> void:
+	OS.move_to_trash(ProjectSettings.globalize_path(_save_dir_path.path_join(dirname)))
+	GlobalLogger.write_to_logs(self, "Deleted save %s" % dirname)
+
 func get_save_meta(dirname : String) -> SaveMeta:
 	var _new_save = SaveMeta.new()
 	var save_path = _save_dir_path + dirname
@@ -167,6 +171,7 @@ func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary):
 				data.encode_u8(data.size() - 5, j["coords"].y)
 				data.encode_float(data.size() - 4, j["weight"])
 
+	GlobalLogger.write_to_logs(self, "Saved nav data, closing files...")
 	data_file.store_buffer(data)
 	index_file.store_buffer(index_data)
 	data_file.close()
@@ -223,4 +228,5 @@ func _notification(what):
 
 			save_nav_data(pathfinder.portals, pathfinder.portal_connections)
 
+		GlobalLogger.write_to_logs(self, "Saved everything, quitting")
 		get_tree().quit()

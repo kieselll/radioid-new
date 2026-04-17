@@ -5,6 +5,8 @@ extends Node2D
 ## Need to add multithreading later if needed
 ## Currently being refactored from portals to tiles
 
+const PORTALS_PER_EDGE = 6
+
 #region vars
 ## The dictionary that holds all [AstarGrid2D] instances for all the chunks.
 var astargrids: Dictionary[Vector2i, AStarGrid2D] = {}
@@ -288,8 +290,8 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 			portal_end = i - 1
 			var span = portal_end - portal_start + 1
 			# Multiplier for offset
-			for mult in min(span, 5):
-				var offset := 0 if min(span, 5) == 1 else roundi(float(mult) * float(span - 1) / float(min(span, 5) - 1))
+			for mult in min(span, PORTALS_PER_EDGE):
+				var offset := 0 if min(span, PORTALS_PER_EDGE) == 1 else roundi(float(mult) * float(span - 1) / float(min(span, PORTALS_PER_EDGE) - 1))
 				var coord := Vector4i(coords.x, coords.y, portal_start + offset, self_constant) if direction.y != 0 else Vector4i(coords.x, coords.y, self_constant, portal_start + offset)
 				portals.append(coord)
 				if not portals_by_coords[coords].has(coord):
@@ -300,8 +302,8 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 	if was_prev_portal:
 		# We save it
 		var span = 16 - portal_start
-		for mult in min(span, 5):
-			var offset := 0 if min(span, 5) == 1 else roundi(float(mult) * float(span - 1) / float(min(span, 5) - 1))
+		for mult in min(span, PORTALS_PER_EDGE):
+			var offset := 0 if min(span, PORTALS_PER_EDGE) == 1 else roundi(float(mult) * float(span - 1) / float(min(span, PORTALS_PER_EDGE) - 1))
 			var coord := Vector4i(coords.x, coords.y, portal_start + offset, self_constant) if direction.y != 0 else Vector4i(coords.x, coords.y, self_constant, portal_start + offset)
 			portals.append(coord)
 			if not portals_by_coords[coords].has(coord):
