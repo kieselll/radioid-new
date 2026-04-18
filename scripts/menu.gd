@@ -15,10 +15,10 @@ var button_hover_sound = load("res://sounds/UI/button_hover.wav")
 	$Node2D/RigidBody2D6,
 ]
 @onready var menu_buttons: Array[Button] = [
-	$MarginContainer/VBoxContainer/Button4,
-	$MarginContainer/VBoxContainer/Button,
-	$MarginContainer/VBoxContainer/Button2,
-	$MarginContainer/VBoxContainer/Button3
+	$MarginContainer/VBoxContainer/load_game_button,
+	$MarginContainer/VBoxContainer/new_game_button,
+	$MarginContainer/VBoxContainer/options_button,
+	$MarginContainer/VBoxContainer/quit_button
 ]
 var button_color_array: Array[Color] = [
 	Color("659900"), Color("659900"), Color("659900"), Color("90000e")
@@ -29,10 +29,12 @@ func _ready() -> void:
 	GlobalLogger.write_to_logs(self, "Current scene: Main menu")
 	window = get_window()
 	window.title = "Radioid: Main menu"
-	SceneTransition.show_dev_icon()
-	await  SceneTransition.done
-	SceneTransition.start_animation(0.5)
-	await SceneTransition.done
+	if SceneTransition.first_entry:
+		SceneTransition.show_dev_icon()
+		await  SceneTransition.done
+		SceneTransition.start_animation(0.5)
+		await SceneTransition.done
+		SceneTransition.first_entry = false
 	SceneTransition.finish_trans(0.2)
 
 	for i in menu_buttons:
@@ -72,14 +74,12 @@ func _modulate_body(body: RigidBody2D, color: Color):
 	tween.tween_property(body, "modulate", color, 0.3)
 
 
-func _on_button_pressed():
-	GlobalLogger.write_to_logs($MarginContainer/VBoxContainer/Button, 'Pressed "New Game" button.')
+func _on_new_game_pressed():
 	SceneTransition.start_trans()
 	get_tree().change_scene_to_file("res://scenes/worldmaking.tscn")
 
 
-func _on_button_3_pressed():
-	GlobalLogger.write_to_logs($MarginContainer/VBoxContainer/Button3, 'Pressed "Quit" button.')
+func _on_quit_pressed():
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	GlobalLogger.write_to_logs(self, "Quitting. Goodbye!")
@@ -87,11 +87,16 @@ func _on_button_3_pressed():
 	get_tree().quit()
 
 
-func _on_button_2_pressed():
-	GlobalLogger.write_to_logs($MarginContainer/VBoxContainer/Button2, 'Pressed "Options" button.')
+func _on_options_pressed():
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	get_tree().change_scene_to_file("res://scenes/options.tscn")
+
+
+func _on_load_game_pressed():
+	SceneTransition.start_trans()
+	await  SceneTransition.done
+	get_tree().change_scene_to_file("res://scenes/save_loader.tscn")
 
 
 func _process_button_anims_and_sounds(button: Button, entered: bool):

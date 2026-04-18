@@ -121,7 +121,8 @@ corner_radius_bottom_left = 1
 [sub_resource type="Environment" id="Environment_04cki"]
 background_mode = 3
 background_canvas_max_layer = 1
-tonemap_mode = 4
+tonemap_mode = 3
+tonemap_exposure = 1.07
 glow_enabled = true
 glow_levels/1 = 5.9
 glow_levels/2 = 4.2
@@ -133,6 +134,8 @@ glow_intensity = 1.98
 glow_strength = 1.1
 glow_bloom = 0.01
 adjustment_enabled = true
+adjustment_brightness = 0.93
+adjustment_contrast = 1.015
 
 [node name="Control" type="Control" unique_id=1479742113]
 layout_mode = 3
@@ -309,7 +312,7 @@ theme_override_constants/separation = 3
 alignment = 1
 metadata/_edit_use_anchors_ = true
 
-[node name="Button4" type="Button" parent="MarginContainer/VBoxContainer" unique_id=615101308]
+[node name="load_game_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=615101308]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_default_cursor_shape = 2
@@ -320,7 +323,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_g4qe6")
 text = "Load game"
 clip_text = true
 
-[node name="Button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=666844776]
+[node name="new_game_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=666844776]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_default_cursor_shape = 2
@@ -331,7 +334,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_ikd8v")
 text = "New game"
 clip_text = true
 
-[node name="Button2" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1042657793]
+[node name="options_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1042657793]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_default_cursor_shape = 2
@@ -342,7 +345,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_7ivqb")
 text = "Options"
 clip_text = true
 
-[node name="Button3" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1424155369]
+[node name="quit_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1424155369]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_default_cursor_shape = 2
@@ -354,7 +357,6 @@ text = "Quit"
 clip_text = true
 
 [node name="Label" type="Label" parent="." unique_id=1921749332]
-modulate = Color(1.3, 1.3, 1.3, 1)
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -366,9 +368,9 @@ offset_bottom = 120.0
 grow_horizontal = 2
 size_flags_horizontal = 6
 size_flags_vertical = 2
-theme_override_colors/font_color = Color(3.94672e-06, 0.543762, 3.85046e-07, 1)
-theme_override_colors/font_shadow_color = Color(9.09671e-06, 0.763076, 1.15514e-06, 1)
-theme_override_colors/font_outline_color = Color(0, 1, 0, 1)
+theme_override_colors/font_color = Color(0, 15.625736, 0, 1)
+theme_override_colors/font_shadow_color = Color(9.1448425e-07, 0.53601325, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0.7010491, 0, 1)
 theme_override_constants/shadow_offset_x = 7
 theme_override_constants/shadow_offset_y = 7
 theme_override_constants/outline_size = 10
@@ -394,6 +396,7 @@ volume_db = -30.0
 [connection signal="mouse_exited" from="Node2D/RigidBody2D5" to="." method="_on_rigid_body_2d_5_mouse_exited"]
 [connection signal="mouse_entered" from="Node2D/RigidBody2D6" to="." method="_on_rigid_body_2d_6_mouse_entered"]
 [connection signal="mouse_exited" from="Node2D/RigidBody2D6" to="." method="_on_rigid_body_2d_6_mouse_exited"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/Button" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/Button2" to="." method="_on_button_2_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/Button3" to="." method="_on_button_3_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/load_game_button" to="." method="_on_load_game_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/new_game_button" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/options_button" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/quit_button" to="." method="_on_quit_pressed"]
