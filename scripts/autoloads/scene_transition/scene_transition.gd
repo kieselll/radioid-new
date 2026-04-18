@@ -2,11 +2,12 @@ extends CanvasLayer
 # Just a helper script for starting scene transitions
 
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
+var first_entry : bool = true
 
 signal done
 
-
 func start_trans(animated: bool = false, duration_multiplier : float = 1):
+	if not animated: $MeshInstance2D.visible = false
 	anim_player.speed_scale = duration_multiplier
 	anim_player.play("fade_in")
 	if animated:

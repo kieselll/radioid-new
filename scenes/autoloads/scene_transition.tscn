@@ -428,22 +428,6 @@ font_color = Color(1.818063, 1.7893764, 0, 1)
 outline_size = 3
 outline_color = Color(0.22162035, 0.17012078, 0, 1)
 
-[sub_resource type="Environment" id="Environment_rla2t"]
-background_mode = 3
-background_canvas_max_layer = 1
-tonemap_mode = 4
-glow_levels/1 = 8.45
-glow_levels/2 = 5.82
-glow_levels/3 = 3.72
-glow_levels/4 = 3.57
-glow_levels/5 = 2.32
-glow_levels/6 = 1.86
-glow_levels/7 = 3.48
-glow_intensity = 1.98
-glow_strength = 1.1
-glow_bloom = 0.01
-adjustment_enabled = true
-
 [node name="SceneTransition" type="CanvasLayer" unique_id=1466670245]
 script = ExtResource("1_rujfs")
 
@@ -474,7 +458,7 @@ position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(76.00781, 231.00781)
 antialiased = true
 texture = SubResource("GradientTexture2D_rujfs")
-polygon = PackedVector2Array(174.40784, -231.0394, -76.10132, -231.07434, -280.78812, -88.20221, -178, -73, -154.93231, -96.906494, -123, -130, -46, -90, -45, -188, 60, -150)
+polygon = PackedVector2Array(174.40784, -231.0394, -76.10132, -231.07434, -279.07513, -85.90228, -178, -73, -154.93231, -96.906494, -123, -130, -46, -90, -45, -188, 60, -150)
 uv = PackedVector2Array(498.8912, 249.50092, 247.3236, 248.93561, 45.917114, 396.1115, 145.42491, 407.00995, 168.4926, 383.10345, 200.42491, 350.00995, 277.42496, 390.00995, 278.42496, 292.00995, 383.42496, 330.00995)
 
 [node name="Polygon2D2" type="Polygon2D" parent="MeshInstance2D" unique_id=1821409761]
@@ -506,7 +490,7 @@ position = Vector2(-0.0078125, -0.0078125)
 offset = Vector2(-159.3425, 165.59058)
 antialiased = true
 texture = SubResource("GradientTexture2D_rujfs")
-polygon = PackedVector2Array(57.101868, -7.6054993, -0.7903137, 25.948486, -2.21167, 24.94806, -6.5526733, 20.891052, -11.461151, 16.585388, -15.551544, 12.839447, -19.512756, 8.662933, -23.387878, 4.572571, -26.473022, 0.54248047, -30.8078, -4.180481, -35.390717, -9.41687, -38.36557, -13.409393, -41.937958, -17.948395, -45.194763, -22.809296)
+polygon = PackedVector2Array(57.101868, -7.6054993, -0.7903137, 25.948486, -2.21167, 24.94806, -6.5526733, 20.891052, -11.461151, 16.585388, -15.551544, 12.839447, -19.512756, 8.662933, -23.387878, 4.572571, -26.473022, 0.54248047, -30.8078, -4.180481, -35.390717, -9.41687, -38.36557, -13.409393, -41.937958, -17.948395, -43.675873, -20.511108)
 uv = PackedVector2Array(145.58844, 407.65582, 87.56397, 441.22504, 86.27491, 440.2094, 81.93391, 436.1524, 77.02543, 431.84674, 72.935036, 428.10077, 68.97382, 423.92426, 65.098694, 419.83392, 62.01355, 415.80383, 57.678772, 411.08087, 53.095856, 405.84448, 50.121002, 401.85193, 48.046448, 398.79883, 46.363342, 396.646)
 
 [node name="Polygon2D6" type="Polygon2D" parent="MeshInstance2D" unique_id=1029810181]
@@ -595,6 +579,3 @@ offset_bottom = 1.5258789e-05
 text = "JustBananaPeels studios"
 label_settings = SubResource("LabelSettings_lgvtp")
 metadata/_edit_use_anchors_ = true
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=771561451]
-environment = SubResource("Environment_rla2t")
