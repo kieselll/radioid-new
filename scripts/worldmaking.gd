@@ -23,13 +23,16 @@ func _ready() -> void:
 
 
 func _show_popup(popup_type: popup_types) -> void:
+	current_popup_type = popup_type
 	match popup_type:
 		popup_types.save_name_exists:
 			popup_text.text = "A save with the same name has been detected!\nWould you like to overwrite the save file? [color=red]This cannot be undone![/color]"
 			popup_button_1.text = "yes, DELETE!"
+			popup_button_2.text = "no, CANCEL!"
 		popup_types.save_name_empty:
 			popup_text.text = "You haven't entered a save name! The save name will be set to the current date and time. Would you like to go back and change it?"
 			popup_button_1.text = "no, REPLACE!"
+			popup_button_2.text = "yes, GO BACK!"
 	var opacity_tween = (
 		create_tween().set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC).set_parallel()
 	)
@@ -40,6 +43,16 @@ func _show_popup(popup_type: popup_types) -> void:
 	opacity_tween.tween_property(blur_panel, "self_modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
 	opacity_tween.tween_property(popup_panel, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
 
+func _hide_popup() -> void:
+	var opacity_tween = (
+		create_tween().set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC).set_parallel()
+	)
+	blur_panel.self_modulate = Color(1.0, 1.0, 1.0, 1.0)
+	popup_panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	opacity_tween.tween_property(blur_panel, "self_modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
+	opacity_tween.tween_property(popup_panel, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
+	blur_panel.hide()
+	popup_panel.hide()
 
 func _on_back_button_pressed():
 	SceneTransition.start_trans()
@@ -49,7 +62,9 @@ func _on_back_button_pressed():
 
 func _on_create_world_button_pressed():
 	if GlobalSaver.get_saves_list().has(name_edit.text.to_snake_case()):
+		_show_popup(popup_types.save_name_exists)
 	elif name_edit.text.is_empty():
+		_show_popup(popup_types.save_name_empty)
 	else:
 		GlobalSaver.write_save(
 			name_edit.text.to_snake_case(),
@@ -81,3 +96,35 @@ func _on_create_world_mouse_entered() -> void:
 
 func _on_create_world_mouse_exited() -> void:
 	animate_button(create_world_button, Vector2(1, 1), Color("1a1a1a"))
+
+func _on_popup_button_1_pressed() -> void:
+	match current_popup_type:
+		popup_types.save_name_exists:
+			_hide_popup()
+			GlobalSaver.delete_save(name_edit.text)
+			GlobalSaver.write_save(
+				name_edit.text.to_snake_case(),
+				name_edit.text,
+				seed_edit.text.to_int() if not seed_edit.text.is_empty() or not seed_edit.text.is_valid_int() else randi()
+			)
+			SceneTransition.start_trans()
+			await SceneTransition.done
+			get_tree().change_scene_to_file("res://scenes/game.tscn")
+		popup_types.save_name_empty:
+			_hide_popup()
+			GlobalSaver.write_save(
+				Time.get_datetime_string_from_system().replace_char(":".unicode_at(0),"-".unicode_at(0)).replace_char("T".unicode_at(0),",".unicode_at(0)),
+				Time.get_datetime_string_from_system().replace_char("T".unicode_at(0),",".unicode_at(0)),
+				seed_edit.text.to_int() if not seed_edit.text.is_empty() or not seed_edit.text.is_valid_int() else randi()
+			)
+			SceneTransition.start_trans()
+			await SceneTransition.done
+			get_tree().change_scene_to_file("res://scenes/game.tscn")
+
+
+func _on_popup_button_2_pressed() -> void:
+	match current_popup_type:
+		popup_types.save_name_exists:
+			_hide_popup()
+		popup_types.save_name_empty:
+			_hide_popup()
