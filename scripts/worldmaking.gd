@@ -22,16 +22,14 @@ func _ready() -> void:
 	SceneTransition.finish_trans()
 
 
-func show_popup(popup_type: popup_types):
+func _show_popup(popup_type: popup_types) -> void:
 	match popup_type:
 		popup_types.save_name_exists:
 			popup_text.text = "A save with the same name has been detected!\nWould you like to overwrite the save file? [color=red]This cannot be undone![/color]"
-			popup_button_1.text = "Yes, DELETE!"
-			popup_button_2.text = "No, CANCEL!"
+			popup_button_1.text = "yes, DELETE!"
 		popup_types.save_name_empty:
 			popup_text.text = "You haven't entered a save name! The save name will be set to the current date and time. Would you like to go back and change it?"
-			popup_button_1.text = "No, REPLACE!"
-			popup_button_2.text = "Yes, GO BACK!"
+			popup_button_1.text = "no, REPLACE!"
 	var opacity_tween = (
 		create_tween().set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC).set_parallel()
 	)
@@ -51,9 +49,7 @@ func _on_back_button_pressed():
 
 func _on_create_world_button_pressed():
 	if GlobalSaver.get_saves_list().has(name_edit.text.to_snake_case()):
-		show_popup(popup_types.save_name_exists)
 	elif name_edit.text.is_empty():
-		show_popup(popup_types.save_name_empty)
 	else:
 		GlobalSaver.write_save(
 			name_edit.text.to_snake_case(),
