@@ -154,7 +154,7 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 			DebugMenu.visible = not DebugMenu.visible
 
 		KEY_ESCAPE:
-			if not get_tree().current_scene.name != "game":
+			if get_tree().current_scene.name != "GameRoot":
 				return
 			if not _blur_layer.visible:
 				show_pause()
@@ -162,7 +162,7 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 				hide_pause()
 
 		KEY_F1:
-			if not get_tree().current_scene.name != "game":
+			if get_tree().current_scene.name != "GameRoot":
 				return
 			if _ui_layer.visible:
 				GlobalLogger.write_to_logs(self, "UI was hidden")
@@ -172,7 +172,7 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 				_ui_layer.show()
 
 		KEY_I:
-			if not get_tree().current_scene.name != "game":
+			if get_tree().current_scene.name != "GameRoot":
 				return
 			var mouse_position = GridUtils.world_coord_to_chunk_coord(get_global_mouse_position())
 			print(
