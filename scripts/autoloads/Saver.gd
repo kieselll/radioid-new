@@ -7,7 +7,7 @@ var _current_world_file : FileAccess
 var _current_index_file : FileAccess
 @export var _save_dir_path : String = "user://game/saves/"
 @export var _game_dir_path : String = "user://game/"
-@onready var pathfinder : GlobalPathfinder = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
+@onready var pathfinder : GlobalPathfinder
 
 var write_timer : Timer = Timer.new()
 var _chunks_to_save : Array = []
@@ -81,6 +81,9 @@ func load_save(dirname : String) -> SaveMeta:
 		var index = buf.decode_u64(16)
 		data_indices[Vector2i(x, y)] = index
 	return _new_save
+
+func world_init():
+	pathfinder = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
 func delete_save(dirname : String) -> void:
 	OS.move_to_trash(ProjectSettings.globalize_path(_save_dir_path.path_join(dirname)))
