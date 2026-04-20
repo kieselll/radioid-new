@@ -463,7 +463,6 @@ func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
 			func(element: Vector2i): return Vector4i(to.x, to.y, element.x, element.y)
 		)
 		# If the start and end are in different chunks
-		print("")
 	else:
 		# We get the rough path
 		var rough_path = get_rough_path(from, to)
