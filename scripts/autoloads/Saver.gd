@@ -185,8 +185,8 @@ func _ready() -> void:
 	add_child(write_timer)
 	write_timer.start(2)
 	write_timer.connect("timeout", _on_write_timer_timeout)
-	if OS.has_feature("editor"):
-		load_save("test_save")
+	#if OS.has_feature("editor"):
+		#load_save("test_save")
 
 func _on_write_timer_timeout():
 	if get_tree().current_scene and get_tree().current_scene.name != "GameRoot": return
