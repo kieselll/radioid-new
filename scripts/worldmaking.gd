@@ -105,7 +105,7 @@ func _on_popup_button_1_pressed() -> void:
 			GlobalSaver.write_save(
 				name_edit.text.to_snake_case(),
 				name_edit.text,
-				seed_edit.text.to_int() if not seed_edit.text.is_empty() or not seed_edit.text.is_valid_int() else randi()
+				seed_edit.text.to_int() if not seed_edit.text.is_empty() and seed_edit.text.is_valid_int() else randi()
 			)
 			SceneTransition.start_trans()
 			await SceneTransition.done
@@ -115,7 +115,7 @@ func _on_popup_button_1_pressed() -> void:
 			GlobalSaver.write_save(
 				Time.get_datetime_string_from_system().replace_char(":".unicode_at(0),"-".unicode_at(0)).replace_char("T".unicode_at(0),",".unicode_at(0)),
 				Time.get_datetime_string_from_system().replace_char("T".unicode_at(0),",".unicode_at(0)),
-				seed_edit.text.to_int() if not seed_edit.text.is_empty() or not seed_edit.text.is_valid_int() else randi()
+				seed_edit.text.to_int() if not seed_edit.text.is_empty() and seed_edit.text.is_valid_int() else randi()
 			)
 			SceneTransition.start_trans()
 			await SceneTransition.done
