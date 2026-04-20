@@ -220,7 +220,7 @@ func _open_file(path : String) -> FileAccess:
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if get_tree().current_scene.name == "game":
+		if get_tree().current_scene.name == "GameRoot":
 			for i in GlobalRef.chunks.keys():
 				if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
 					save_chunk(i)
