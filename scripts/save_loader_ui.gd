@@ -118,8 +118,14 @@ func _update_ui(forward: bool, should_move: bool = true) -> void:
 	is_animating = false
 
 
-func _create_card():
-	var scene = GlobalRef.get_scene(GlobalRef.scenes_enum.save_card).instantiate()
+func _create_card() -> Control:
+	var scene: Control = GlobalRef.get_scene(GlobalRef.scenes_enum.save_card).instantiate()
+	scene.anchor_left = 0.0
+	scene.anchor_top = 0.0
+	scene.anchor_right = 0.0
+	scene.anchor_bottom = 0.0
+	scene.position = Vector2.ZERO
+	scene.size = CARD_BASE_SIZE
 	scene.scale = CARD_SCALE
 	scene.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	return scene
@@ -219,19 +225,28 @@ func _get_visible_count() -> int:
 	return min(cards_on_screen, saves.size())
 
 
+func _get_container_size() -> Vector2:
+	var container_size := size
+	if is_zero_approx(container_size.x) or is_zero_approx(container_size.y):
+		return get_window().size
+	return container_size
+
+
 func _get_card_position(slot: int, visible_count: int) -> Vector2:
 	var card_size := CARD_BASE_SIZE * CARD_SCALE
+	var container_size := _get_container_size()
 	return Vector2(
-		((slot + 1) * get_window().size.x / float(visible_count + 1)) - card_size.x / 2.0,
-		get_window().size.y / 2.0 - card_size.y / 2.0
+		((slot + 1) * container_size.x / float(visible_count + 1)) - card_size.x / 2.0,
+		container_size.y / 2.0 - card_size.y / 2.0
 	)
 
 
 func _get_card_spawn_position(from_left: bool) -> Vector2:
 	var card_size := CARD_BASE_SIZE * CARD_SCALE
+	var container_size := _get_container_size()
 	return Vector2(
-		-card_size.x if from_left else (get_window().size.x + card_size.x / 2.0),
-		get_window().size.y / 2.0 - card_size.y / 2.0
+		-card_size.x if from_left else container_size.x,
+		container_size.y / 2.0 - card_size.y / 2.0
 	)
 
 
