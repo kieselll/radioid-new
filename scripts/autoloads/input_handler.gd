@@ -50,12 +50,12 @@ var current_item: BuildableData
 #				| $$       |  $$$$$$$ | $$      /$$$$$$$/
 #				|__/        \_______/ |__/     |_______/
 
-var _pause_menu : PanelContainer
-var _resume_button : Button
-var _ui_layer : CanvasLayer
-var _blur_layer : Panel
-var _save_confirm : PanelContainer
-var _popup_layer : CanvasLayer
+var _pause_menu: PanelContainer
+var _resume_button: Button
+var _ui_layer: CanvasLayer
+var _blur_layer: Panel
+var _save_confirm: PanelContainer
+var _popup_layer: CanvasLayer
 
 #				  /$$$$$$   /$$                                   /$$
 #				 /$$__  $$ |__/                                  | $$
@@ -89,6 +89,7 @@ signal movement_key_pressed(direction: Vector2i, delta: float)
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	#_resume_button.pressed.connect(_on_resume_button_pressed) CRITICAL
+
 
 func world_init():
 	_pause_menu = $/root/GameRoot/Control/popup_layer/pause_menu
@@ -153,14 +154,16 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 			DebugMenu.visible = not DebugMenu.visible
 
 		KEY_ESCAPE:
-			if not get_tree().current_scene.name != "game": return
+			if not get_tree().current_scene.name != "game":
+				return
 			if not _blur_layer.visible:
 				show_pause()
 			else:
 				hide_pause()
 
 		KEY_F1:
-			if not get_tree().current_scene.name != "game": return
+			if not get_tree().current_scene.name != "game":
+				return
 			if _ui_layer.visible:
 				GlobalLogger.write_to_logs(self, "UI was hidden")
 				_ui_layer.hide()
@@ -169,15 +172,51 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 				_ui_layer.show()
 
 		KEY_I:
-			if not get_tree().current_scene.name != "game": return
+			if not get_tree().current_scene.name != "game":
+				return
 			var mouse_position = GridUtils.world_coord_to_chunk_coord(get_global_mouse_position())
-			print("GROUND: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.ground])
-			print("TERRAIN: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.terrain])
-			print("WALLS: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.walls])
-			print("TERRAIN QUEUED: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.terrain_queued])
-			print("WALLS QUEUED: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.walls_queued])
-			print("TERRAIN QUEUED DELETE: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.terrain_queued_d])
-			print("WALLS QUEUED DELETE: ", GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[GlobalRef.tilemap_layers_enum.walls_queued_d])
+			print(
+				"GROUND: ",
+				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
+					GlobalRef.tilemap_layers_enum.ground
+				]
+			)
+			print(
+				"TERRAIN: ",
+				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
+					GlobalRef.tilemap_layers_enum.terrain
+				]
+			)
+			print(
+				"WALLS: ",
+				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
+					GlobalRef.tilemap_layers_enum.walls
+				]
+			)
+			print(
+				"TERRAIN QUEUED: ",
+				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
+					GlobalRef.tilemap_layers_enum.terrain_queued
+				]
+			)
+			print(
+				"WALLS QUEUED: ",
+				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
+					GlobalRef.tilemap_layers_enum.walls_queued
+				]
+			)
+			print(
+				"TERRAIN QUEUED DELETE: ",
+				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
+					GlobalRef.tilemap_layers_enum.terrain_queued_d
+				]
+			)
+			print(
+				"WALLS QUEUED DELETE: ",
+				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
+					GlobalRef.tilemap_layers_enum.walls_queued_d
+				]
+			)
 			print(mouse_position)
 
 
@@ -186,7 +225,11 @@ func _handle_mouse_motion() -> void:
 		var mouse_map = GridUtils.world_coord_to_chunk_coord(get_global_mouse_position())
 
 		if _prev_mouse_map_pos and mouse_map != _prev_mouse_map_pos:
-			var rect := TileMapRect.new(GridUtils.world_coord_to_chunk_coord(_click_1), mouse_map).normalize()
+			var rect := (
+				TileMapRect
+				. new(GridUtils.world_coord_to_chunk_coord(_click_1), mouse_map)
+				. normalize()
+			)
 			region_updated.emit(rect)
 
 		_prev_mouse_map_pos = mouse_map
@@ -207,9 +250,12 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 		_click_2 = get_global_mouse_position()
 
 		if _click_1 and _click_2:
-			var rect := TileMapRect.new(
-				GridUtils.world_coord_to_chunk_coord(_click_1),
-				GridUtils.world_coord_to_chunk_coord(_click_2),
+			var rect := (
+				TileMapRect
+				. new(
+					GridUtils.world_coord_to_chunk_coord(_click_1),
+					GridUtils.world_coord_to_chunk_coord(_click_2),
+				)
 			)
 
 			region_selected.emit(rect)

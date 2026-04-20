@@ -28,17 +28,16 @@ func new_pos():
 		return
 	if not _random_pos:
 		var offset := Vector2i(randi_range(-5, 5), randi_range(-5, 5))
-		_random_pos = GridUtils.tile_coord_to_chunk_coord(GridUtils.chunk_coord_to_tile_coord(_movement_component.get_local_position()) + offset)
+		_random_pos = GridUtils.tile_coord_to_chunk_coord(
+			GridUtils.chunk_coord_to_tile_coord(_movement_component.get_local_position()) + offset
+		)
 		if _random_pos == Vector4i.ZERO:
 			_random_pos = null
 			await get_tree().process_frame
 			new_pos()
 			return
 
-		_state_machine.change_state(
-			&"move_state",
-			{&"target": _random_pos, &"partial": true}
-		)
+		_state_machine.change_state(&"move_state", {&"target": _random_pos, &"partial": true})
 	await _move_state.done
 	_random_pos = null
 	await get_tree().create_timer(randf_range(0.3, 1.5)).timeout

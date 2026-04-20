@@ -2,11 +2,12 @@ extends RefCounted
 class_name AstarPortal2D
 
 var open_list: BinaryHeap = BinaryHeap.new()
-var closed_list: Dictionary = {} # portal_id -> Portal
-var open_g_scores: Dictionary = {} # portal_id -> best known g currently/openly discovered
+var closed_list: Dictionary = {}  # portal_id -> Portal
+var open_g_scores: Dictionary = {}  # portal_id -> best known g currently/openly discovered
 var current_node
 var pathfinder: GlobalPathfinder
 var path_goal: Vector2i
+
 
 class Portal:
 	extends Resource
@@ -19,6 +20,7 @@ class Portal:
 	var parent
 
 	@warning_ignore_start("shadowed_variable")
+
 	func _init(id, coords: Vector2i, g_value: float, path_goal: Vector2i, parent = "") -> void:
 		self.id = id
 		self.coords = coords
@@ -31,6 +33,7 @@ class Portal:
 		self.h_value = max(dx, dy) + 0.414 * min(dx, dy)
 		self.f_value = self.g_value + self.h_value
 		self.parent = parent
+
 	@warning_ignore_restore("shadowed_variable")
 
 
@@ -53,11 +56,7 @@ func get_path(start, end) -> Array:
 	path_goal = pathfinder.calculate_portal_coords(end_portal)
 
 	var start_node := Portal.new(
-		start,
-		pathfinder.calculate_portal_coords(start_portal),
-		0.0,
-		path_goal,
-		""
+		start, pathfinder.calculate_portal_coords(start_portal), 0.0, path_goal, ""
 	)
 
 	_push_open(start_node)
@@ -105,11 +104,7 @@ func _discover_nodes(parent: Portal) -> void:
 		if not open_g_scores.has(neighbor_id) or new_g < open_g_scores[neighbor_id]:
 			var portal = pathfinder.get_portal(neighbor_id)
 			var node := Portal.new(
-				neighbor_id,
-				pathfinder.calculate_portal_coords(portal),
-				new_g,
-				path_goal,
-				parent.id
+				neighbor_id, pathfinder.calculate_portal_coords(portal), new_g, path_goal, parent.id
 			)
 
 			open_g_scores[neighbor_id] = new_g
@@ -140,8 +135,8 @@ func _reconstruct_path(start, end) -> Array:
 func _push_open(node: Portal) -> void:
 	open_list.append(node)
 	# Smallest f_value should rise to the front
-	open_list.bubble_up_heap_custom(func(a: Portal, b: Portal) -> bool:
-		return a.f_value < b.f_value
+	open_list.bubble_up_heap_custom(
+		func(a: Portal, b: Portal) -> bool: return a.f_value < b.f_value
 	)
 
 
@@ -155,8 +150,8 @@ func _pop_best_open() -> Portal:
 
 	if not open_list.is_empty():
 		# Smallest f_value should remain at the front
-		open_list.bubble_down_heap_custom(func(a: Portal, b: Portal) -> bool:
-			return a.f_value < b.f_value
+		open_list.bubble_down_heap_custom(
+			func(a: Portal, b: Portal) -> bool: return a.f_value < b.f_value
 		)
 
 	return best

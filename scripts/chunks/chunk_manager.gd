@@ -167,7 +167,6 @@ func _physics_process(_delta: float) -> void:
 		set_process(true)
 
 
-
 #				 /$$$$$$$              /$$                           /$$
 #				| $$__  $$            |__/                          | $$
 #				| $$  \ $$   /$$$$$$   /$$  /$$    /$$   /$$$$$$   /$$$$$$     /$$$$$$
@@ -191,7 +190,8 @@ func _physics_process(_delta: float) -> void:
 
 
 func generate_new_layer(
-	coords: Vector2i, layer: GlobalRef.tilemap_layers_enum, _seed: int) -> Array:  # CRITICAL WIP
+	coords: Vector2i, layer: GlobalRef.tilemap_layers_enum, _seed: int
+) -> Array:  # CRITICAL WIP
 	var tile_array: Array = []
 	tile_array.resize(CHUNK_SIZE)
 
@@ -318,6 +318,12 @@ func instantiate_chunk(new_chunk: Chunk, coords: Vector2i) -> void:
 
 	chunk_generated.emit(coords)
 
+
 func get_render_quad() -> Rect2i:
 	@warning_ignore("integer_division")
-	return Rect2i(chunk_cam_coords.x - render_distance / 2, chunk_cam_coords.y - render_distance / 2, render_distance, render_distance)
+	return Rect2i(
+		chunk_cam_coords.x - render_distance / 2,
+		chunk_cam_coords.y - render_distance / 2,
+		render_distance,
+		render_distance
+	)

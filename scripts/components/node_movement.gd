@@ -143,7 +143,11 @@ func _physics_process(delta: float) -> void:
 
 func move_to_coord(to: Vector4i) -> void:
 	GlobalLogger.write_to_logs(self, "Moving to coords %v..." % to)
-	var from = _local_position if _local_position else GridUtils.world_coord_to_chunk_coord(_parent.position)
+	var from = (
+		_local_position
+		if _local_position
+		else GridUtils.world_coord_to_chunk_coord(_parent.position)
+	)
 	_update_path(from, to)
 	set_physics_process(true)
 
@@ -162,7 +166,7 @@ func is_moving() -> bool:
 	return owner.velocity != Vector2.ZERO
 
 
-func set_path(path : PackedVector4Array):
+func set_path(path: PackedVector4Array):
 	_path = path
 	_current_step = 0
 	var current_position := GridUtils.world_coord_to_chunk_coord(_parent.position)
@@ -181,6 +185,7 @@ func set_path(path : PackedVector4Array):
 
 	if _path.is_empty():
 		push_warning("No path found for %s to target" % [_parent.name])
+
 
 #				 /$$$$$$$              /$$                           /$$
 #				| $$__  $$            |__/                          | $$

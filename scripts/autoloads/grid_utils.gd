@@ -4,6 +4,7 @@ extends Node
 const CHUNK_SIZE = 16
 const TILE_SIZE = 32
 
+
 ## Finds the coordinate of the nearest [BuildableData] object(s)
 func find_nearest_tile(call_coords: Vector4i, data_array: Array[BuildableData], queued: bool):
 	printerr("FIX ME")
@@ -34,10 +35,11 @@ func find_nearest_tile_coord(call_coords: Vector4i, coords_array: Array):
 	return nearest_coord
 
 
-func get_neighbor_tiles(pos: Vector4i, include_diagonals : bool) -> Array:
+func get_neighbor_tiles(pos: Vector4i, include_diagonals: bool) -> Array:
 	var output = []
 
-	var offsets = [
+	var offsets = (
+		[
 			Vector4i(0, 0, 1, 1),
 			Vector4i(0, 0, 1, 0),
 			Vector4i(0, 0, 1, -1),
@@ -46,12 +48,15 @@ func get_neighbor_tiles(pos: Vector4i, include_diagonals : bool) -> Array:
 			Vector4i(0, 0, -1, 1),
 			Vector4i(0, 0, -1, 0),
 			Vector4i(0, 0, -1, -1)
-		] if include_diagonals else[
+		]
+		if include_diagonals
+		else [
 			Vector4i(0, 0, 1, 0),
 			Vector4i(0, 0, 0, 1),
 			Vector4i(0, 0, 0, -1),
 			Vector4i(0, 0, -1, 0),
 		]
+	)
 
 	for i in offsets:
 		var new_element
@@ -76,10 +81,16 @@ func chunk_coord_to_tile_coord(chunk_coords: Vector4i) -> Vector2i:
 		chunk_coords.x * CHUNK_SIZE + chunk_coords.z, chunk_coords.y * CHUNK_SIZE + chunk_coords.w
 	)
 
+
 func chunk_coord_to_world_coord(chunk_coords: Vector4i) -> Vector2i:
-	return Vector2i(
-		chunk_coords.x * CHUNK_SIZE + chunk_coords.z, chunk_coords.y * CHUNK_SIZE + chunk_coords.w
-	) * TILE_SIZE
+	return (
+		Vector2i(
+			chunk_coords.x * CHUNK_SIZE + chunk_coords.z,
+			chunk_coords.y * CHUNK_SIZE + chunk_coords.w
+		)
+		* TILE_SIZE
+	)
+
 
 func tile_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 	@warning_ignore("integer_division")
@@ -94,11 +105,15 @@ func tile_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 		result.y -= 1
 	return result
 
+
 func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 	@warning_ignore("integer_division")
-	var tile_coord = coord/TILE_SIZE
+	var tile_coord = coord / TILE_SIZE
 	var result = Vector4i(
-		tile_coord.x / CHUNK_SIZE, tile_coord.y / CHUNK_SIZE, tile_coord.x % CHUNK_SIZE, tile_coord.y % CHUNK_SIZE
+		tile_coord.x / CHUNK_SIZE,
+		tile_coord.y / CHUNK_SIZE,
+		tile_coord.x % CHUNK_SIZE,
+		tile_coord.y % CHUNK_SIZE
 	)
 	if result.z < 0:
 		result.z = CHUNK_SIZE + result.z

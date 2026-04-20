@@ -67,8 +67,7 @@ func create_mesh_instances(rects: Dictionary) -> void:
 		valid_multimesh.set_instance_transform_2d(id, Transform2D(PI, coord + Vector2i(16, 16)))
 
 		valid_multimesh.set_instance_custom_data(
-			id,
-			Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y)
+			id, Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y)
 		)
 
 	# --- Create invalid instances ---
@@ -79,8 +78,7 @@ func create_mesh_instances(rects: Dictionary) -> void:
 		invalid_multimesh.set_instance_transform_2d(id, Transform2D(PI, coord + Vector2i(16, 16)))
 
 		invalid_multimesh.set_instance_custom_data(
-			id,
-			Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y)
+			id, Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y)
 		)
 
 

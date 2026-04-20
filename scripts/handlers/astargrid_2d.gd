@@ -18,29 +18,33 @@ var portal_nodes: Dictionary = {}
 ## Keys are chunk coords, values are whatever the [method calculate_portal_connections] func returns
 var portal_connections = {}
 var calculate_connections_queue = []
-var fully_initialized_chunks : Dictionary = {}
+var fully_initialized_chunks: Dictionary = {}
 var chunk_manager: ChunkManager
 var dirty_chunks: Array[Vector2i] = []
 var recalc_timer: Timer
-var queue_restart_timer : Timer
-var path_request_queue : Array
+var queue_restart_timer: Timer
+var path_request_queue: Array
 var astarportal = AstarPortal2D.new(self)
 
 @export var pathfinding_calc_per_frame = 2
 #endregion
 
+
 #region classes
 class DijkstraGraphNode:
 	# INFO the weight in the open list is the actual edge weight, but in the closed list it's the total weight to the node
-	var weight : int
-	var coords : Vector2i
-	var root : Vector2i
+	var weight: int
+	var coords: Vector2i
+	var root: Vector2i
 	@warning_ignore("shadowed_variable")
-	func _init(weight : int, coords : Vector2i, root: Vector2i) -> void:
+	func _init(weight: int, coords: Vector2i, root: Vector2i) -> void:
 		self.weight = weight
 		self.coords = coords
 		self.root = root
+
+
 #endregion
+
 
 #region lifecycle
 func _ready() -> void:
@@ -55,23 +59,28 @@ func _ready() -> void:
 	add_child(queue_restart_timer)
 	queue_restart_timer.start(0.2)
 	queue_restart_timer.timeout.connect(recalc_paths)
+
+
 #endregion
 
 #region debug
 # R for rough
-var rpath : Array
+var rpath: Array
 # E for exact
-var epath : Array
+var epath: Array
+
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.keycode == KEY_P and event.is_pressed():
-		request_path(Vector4i(0,0,0,0), Vector4i(2,-1,0,0), func(path): print(path))
+		request_path(Vector4i(0, 0, 0, 0), Vector4i(2, -1, 0, 0), func(path): print(path))
+
 
 # Something was here
 #
 #   ⁞O       ⁞O       ⁞O        ⁞O
 #       ⁞O       ⁞O        ⁞O
 #
+
 
 func _draw() -> void:
 	if rpath and not rpath.is_empty():
@@ -84,7 +93,7 @@ func _draw() -> void:
 				GridUtils.chunk_coord_to_world_coord(port),
 				GridUtils.chunk_coord_to_world_coord(port_2),
 				Color.RED
-				)
+			)
 			draw_circle(GridUtils.chunk_coord_to_world_coord(port), 5, Color.RED)
 	if epath and not epath.is_empty():
 		for i in epath.size() - 1:
@@ -96,7 +105,9 @@ func _draw() -> void:
 			draw_circle(GridUtils.chunk_coord_to_world_coord(epath[i]), 3, Color.GREEN)
 		draw_circle(GridUtils.chunk_coord_to_world_coord(epath[-1]), 10, Color.YELLOW)
 
+
 #endregion
+
 
 #region chunk events
 func _on_chunk_manager_chunk_deleted(coords: Vector2i) -> void:
@@ -108,6 +119,7 @@ func _on_chunk_manager_chunk_deleted(coords: Vector2i) -> void:
 		for i in portals_by_coords[coords].duplicate():
 			erase_portal(i)
 	portals_by_coords.erase(coords)
+
 
 func _on_chunk_manager_chunk_generated(coords: Vector2i) -> void:
 	# Astar and vars init
@@ -143,7 +155,10 @@ func _on_chunk_manager_chunk_generated(coords: Vector2i) -> void:
 	for i in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
 		handle_chunk_edge(coords, i)
 	handle_portals_by_coords(coords)
+
+
 #endregion
+
 
 #region portal initializing (outdated)
 func _connect_portals(from_id, to_id, weight: float) -> void:
@@ -196,11 +211,9 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 			var calculated_weight := 0.0
 			for point in path:
 				calculated_weight += astargrid.get_point_weight_scale(point)
-			result[source_id][target_id].append({
-				"root": source_coords,
-				"coords": target_coords,
-				"weight": calculated_weight
-			})
+			result[source_id][target_id].append(
+				{"root": source_coords, "coords": target_coords, "weight": calculated_weight}
+			)
 
 	return result
 
@@ -216,12 +229,14 @@ func handle_portals_by_coords(coords) -> void:
 			continue
 		var portal_match_index := portals_by_coords[coords + side_a].find_custom(
 			func(element):
-				return element is Vector4i \
-					and calculate_node_side(element) == -side_a \
+				return (
+					element is Vector4i
+					and calculate_node_side(element) == -side_a
 					and (
 						(side_a.x != 0 and element.w == portal_a.w)
 						or (side_a.y != 0 and element.z == portal_a.z)
 					)
+				)
 		)
 		if portal_match_index != -1:
 			var portal_match: Vector4i = portals_by_coords[coords + side_a][portal_match_index]
@@ -243,6 +258,7 @@ func handle_portals_by_coords(coords) -> void:
 				# Adding a new portal connecton
 				_connect_portals(i, j, calculated_weight)
 				_connect_portals(j, i, calculated_weight)
+
 
 # God damn, what a monolith! Good luck to anyone who has to read this right now, I did my best at making this comprehensible
 ## Function that saves portals on a chunk's edge
@@ -291,8 +307,18 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 			var span = portal_end - portal_start + 1
 			# Multiplier for offset
 			for mult in min(span, PORTALS_PER_EDGE):
-				var offset := 0 if min(span, PORTALS_PER_EDGE) == 1 else roundi(float(mult) * float(span - 1) / float(min(span, PORTALS_PER_EDGE) - 1))
-				var coord := Vector4i(coords.x, coords.y, portal_start + offset, self_constant) if direction.y != 0 else Vector4i(coords.x, coords.y, self_constant, portal_start + offset)
+				var offset := (
+					0
+					if min(span, PORTALS_PER_EDGE) == 1
+					else roundi(
+						float(mult) * float(span - 1) / float(min(span, PORTALS_PER_EDGE) - 1)
+					)
+				)
+				var coord := (
+					Vector4i(coords.x, coords.y, portal_start + offset, self_constant)
+					if direction.y != 0
+					else Vector4i(coords.x, coords.y, self_constant, portal_start + offset)
+				)
 				portals.append(coord)
 				if not portals_by_coords[coords].has(coord):
 					portals_by_coords[coords].append(coord)
@@ -303,8 +329,16 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 		# We save it
 		var span = 16 - portal_start
 		for mult in min(span, PORTALS_PER_EDGE):
-			var offset := 0 if min(span, PORTALS_PER_EDGE) == 1 else roundi(float(mult) * float(span - 1) / float(min(span, PORTALS_PER_EDGE) - 1))
-			var coord := Vector4i(coords.x, coords.y, portal_start + offset, self_constant) if direction.y != 0 else Vector4i(coords.x, coords.y, self_constant, portal_start + offset)
+			var offset := (
+				0
+				if min(span, PORTALS_PER_EDGE) == 1
+				else roundi(float(mult) * float(span - 1) / float(min(span, PORTALS_PER_EDGE) - 1))
+			)
+			var coord := (
+				Vector4i(coords.x, coords.y, portal_start + offset, self_constant)
+				if direction.y != 0
+				else Vector4i(coords.x, coords.y, self_constant, portal_start + offset)
+			)
 			portals.append(coord)
 			if not portals_by_coords[coords].has(coord):
 				portals_by_coords[coords].append(coord)
@@ -318,11 +352,13 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 		# We mark the chunk dirty to later reevaluate the portals and the connections between
 		if not dirty_chunks.has(coords + direction):
 			dirty_chunks.append(coords + direction)
+
+
 #endregion
+
 
 #region path stuff
 func get_rough_path(start: Vector4i, end: Vector4i):
-
 	erase_portal(start)
 	erase_portal(end)
 
@@ -340,7 +376,8 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 
 # Set up neighbors of start portal
 	for port in portals_by_coords[Vector2i(start.x, start.y)]:
-		if port == start: continue
+		if port == start:
+			continue
 		var astar = astargrids[Vector2i(start.x, start.y)]
 		var path_start = Vector2i(start.z, start.w)
 		var path_end = calculate_portal_coords(get_portal(port))
@@ -354,7 +391,8 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 
 # Set up neighbors of end portal
 	for port in portals_by_coords[Vector2i(end.x, end.y)]:
-		if port == end: continue
+		if port == end:
+			continue
 		var astar = astargrids[Vector2i(end.x, end.y)]
 		var path_start = Vector2i(end.z, end.w)
 		var path_end = calculate_portal_coords(get_portal(port))
@@ -369,30 +407,49 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 	rpath = astarportal.get_path(start, end)
 	return rpath
 
+
 ## Function for agents to retrieve a path with source [param from] and destination [param to][br]
 ## The [param partial] parameter determines whether a partial path is returned.[br]
 ## Handles cases where destination might be outside of Astar bounds.[br]
 ## [color=red]DOES NOT WORK BETWEEN CHUNKS YET![br]
 ## DOES NOT HANDLE OUT-OF-BOUNDS CASES CORRECTLY YET![/color]
-func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
+func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
 	print("REQUESTED PATH FROM ", from, " TO ", to)
 	var path: PackedVector4Array = []
 
 	# Checking if the start and end are inside the render distance
 	@warning_ignore_start("integer_division")
-	if not Rect2i(
-		chunk_manager.current_chunk - Vector2i(chunk_manager.render_distance, chunk_manager.render_distance)/2,
-		Vector2i(chunk_manager.render_distance, chunk_manager.render_distance)
-	).has_point(Vector2i(from.x, from.y)) or\
-	not Rect2i(
-		chunk_manager.current_chunk - Vector2i(chunk_manager.render_distance, chunk_manager.render_distance)/2,
-		Vector2i(chunk_manager.render_distance, chunk_manager.render_distance)
-	).abs().has_point(Vector2i(to.x, to.y)):
+	if (
+		not (
+			Rect2i(
+				(
+					chunk_manager.current_chunk
+					- Vector2i(chunk_manager.render_distance, chunk_manager.render_distance) / 2
+				),
+				Vector2i(chunk_manager.render_distance, chunk_manager.render_distance)
+			)
+			. has_point(Vector2i(from.x, from.y))
+		)
+		or not (
+			Rect2i(
+				(
+					chunk_manager.current_chunk
+					- Vector2i(chunk_manager.render_distance, chunk_manager.render_distance) / 2
+				),
+				Vector2i(chunk_manager.render_distance, chunk_manager.render_distance)
+			)
+			. abs()
+			. has_point(Vector2i(to.x, to.y))
+		)
+	):
 		# If they aren't inside the render distance (which means they aren't simulated
 		# Do nothing for now
 		return
 		@warning_ignore_restore("integer_division")
-	elif not portals_by_coords.has(Vector2i(from.x, from.y)) or not portals_by_coords.has(Vector2i(to.x, to.y)):
+	elif (
+		not portals_by_coords.has(Vector2i(from.x, from.y))
+		or not portals_by_coords.has(Vector2i(to.x, to.y))
+	):
 		# If they are inside the render distance, that means the chunks haven't initialized yet, and we should queue the request
 		path_request_queue.append([from, to, callback])
 		return
@@ -405,12 +462,13 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 		path = temp_path.map(
 			func(element: Vector2i): return Vector4i(to.x, to.y, element.x, element.y)
 		)
-	# If the start and end are in different chunks
+		# If the start and end are in different chunks
 		print("")
 	else:
 		# We get the rough path
 		var rough_path = get_rough_path(from, to)
-		if not rough_path: return
+		if not rough_path:
+			return
 		# If there isn't one, then idk, THAT SHOULDN'T FUCKING HAPPEN
 		# Iterating through the rough path
 		var previous_pos: Vector4i = from
@@ -430,38 +488,29 @@ func request_path(from: Vector4i, to: Vector4i, callback : Callable) -> void:
 
 			var astar = astargrids[portal_chunk]
 			var raw_path := astar.get_id_path(
-			Vector2i(previous_pos.z, previous_pos.w),
-			Vector2i(next_portal.z, next_portal.w)
+				Vector2i(previous_pos.z, previous_pos.w), Vector2i(next_portal.z, next_portal.w)
 			)
 			if raw_path.is_empty():
 				continue
 
 			path.append_array(
-				raw_path.map(func(e):
-					return Vector4i(
-						portal_chunk.x,
-						portal_chunk.y,
-						e.x,
-						e.y
-						)
-					)
-				)
-			previous_pos = Vector4i(
-				next_chunk.x,
-				next_chunk.y,
-				next_portal.z,
-				next_portal.w
+				raw_path.map(func(e): return Vector4i(portal_chunk.x, portal_chunk.y, e.x, e.y))
 			)
+			previous_pos = Vector4i(next_chunk.x, next_chunk.y, next_portal.z, next_portal.w)
 	queue_redraw()
 	epath = path
 	callback.call(path)
 
+
 func recalc_paths():
 	for i in path_request_queue.size():
-		var stored_request : Array = path_request_queue[i]
+		var stored_request: Array = path_request_queue[i]
 		request_path(stored_request[0], stored_request[1], stored_request[2])
 		path_request_queue.remove_at(i)
+
+
 #endregion
+
 
 #region portal stuff (outdated)
 func erase_portal(coord) -> void:
@@ -502,41 +551,53 @@ func recalc_dirty_chunks():
 	var dirty_chunks_copy = dirty_chunks.duplicate()
 	dirty_chunks.clear()
 	for i in dirty_chunks_copy:
-		if not portals_by_coords.has(i): continue
+		if not portals_by_coords.has(i):
+			continue
 		for portal_id in portals_by_coords[i].duplicate():
 			erase_portal(portal_id)
 		for dir in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
 			handle_chunk_edge(i, dir)
 		handle_portals_by_coords(i)
-			# Only calculate if NOT already fully initialized
+		# Only calculate if NOT already fully initialized
 		if not fully_initialized_chunks.get(i, false):
-		# Check if all 4 neighbors exist
+			# Check if all 4 neighbors exist
 			var all_neighbors_ready = true
 			for dir in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
-				if not chunk_manager.get_render_quad().has_point(i + dir) and not portals_by_coords.has(i + dir):
+				if (
+					not chunk_manager.get_render_quad().has_point(i + dir)
+					and not portals_by_coords.has(i + dir)
+				):
 					all_neighbors_ready = false
 					break
 
 			if all_neighbors_ready:
 				calculate_connections_queue.append(i)
 				fully_initialized_chunks[i] = true
+
+
 #endregion
 
+
 #region helpers
-func calculate_node_side(node_coords : Vector4i):
-	return Vector2i(int((node_coords.z - 7.5)/7.5), int((node_coords.w - 7.5)/7.5))
+func calculate_node_side(node_coords: Vector4i):
+	return Vector2i(int((node_coords.z - 7.5) / 7.5), int((node_coords.w - 7.5) / 7.5))
+
+
 #endregion
+
 
 #region API
 ## Marks tile as solid for the Astar pathfinders.[br]
 ## Used so that nodes don't access Astar directly.
 func mark_tile_solid(coords: Vector4i, solid: bool = true) -> void:
-	var astar : AStarGrid2D = astargrids[Vector2i(coords.x, coords.y)]
+	var astar: AStarGrid2D = astargrids[Vector2i(coords.x, coords.y)]
 	astar.set_point_solid(Vector2i(coords.z, coords.w), solid)
 
+
 func is_tile_solid(coords: Vector4i) -> bool:
-	var astar : AStarGrid2D = astargrids[Vector2i(coords.x, coords.y)]
+	var astar: AStarGrid2D = astargrids[Vector2i(coords.x, coords.y)]
 	return astar.is_point_solid(Vector2i(coords.z, coords.w))
+
 
 func get_portal_connections(portal_id) -> Array:
 	return portal_nodes[portal_id] if portal_nodes.has(portal_id) else []

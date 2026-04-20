@@ -6,8 +6,10 @@
 ## @tutorial: https://github.com/vaporvee/discord-rpc-godot/wiki
 extends Node
 
+
 func _ready() -> void:
 	pass
 
-func  _process(_delta) -> void:
+
+func _process(_delta) -> void:
 	DiscordRPC.run_callbacks()

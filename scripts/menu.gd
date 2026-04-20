@@ -31,7 +31,7 @@ func _ready() -> void:
 	window.title = "Radioid: Main menu"
 	if SceneTransition.first_entry:
 		SceneTransition.show_dev_icon()
-		await  SceneTransition.done
+		await SceneTransition.done
 		SceneTransition.start_animation(0.5)
 		await SceneTransition.done
 		SceneTransition.first_entry = false
@@ -61,9 +61,7 @@ func _on_window_size_changed():
 	$MarginContainer/StaticBody2D/CollisionShape2D.shape.size = $MarginContainer.size
 
 
-func _animate_button(
-	button: Button, button_scale: Vector2, color: Color
-) -> void:
+func _animate_button(button: Button, button_scale: Vector2, color: Color) -> void:
 	var tween = create_tween().set_parallel(true).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(button, "scale", button_scale, 0.3).set_trans(Tween.TRANS_CIRC)
 	tween.parallel().tween_property(button.get_theme_stylebox("normal"), "bg_color", color, 0.3)
@@ -95,26 +93,18 @@ func _on_options_pressed():
 
 func _on_load_game_pressed():
 	SceneTransition.start_trans()
-	await  SceneTransition.done
+	await SceneTransition.done
 	get_tree().change_scene_to_file("res://scenes/save_loader.tscn")
 
 
 func _process_button_anims_and_sounds(button: Button, entered: bool):
 	if entered:
-		_animate_button(
-			button,
-			Vector2(1.1, 1.1),
-			button_color_array[menu_buttons.find(button)]
-		)
+		_animate_button(button, Vector2(1.1, 1.1), button_color_array[menu_buttons.find(button)])
 		audiostream.stream = button_hover_sound
 		audiostream.play()
 
 	else:
-		_animate_button(
-			button,
-			Vector2(1, 1),
-			default_button_color
-		)
+		_animate_button(button, Vector2(1, 1), default_button_color)
 
 
 func _on_rigid_body_2d_mouse_entered() -> void:

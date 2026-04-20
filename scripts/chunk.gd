@@ -28,7 +28,6 @@ var dirty: bool
 var _multimesh_instances: Dictionary[int, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
 var _chunk_manager: ChunkManager
 
-
 const LAYER_COUNT = 7
 const CHUNK_SIZE = 16
 
