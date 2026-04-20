@@ -73,7 +73,7 @@ func _update_ui(forward: bool, should_move: bool = true) -> void:
 		)
 
 		await rotate_tween.finished
-		if background_tween:
+		if background_tween and background_tween.is_running():
 			await background_tween.finished
 		is_animating = false
 		return
@@ -111,7 +111,7 @@ func _update_ui(forward: bool, should_move: bool = true) -> void:
 	)
 
 	await scenetween.finished
-	if background_tween:
+	if background_tween and background_tween.is_running():
 		await background_tween.finished
 	cards.erase(outgoing_key)
 	outgoing_card.queue_free()
