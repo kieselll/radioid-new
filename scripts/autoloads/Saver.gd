@@ -1,6 +1,7 @@
 extends Node
 class_name Saver
 
+#region vars
 var _current_save_path : String = ""
 var _current_save : SaveMeta
 var _current_world_file : FileAccess
@@ -12,7 +13,9 @@ var _current_index_file : FileAccess
 var write_timer : Timer = Timer.new()
 var _chunks_to_save : Array = []
 var data_indices : Dictionary[Vector2i, int]
+#endregion
 
+#region classes
 class SaveMeta:
 	var creation_date : Dictionary
 	var modified_date : Dictionary
@@ -47,7 +50,10 @@ class SaveMeta:
 		playtime = dict["playtime"]
 		world_seed = dict["world_seed"]
 		version = dict["version"]
+#endregion
 
+
+#region save slots
 func get_saves_list() -> Array:
 	return DirAccess.open(_save_dir_path).get_directories()
 
@@ -82,9 +88,6 @@ func load_save(dirname : String) -> SaveMeta:
 		data_indices[Vector2i(x, y)] = index
 	return _new_save
 
-func world_init():
-	pathfinder = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
-
 func delete_save(dirname : String) -> void:
 	OS.move_to_trash(ProjectSettings.globalize_path(_save_dir_path.path_join(dirname)))
 	GlobalLogger.write_to_logs(self, "Deleted save %s" % dirname)
@@ -95,7 +98,10 @@ func get_save_meta(dirname : String) -> SaveMeta:
 	var fileacc = FileAccess.open(save_path + "/meta.json", FileAccess.READ_WRITE)
 	_new_save.dejsonify(fileacc.get_as_text())
 	return _new_save
+#endregion
 
+
+#region world data
 func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
 	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
@@ -120,6 +126,39 @@ func read_chunk(coords : Vector2i):
 func update_chunk_index(coords: Vector2i, new_position: int) -> void:
 	data_indices[coords] = new_position
 
+func _on_write_timer_timeout():
+	if get_tree().current_scene and get_tree().current_scene.name != "GameRoot": return
+	var data : PackedByteArray = []
+	var data_indices_buffer : PackedByteArray = []
+	var pos = _current_world_file.get_length()
+	_current_world_file.seek(pos)
+	for i in _chunks_to_save:
+		update_chunk_index(i.coords, pos)
+		var header = PackedByteArray([])
+		header.resize(8)
+		header.encode_u64(0, i.data.size())
+		data.append_array(header)
+		data.append_array(i.data)
+		pos += i.data.size() + 8
+
+	for i in data_indices.size():
+		var key = data_indices.keys()[i]
+		data_indices_buffer.resize(data_indices_buffer.size() + 24)
+		data_indices_buffer.encode_s64(24*i, key.x)
+		data_indices_buffer.encode_s64(24*i + 8, key.y)
+		data_indices_buffer.encode_u64(24*i + 16, data_indices[key])
+
+	# Clear the index file to prevent confusion between old and new data
+	FileAccess.open(_current_save_path + "/index.dat", FileAccess.WRITE).close()
+	_current_index_file.store_buffer(data_indices_buffer)
+
+	if not data.is_empty():
+		_current_world_file.store_buffer(data)
+		_chunks_to_save.clear()
+#endregion
+
+
+#region navigation data
 func _encode_portal_coords(portal: Vector4i) -> PackedByteArray:
 	var result := PackedByteArray()
 	result.resize(18)
@@ -179,8 +218,10 @@ func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary):
 	index_file.store_buffer(index_data)
 	data_file.close()
 	index_file.close()
+#endregion
 
 
+#region lifecycle
 func _ready() -> void:
 	add_child(write_timer)
 	write_timer.start(2)
@@ -188,40 +229,23 @@ func _ready() -> void:
 	#if OS.has_feature("editor"):
 		#load_save("test_save")
 
-func _on_write_timer_timeout():
-	if get_tree().current_scene and get_tree().current_scene.name != "GameRoot": return
-	var data : PackedByteArray = []
-	var data_indices_buffer : PackedByteArray = []
-	var pos = _current_world_file.get_length()
-	_current_world_file.seek(pos)
-	for i in _chunks_to_save:
-		update_chunk_index(i.coords, pos)
-		var header = PackedByteArray([])
-		header.resize(8)
-		header.encode_u64(0, i.data.size())
-		data.append_array(header)
-		data.append_array(i.data)
-		pos += i.data.size() + 8
+func world_init():
+	pathfinder = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
-	for i in data_indices.size():
-		var key = data_indices.keys()[i]
-		data_indices_buffer.resize(data_indices_buffer.size() + 24)
-		data_indices_buffer.encode_s64(24*i, key.x)
-		data_indices_buffer.encode_s64(24*i + 8, key.y)
-		data_indices_buffer.encode_u64(24*i + 16, data_indices[key])
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save()
+		get_tree().quit()
+#endregion
 
-	# Clear the index file to prevent confusion between old and new data
-	FileAccess.open(_current_save_path + "/index.dat", FileAccess.WRITE).close()
-	_current_index_file.store_buffer(data_indices_buffer)
 
-	if not data.is_empty():
-		_current_world_file.store_buffer(data)
-		_chunks_to_save.clear()
-
+#region helpers
 func _open_file(path : String) -> FileAccess:
 	return FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE_READ)
+#endregion
 
 
+#region API
 func save():
 	if get_tree().current_scene.name == "GameRoot":
 		for i in GlobalRef.chunks.keys():
@@ -230,8 +254,4 @@ func save():
 		_on_write_timer_timeout()
 		save_nav_data(pathfinder.portals, pathfinder.portal_connections)
 	GlobalLogger.write_to_logs(self, "Saved everything, quitting")
-
-func _notification(what):
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		save()
-		get_tree().quit()
+#endregion
