@@ -6,9 +6,11 @@ enum game_nodes_enum {
 	handlers,
 	ui_layer,
 }
+
 enum tilemap_layers_enum {
 	ground, terrain, walls, terrain_queued, walls_queued, terrain_queued_d, walls_queued_d
 }
+
 enum handlers_enum {
 	fancy_thing,
 	building_agent,
@@ -60,13 +62,14 @@ func get_chunk(coords: Vector2i) -> Node:
 #endregion
 
 #region Scenes
-enum scenes_enum { pawn, progressbar, save_card, game }
+enum scenes_enum {pawn, progressbar, save_card, game, main_menu}
 
 var scenes = {
 	scenes_enum.pawn: "pawn.tscn",
 	scenes_enum.progressbar: "progressbar.tscn",
 	scenes_enum.save_card: "save_card_blueprint.tscn",
-	scenes_enum.game: "game.tscn"
+	scenes_enum.game: "game.tscn",
+	scenes_enum.main_menu: "menu.tscn"
 }
 
 

@@ -221,15 +221,17 @@ func _on_write_timer_timeout():
 func _open_file(path : String) -> FileAccess:
 	return FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE_READ)
 
+
+func save():
+	if get_tree().current_scene.name == "GameRoot":
+		for i in GlobalRef.chunks.keys():
+			if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
+				save_chunk(i)
+		_on_write_timer_timeout()
+		save_nav_data(pathfinder.portals, pathfinder.portal_connections)
+	GlobalLogger.write_to_logs(self, "Saved everything, quitting")
+
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if get_tree().current_scene.name == "GameRoot":
-			for i in GlobalRef.chunks.keys():
-				if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
-					save_chunk(i)
-			_on_write_timer_timeout()
-
-			save_nav_data(pathfinder.portals, pathfinder.portal_connections)
-
-		GlobalLogger.write_to_logs(self, "Saved everything, quitting")
+		save()
 		get_tree().quit()

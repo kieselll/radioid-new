@@ -15,6 +15,7 @@
 [ext_resource type="Script" uid="uid://c3cvur4cfyn06" path="res://scripts/control.gd" id="14_3hbvx"]
 [ext_resource type="Script" uid="uid://ccqmsxdcsc1b6" path="res://scripts/chunks/chunk_manager.gd" id="14_pr1ej"]
 [ext_resource type="PackedScene" uid="uid://bbxxq8l1c7xsc" path="res://scenes/Chunk.tscn" id="15_05nbr"]
+[ext_resource type="Script" uid="uid://dejto6cqy4y8l" path="res://scripts/handlers/pawn_manager.gd" id="15_pr1ej"]
 [ext_resource type="Theme" uid="uid://qb0c3yxrvyka" path="res://resources/theme.tres" id="15_q8j3a"]
 [ext_resource type="FontFile" uid="uid://b04bqkfo63yn" path="res://resources/Gilroy-Bold.ttf" id="16_ms3bu"]
 [ext_resource type="Texture2D" uid="uid://crsyyhl4u220q" path="res://textures/items/Selection (1).png" id="17_7ixpq"]
@@ -211,7 +212,7 @@ bg_color = Color(0, 0, 0, 0.876)
 [sub_resource type="TileSet" id="TileSet_pr1ej"]
 tile_size = Vector2i(32, 32)
 
-[sub_resource type="Resource" id="Resource_8ool0"]
+[sub_resource type="Resource" id="Resource_pr1ej"]
 resource_local_to_scene = true
 script = ExtResource("41_4nbsr")
 stats = {
@@ -260,9 +261,11 @@ material = SubResource("ShaderMaterial_jo16n")
 multimesh = SubResource("MultiMesh_jo16n")
 texture = ExtResource("7_h3rex")
 
-[node name="paused_process_handler" type="Node" parent="handlers" unique_id=1387306247]
+[node name="paused_process_handler" type="Node" parent="handlers" unique_id=1387306247 node_paths=PackedStringArray("pause_menu", "save_confirmation_menu")]
 process_mode = 2
 script = ExtResource("8_fedci")
+pause_menu = NodePath("../../Control/popup_layer/pause_menu")
+save_confirmation_menu = NodePath("../../Control/popup_layer/save_confirmation_menu")
 
 [node name="process_handler" type="Node2D" parent="handlers" unique_id=1868909951]
 script = ExtResource("9_8qswn")
@@ -755,7 +758,7 @@ z_index = 2
 position = Vector2(116.99999, 105.99999)
 scale = Vector2(0.06, 0.06)
 floor_constant_speed = true
-characteristics = SubResource("Resource_8ool0")
+characteristics = SubResource("Resource_pr1ej")
 
 [connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
 [connection signal="chunk_deleted" from="handlers/chunks/ChunkManager" to="handlers/GlobalPathfinder" method="_on_chunk_manager_chunk_deleted"]
