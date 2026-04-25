@@ -31,4 +31,6 @@ func _on_save_progress_pressed() -> void:
 
 
 func _on_dont_save_progress_pressed() -> void:
-	printerr("_on_dont_save_progress_pressed not implemented")
+	SceneTransition.start_trans(false, 0.4)
+	await SceneTransition.done
+	get_tree().change_scene_to_packed(GlobalRef.get_scene(GlobalRef.scenes_enum.main_menu))
