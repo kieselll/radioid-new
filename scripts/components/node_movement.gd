@@ -1,6 +1,5 @@
-@icon("res://textures/editor_icons/walking-boot.svg")
+extends BaseComponent
 class_name MovementComponent
-extends Node
 
 #region private vars
 
@@ -9,9 +8,10 @@ var _current_step: int = 0
 var _target_position: Vector2i
 var _direction: Vector2
 var _local_position = null
+var _ticking = false
 
-@onready var _parent: CharacterBody2D = get_parent()
-@onready var _astar: Node
+var _parent: CharacterBody2D
+var _astar: Node
 
 #endregion
 
@@ -31,8 +31,10 @@ signal arrived_at_destination
 
 #region init
 
-func _ready() -> void:
-	_astar = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
+func setup(parent : CharacterBody2D) -> void:
+	tick_type = physics
+	_parent = parent
+	_astar = parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
 #endregion
 
@@ -43,7 +45,7 @@ func tick(delta: float) -> void:
 
 	if _path.is_empty() or _current_step >= _path.size():
 		_parent.velocity = Vector2.ZERO
-		set_physics_process(false)
+		_ticking = false
 		return
 
 	_target_position = GridUtils.chunk_coord_to_world_coord(_path[_current_step])
@@ -64,12 +66,12 @@ func tick(delta: float) -> void:
 
 		if _current_step >= _path.size():
 			GlobalLogger.write_to_logs(
-				self, "Arrived at %v. Stopping..." % _path[_current_step - 1]
+				_parent, "Arrived at %v. Stopping..." % _path[_current_step - 1]
 			)
 			_parent.velocity = Vector2.ZERO
 			_path.clear()
 			arrived_at_destination.emit()
-			set_physics_process(false)
+			_ticking = false
 			return
 
 	if _parent.velocity != Vector2.ZERO:
@@ -81,19 +83,19 @@ func tick(delta: float) -> void:
 #region API
 
 func move_to_coord(to: Vector4i) -> void:
-	GlobalLogger.write_to_logs(self, "Moving to coords %v..." % to)
+	GlobalLogger.write_to_logs(_parent, "Moving to coords %v..." % to)
 	var from = (
 		_local_position
 		if _local_position
 		else GridUtils.world_coord_to_chunk_coord(_parent.position)
 	)
 	_update_path(from, to)
-	set_physics_process(true)
+	_ticking = true
 
 
 func stop_moving() -> void:
-	GlobalLogger.write_to_logs(self, "Stopped moving")
-	set_physics_process(false)
+	GlobalLogger.write_to_logs(_parent, "Stopped moving")
+	_ticking = false
 	_parent.velocity = Vector2.ZERO
 
 
@@ -102,7 +104,7 @@ func get_local_position() -> Vector4i:
 
 
 func is_moving() -> bool:
-	return owner.velocity != Vector2.ZERO
+	return _parent.velocity != Vector2.ZERO
 
 
 func set_path(path: PackedVector4Array):
@@ -117,10 +119,10 @@ func set_path(path: PackedVector4Array):
 		_path.clear()
 		_parent.velocity = Vector2.ZERO
 		arrived_at_destination.emit()
-		set_physics_process(false)
+		_ticking = false
 		return
 
-	set_physics_process(true)
+	_ticking = true
 
 	if _path.is_empty():
 		push_warning("No path found for %s to target" % [_parent.name])
