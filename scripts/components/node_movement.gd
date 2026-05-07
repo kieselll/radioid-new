@@ -8,7 +8,6 @@ var _current_step: int = 0
 var _target_position: Vector2i
 var _direction: Vector2
 var _local_position = null
-var _ticking = false
 
 var _parent: CharacterBody2D
 var _astar: Node
@@ -45,7 +44,7 @@ func tick(delta: float) -> void:
 
 	if _path.is_empty() or _current_step >= _path.size():
 		_parent.velocity = Vector2.ZERO
-		_ticking = false
+		ticking = false
 		return
 
 	_target_position = GridUtils.chunk_coord_to_world_coord(_path[_current_step])
@@ -71,7 +70,7 @@ func tick(delta: float) -> void:
 			_parent.velocity = Vector2.ZERO
 			_path.clear()
 			arrived_at_destination.emit()
-			_ticking = false
+			ticking = false
 			return
 
 	if _parent.velocity != Vector2.ZERO:
@@ -90,12 +89,12 @@ func move_to_coord(to: Vector4i) -> void:
 		else GridUtils.world_coord_to_chunk_coord(_parent.position)
 	)
 	_update_path(from, to)
-	_ticking = true
+	ticking = true
 
 
 func stop_moving() -> void:
 	GlobalLogger.write_to_logs(_parent, "Stopped moving")
-	_ticking = false
+	ticking = false
 	_parent.velocity = Vector2.ZERO
 
 
@@ -119,10 +118,10 @@ func set_path(path: PackedVector4Array):
 		_path.clear()
 		_parent.velocity = Vector2.ZERO
 		arrived_at_destination.emit()
-		_ticking = false
+		ticking = false
 		return
 
-	_ticking = true
+	ticking = true
 
 	if _path.is_empty():
 		push_warning("No path found for %s to target" % [_parent.name])

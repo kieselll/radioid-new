@@ -9,6 +9,7 @@ enum {
 }
 
 var tick_type = none
+var ticking = false
 
 @abstract func tick(delta : float) -> void
 
