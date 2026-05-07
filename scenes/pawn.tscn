@@ -5,8 +5,6 @@
 [ext_resource type="Script" uid="uid://d0jsieodb28b8" path="res://resources/resource_scripts/pawn_stat_resouce.gd" id="2_e5j7u"]
 [ext_resource type="Script" uid="uid://coyult43c47ei" path="res://scripts/components/state_machine.gd" id="4"]
 [ext_resource type="Script" uid="uid://cjj5f7c8sr5ja" path="res://scripts/components/animation_player.gd" id="5"]
-[ext_resource type="Script" uid="uid://dfbrbyd3o8hij" path="res://scripts/components/node_builder.gd" id="6"]
-[ext_resource type="Script" uid="uid://1yujcdfforo4" path="res://scripts/components/node_movement.gd" id="7"]
 [ext_resource type="Script" uid="uid://cvf7cyvmsnhhf" path="res://scripts/components/states/move_state.gd" id="7_ojbo2"]
 [ext_resource type="Script" uid="uid://bc2oir51xr02" path="res://scripts/components/actions/build_action.gd" id="8_kv2g7"]
 [ext_resource type="Script" uid="uid://mlsuy8iy31ye" path="res://scripts/components/action_machine.gd" id="8_otoq7"]
@@ -36,21 +34,14 @@ width = 1
 gradient = SubResource("Gradient_trpkc")
 width = 1
 
-[node name="test_pawn" type="CharacterBody2D" unique_id=1045036099]
+[node name="test_pawn" type="CharacterBody2D" unique_id=1045036099 node_paths=PackedStringArray("sprite")]
 scale = Vector2(0.5, 0.5)
 input_pickable = true
 motion_mode = 1
 slide_on_ceiling = false
 script = ExtResource("1")
 characteristics = SubResource("Resource_hjss0")
-
-[node name="BuildingComponent" type="Node" parent="." unique_id=1321672555]
-script = ExtResource("6")
-metadata/_custom_type_script = "uid://dfbrbyd3o8hij"
-
-[node name="MovementComponent" type="Node" parent="." unique_id=1460093695]
-script = ExtResource("7")
-metadata/_custom_type_script = "uid://1yujcdfforo4"
+sprite = NodePath("Sprite2D")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1131298891]
 position = Vector2(0, 70)
