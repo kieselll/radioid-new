@@ -3,6 +3,7 @@ extends CharacterBody2D
 # CRITICAL PLEASE CLEAN THIS SHIT UP
 
 @export var characteristics: PawnStats
+@export var sprite: Sprite2D
 @onready var state_machine = $StateMachine
 @onready var action_machine = $ActionMachine
 @onready var ability_manager = $AbilityManager
@@ -19,33 +20,31 @@ var left_back_texture = load("res://man_diag.png")
 
 signal died
 
-var _movement_component : MovementComponent
-var _building_component : BuildingComponent
+var movement_component : MovementComponent
+var building_component : BuildingComponent
 
 func initialize(movement_component : MovementComponent, building_component : BuildingComponent) -> void:
-	_movement_component = movement_component
-	_movement_component.setup(self)
-	_building_component = building_component
-	_building_component._parent = self
+	movement_component = movement_component
+	movement_component.setup(self)
+	building_component = building_component
 	$Label.text = name
 
-func rotate_sprite(direction: Vector2):
-	if direction.angle() > -0.3839724 and direction.angle() < 0.3839724:
-		$Sprite2D.texture = right_texture
-	elif direction.angle() > 0.3839724 and direction.angle() < 1.16937:
-		$Sprite2D.texture = right_front_texture
-	elif direction.angle() > 1.16937 and direction.angle() < 1.95477:
-		$Sprite2D.texture = front_texture
-	elif direction.angle() > 1.95477 and direction.angle() < 2.74017:
-		$Sprite2D.texture = left_front_texture
-	elif direction.angle() > 2.74017 or direction.angle() < -2.74017:
-		$Sprite2D.texture = left_texture
-	elif direction.angle() > -2.74017 and direction.angle() < -1.95477:
-		$Sprite2D.texture = left_back_texture
-	elif direction.angle() > -1.95477 and direction.angle() < -1.16937:
-		$Sprite2D.texture = back_texture
-	elif direction.angle() > -1.16937 and direction.angle() < -0.3839724:
-		$Sprite2D.texture = right_back_texture
+func rotate_sprite(direction: Vector2) -> void:
+	if direction == Vector2.ZERO:
+		return
+
+	var angle := wrapf(direction.angle(), 0.0, TAU)
+	var octant := int(floor((angle + PI / 8.0) / (PI / 4.0))) % 8
+
+	match octant:
+		0: sprite.texture = right_texture
+		1: sprite.texture = right_front_texture
+		2: sprite.texture = front_texture
+		3: sprite.texture = left_front_texture
+		4: sprite.texture = left_texture
+		5: sprite.texture = left_back_texture
+		6: sprite.texture = back_texture
+		7: sprite.texture = right_back_texture
 
 func _input(event: InputEvent) -> void:
 	if not OS.is_debug_build():
