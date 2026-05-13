@@ -54,3 +54,5 @@ offset_right = 107.0
 offset_bottom = -30.0
 grow_vertical = 0
 text = "Back"
+
+[connection signal="pressed" from="back_button" to="." method="_on_back_button_pressed"]

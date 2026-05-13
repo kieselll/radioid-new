@@ -327,3 +327,9 @@ func _on_delete_button_pressed(save_name: String):
 
 	visible_card_keys = next_visible_keys
 	is_animating = false
+
+
+func _on_back_button_pressed() -> void:
+	SceneTransition.start_trans(false, 0.4)
+	await SceneTransition.done
+	get_tree().change_scene_to_packed(GlobalRef.get_scene(GlobalRef.scenes_enum.main_menu))
