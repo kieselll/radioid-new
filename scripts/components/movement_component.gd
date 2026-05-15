@@ -81,6 +81,27 @@ func tick(delta: float) -> void:
 
 #region API
 
+#region Chain functions
+## Sets the speed of the entity it's attached to (in px/s) [br]
+## The default speed is 75 px
+func set_speed(value : float) -> MovementComponent:
+	speed = value
+	return self
+
+## Sets the movement smoothness of the entity it's attached to [br]
+## The default movement smoothness is 15
+func set_smoothness(value: float) -> MovementComponent:
+	movement_smoothness = value
+	return self
+
+## Sets the approach threshold of the entity it's attached to [br]
+## The default approach threshold is 4 px
+func set_approach_threshold(value: float) -> MovementComponent:
+	movement_smoothness = value
+	return self
+
+#endregion
+
 func move_to_coord(to: Vector4i) -> void:
 	GlobalLogger.write_to_logs(_parent, "Moving to coords %v..." % to)
 	var from = (
