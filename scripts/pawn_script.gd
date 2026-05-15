@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-# CRITICAL PLEASE CLEAN THIS SHIT UP
+#region Vars
 
 @export var characteristics: PawnStats
 @export var sprite: Sprite2D
@@ -9,19 +9,36 @@ extends CharacterBody2D
 @onready var ability_manager = $AbilityManager
 @onready var decision_maker = $DecisionMaker
 
-var front_texture = load("res://man.png")
-var left_texture = load("res://man_left.png")
-var back_texture = load("res://man_back.png")
-var right_texture = load("res://man_right.png")
-var right_front_texture = load("res://man_diag4.png")
-var left_front_texture = load("res://man_diag3.png")
-var right_back_texture = load("res://man_diag2.png")
-var left_back_texture = load("res://man_diag.png")
+#endregion
+
+#region Textures
+
+# Move this into the new helper script and don't hardcode it
+var front_texture = load("res://man_S.png")
+var left_texture = load("res://man_W.png")
+var back_texture = load("res://man_N.png")
+var right_texture = load("res://man_E.png")
+var right_front_texture = load("res://man_SE.png")
+var left_front_texture = load("res://man_SW.png")
+var right_back_texture = load("res://man_NE.png")
+var left_back_texture = load("res://man_NW.png")
+
+#endregion
+
+#region Signals
 
 signal died
 
+#endregion
+
+#region Components
+
 var movement_component : MovementComponent
 var building_component : BuildingComponent
+
+#endregion
+
+#region Lifecycle
 
 func initialize(movement_component : MovementComponent, building_component : BuildingComponent) -> void:
 	movement_component = movement_component
@@ -29,6 +46,20 @@ func initialize(movement_component : MovementComponent, building_component : Bui
 	building_component = building_component
 	$Label.text = name
 
+#endregion
+
+#region Setters
+
+# Possibly boilerplate, because pawn.characteristics = PawnStats.new(...) can be used instead
+# But fuck it, the code looks cleaner with it and it contributes to an actual API
+func set_characteristics(personality : PawnStats.personalities, stats : Dictionary, traits: Array) -> void:
+	characteristics = PawnStats.new(personality, stats, traits)
+
+#endregion
+
+#region Private helpers
+
+# This needs to later be moved into a separate helper script
 func rotate_sprite(direction: Vector2) -> void:
 	if direction == Vector2.ZERO:
 		return
@@ -45,6 +76,10 @@ func rotate_sprite(direction: Vector2) -> void:
 		5: sprite.texture = left_back_texture
 		6: sprite.texture = back_texture
 		7: sprite.texture = right_back_texture
+
+#endregion
+
+#region Debug (REMOVE LATER BEFORE CBT PLEEEEAAASE) CRITICAL CRITICAL CRITICAL CRITICAL CRITICAL
 
 func _input(event: InputEvent) -> void:
 	if not OS.is_debug_build():
@@ -70,3 +105,5 @@ func _input(event: InputEvent) -> void:
 					characteristics.abilities["building"] - 1, 0, 9
 				)
 				print(characteristics.abilities["building"])
+
+#endregion
