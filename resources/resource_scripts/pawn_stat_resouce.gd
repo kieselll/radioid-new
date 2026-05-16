@@ -20,6 +20,11 @@ class pawn_trait:
 @export var traits = []
 
 
+func _init(_personality : personalities, _stats : Dictionary, _traits: Array) -> void:
+	personality = _personality
+	stats = _stats
+	traits = _traits
+
 func get_stat(stat: String):
 	if stats.has(stat):
 		return stats.get(stat)
