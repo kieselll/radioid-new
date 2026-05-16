@@ -123,6 +123,9 @@ func read_chunk(coords : Vector2i):
 	# And then return the BINARY chunk
 	return bytes_to_var(_current_world_file.get_buffer(buffer_size))
 
+func save_character():
+	pass
+
 func update_chunk_index(coords: Vector2i, new_position: int) -> void:
 	data_indices[coords] = new_position
 
