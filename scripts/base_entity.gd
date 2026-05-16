@@ -5,7 +5,6 @@ extends CharacterBody2D
 @export var characteristics: PawnStats
 @export var sprite: Sprite2D
 @onready var state_machine = $StateMachine
-@onready var action_machine = $ActionMachine
 @onready var ability_manager = $AbilityManager
 @onready var decision_maker = $DecisionMaker
 
@@ -33,8 +32,9 @@ signal died
 
 #region Components
 
-var movement_component : MovementComponent
+var action_machine: ActionMachine
 var building_component : BuildingComponent
+var movement_component : MovementComponent
 
 #endregion
 
