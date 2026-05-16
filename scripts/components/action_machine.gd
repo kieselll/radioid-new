@@ -1,29 +1,38 @@
-@icon("res://textures/editor_icons/pokecog.svg")
 class_name ActionMachine
-extends Node
+extends BaseComponent
+
+enum action_types
+{
+	wander,
+	build,
+	haul
+}
 
 var state_machine
 var current_action: BaseAction
-var actions = {}
+var actions = []
+var _parent: CharacterBody2D
+var owner: CharacterBody2D
 
 signal action_done
 
+@warning_ignore("unused_parameter")
+func tick(delta : float) -> void:
+	pass
+
+func setup(parent : CharacterBody2D) -> void:
+	_parent = parent
+	owner = _parent
 
 func _ready() -> void:
-	assert(
-		owner is CharacterBody2D,
-		"An ActionMachine cannot be owned by a non-CharacterBody2D. Please change the root of this scene to a CharacterBody2D"
-	)
-	for child in get_children():
-		if child is BaseAction:
-			actions[child.action_name] = child
-			child.done.connect(_on_any_action_done)
+	for action in actions:
+		action.done.connect(_on_any_action_done)
 
 
-func start_action(action_name: String, args = {}) -> void:
+func start_action(action_type: action_types, args = {}) -> void:
 	if current_action:
 		current_action.stop()
-	current_action = actions[action_name]
+	current_action = actions[action_type]
 	current_action.start(args)
 
 

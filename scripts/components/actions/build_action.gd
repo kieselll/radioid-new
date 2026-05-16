@@ -3,11 +3,17 @@ class_name BuildAction
 extends BaseAction
 
 var _movement_component: MovementComponent
+var _state_machine: StateMachine
 var _move_state: MoveState
 var _build_state: BuildState
+var _parent
+var owner
 
 const action_name = &"build_action"
 
+func setup(action_machine : ActionMachine):
+	_parent = action_machine
+	owner = _parent.owner
 
 func start(args: Dictionary = {&"partial": true}) -> void:
 	assert(
@@ -18,7 +24,7 @@ func start(args: Dictionary = {&"partial": true}) -> void:
 		_state_machine.get_state(&"build_state"),
 		"%s doesn't have the mandatory BuildState" % owner.name
 	)
-	GlobalLogger.write_to_logs(self, "Started building...")
+	GlobalLogger.write_to_logs(owner, "Started building...")
 	_active = true
 	_movement_component = owner.movement_component
 	_move_state = _state_machine.get_state(&"move_state")
