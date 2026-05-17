@@ -29,14 +29,15 @@ func setup(action_machine : ActionMachine):
 func _late_ready() -> void:
 	_movement_component = _parent.movement_component
 	_state_machine = _parent.state_machine
-	_move_state = _state_machine.get_state(&"move_state")
+	_move_state = _state_machine.get_state(StateMachine.state_types.move_state)
+
 #endregion
 
 #region lifecycle
 
 func start(args: Dictionary = {}) -> void:
 	assert(
-		_state_machine.get_state(&"move_state"),
+		_state_machine.get_state(StateMachine.state_types.move_state),
 		"%s doesn't have the mandatory MoveState" % owner.name
 	)
 	GlobalLogger.write_to_logs(owner, "Started wandering around...")
@@ -61,7 +62,7 @@ func new_pos():
 			new_pos()
 			return
 
-		_state_machine.change_state(&"move_state", {&"target": _random_pos, &"partial": true})
+		_state_machine.change_state(StateMachine.state_types.move_state, {&"target": _random_pos, &"partial": true})
 	await _move_state.done
 	_random_pos = Vector4i.ZERO
 	await owner.get_tree().create_timer(randf_range(0.3, 1.5)).timeout

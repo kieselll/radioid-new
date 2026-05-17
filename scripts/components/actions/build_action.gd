@@ -31,21 +31,21 @@ func setup(action_machine : ActionMachine):
 
 func start(args: Dictionary = {&"partial": true}) -> void:
 	assert(
-		_state_machine.get_state(&"move_state"),
+		_state_machine.get_state(StateMachine.state_types.move_state),
 		"%s doesn't have the mandatory MoveState" % owner.name
 	)
 	assert(
-		_state_machine.get_state(&"build_state"),
+		_state_machine.get_state(StateMachine.state_types.build_state),
 		"%s doesn't have the mandatory BuildState" % owner.name
 	)
 	GlobalLogger.write_to_logs(owner, "Started building...")
 	_active = true
 	_movement_component = owner.movement_component
-	_move_state = _state_machine.get_state(&"move_state")
-	_build_state = _state_machine.get_state(&"build_state")
+	_move_state = _state_machine.get_state(StateMachine.state_types.move_state)
+	_build_state = _state_machine.get_state(StateMachine.state_types.build_state)
 	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args[&"target"], true)
 	_state_machine.change_state(
-		&"move_state",
+		StateMachine.state_types.move_state,
 		args.merged(
 			{
 				&"target":
