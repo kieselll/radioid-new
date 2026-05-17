@@ -41,9 +41,9 @@ var state_machine : StateMachine
 #region Lifecycle
 
 func initialize(movement_component : MovementComponent, building_component : BuildingComponent) -> void:
-	movement_component = movement_component
-	movement_component.setup(self)
-	building_component = building_component
+	self.movement_component = movement_component
+	self.movement_component.setup(self)
+	self.building_component = building_component
 	$Label.text = name
 
 #endregion
