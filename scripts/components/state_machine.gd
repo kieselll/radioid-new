@@ -1,6 +1,6 @@
 @icon("res://textures/editor_icons/cog.svg")
 class_name StateMachine
-extends Node
+extends BaseComponent
 
 #region enums
 
@@ -18,26 +18,16 @@ enum state_types
 
 var _states = []
 var _current_state: BaseState
+var _parent
 
 #endregion
 
 #region public vars
 
-func _ready() -> void:
-	assert(
-		owner is CharacterBody2D,
-		"A StateMachine cannot be owned by a non-CharacterBody2D. Please change the root of this scene to a CharacterBody2D."
-	)
+var owner : CharacterBody2D
 
-	for child in get_children():
-		assert(
-			child is BaseState,
-			"%s, child of the state_machine of %s isn't a state" % [child.name, owner.name]
-		)
-		_state_nodes[child.state_name] = child
 #endregion
 
-	)
 #region signals
 
 signal state_changed(state_type: state_types)
@@ -47,10 +37,22 @@ signal state_done()
 
 #region lifecycle
 
+@warning_ignore("unused_parameter")
+func tick(delta : float) -> void:
+	pass
 
 #endregion
 
 #region init
+
+func setup(parent : CharacterBody2D) -> void:
+	_parent = parent
+	owner = _parent
+
+	for state in _states:
+		state.done.connect(_on_any_state_done)
+	_current_state = _states[state_types.idle_state]
+
 #endregion
 
 #region API
