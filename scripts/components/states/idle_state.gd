@@ -3,8 +3,13 @@
 class_name IdleState
 extends BaseState
 
+#region public vars
+
 var state_name = &"idle_state"
 
+#endregion
+
+#region lifecycle
 
 func start(args = {}) -> void:
 	GlobalLogger.write_to_logs(
@@ -16,3 +21,5 @@ func start(args = {}) -> void:
 func stop() -> void:
 	GlobalLogger.write_to_logs(self, "Stopped idling")
 	_active = false
+
+#endregion

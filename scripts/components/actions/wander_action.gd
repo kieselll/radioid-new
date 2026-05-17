@@ -3,7 +3,13 @@
 class_name WanderAction
 extends BaseAction
 
+#region constants
+
 const action_name: StringName = &"wander_action"
+
+#endregion
+
+#region vars
 
 var _movement_component: MovementComponent
 var _state_machine: StateMachine
@@ -12,6 +18,9 @@ var _random_pos: Vector4i = Vector4i.ZERO
 var _parent: ActionMachine
 var owner: CharacterBody2D
 
+#endregion
+
+#region init
 
 func setup(action_machine : ActionMachine):
 	_parent = action_machine
@@ -21,7 +30,9 @@ func _late_ready() -> void:
 	_movement_component = _parent.movement_component
 	_state_machine = _parent.state_machine
 	_move_state = _state_machine.get_state(&"move_state")
+#endregion
 
+#region lifecycle
 
 func start(args: Dictionary = {}) -> void:
 	assert(
@@ -31,6 +42,10 @@ func start(args: Dictionary = {}) -> void:
 	GlobalLogger.write_to_logs(owner, "Started wandering around...")
 	_active = true
 	new_pos()
+
+#endregion
+
+#region helpers
 
 
 func new_pos():
@@ -53,9 +68,15 @@ func new_pos():
 	if _active:
 		done.emit()
 
+#endregion
+
+#region lifecycle
+
 
 func stop() -> void:
 	GlobalLogger.write_to_logs(owner, "Stopped wandering around")
 	_active = false
 	_random_pos = Vector4i.ZERO
 	_movement_component.stop_moving()
+
+#endregion

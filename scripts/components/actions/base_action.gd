@@ -3,9 +3,19 @@
 @abstract class_name BaseAction
 extends Resource
 
+#region private vars
+
 var _active: bool = false
 
+#endregion
+
+#region signals
+
 signal done
+
+#endregion
+
+#region API
 
 @abstract func setup(action_machine : ActionMachine)
 
@@ -15,3 +25,5 @@ signal done
 
 func is_active() -> bool:
 	return _active
+
+#endregion

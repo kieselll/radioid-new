@@ -2,6 +2,8 @@
 class_name BuildAction
 extends BaseAction
 
+#region vars
+
 var _movement_component: MovementComponent
 var _state_machine: StateMachine
 var _move_state: MoveState
@@ -9,11 +11,23 @@ var _build_state: BuildState
 var _parent
 var owner
 
+#endregion
+
+#region constants
+
 const action_name = &"build_action"
+
+#endregion
+
+#region init
 
 func setup(action_machine : ActionMachine):
 	_parent = action_machine
 	owner = _parent.owner
+
+#endregion
+
+#region lifecycle
 
 func start(args: Dictionary = {&"partial": true}) -> void:
 	assert(
@@ -56,3 +70,5 @@ func stop() -> void:
 	elif _build_state.is_active():
 		_build_state.stop()
 	_active = false
+
+#endregion

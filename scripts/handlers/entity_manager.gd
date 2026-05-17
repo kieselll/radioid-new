@@ -1,9 +1,15 @@
 extends Node
 
+#region enums
+
 enum types
 {
 	pawn,
 }
+
+#endregion
+
+#region helper classes
 
 class entity:
 	var type : types
@@ -14,9 +20,17 @@ class entity:
 		self.type = type
 		self.node = node
 
+#endregion
+
+#region vars
+
 var entities : Dictionary
 
 var entity_pool
+
+#endregion
+
+#region API
 
 func summon_pawn(characteristics : PawnStats) -> String:
 	var pawn_scene : PackedScene = GlobalRef.get_scene(GlobalRef.scenes_enum.pawn)
@@ -29,3 +43,5 @@ func summon_pawn(characteristics : PawnStats) -> String:
 
 func delete_entity(entity_id : int):
 	pass
+
+#endregion
