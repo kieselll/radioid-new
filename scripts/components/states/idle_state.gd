@@ -12,9 +12,6 @@ var state_name = &"idle_state"
 #region lifecycle
 
 func start(args = {}) -> void:
-	GlobalLogger.write_to_logs(
-		self, "[WARN]: Idling. Should not be displayed unless intended by mods"
-	)
 	_active = true
 
 
