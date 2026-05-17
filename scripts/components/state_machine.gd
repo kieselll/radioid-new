@@ -6,7 +6,6 @@ extends BaseComponent
 
 enum state_types
 {
-	null_state,
 	idle_state,
 	move_state,
 	build_state,
