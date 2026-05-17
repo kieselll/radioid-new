@@ -3,17 +3,17 @@ class_name MoveState
 extends BaseState
 
 var _movement_component: MovementComponent
+var _parent : StateMachine
+var owner : CharacterBody2D
 
 const state_name = &"move_state"
 
-
-func _late_ready() -> void:
-	assert(owner.movement_component, "%s has MoveState but no MovementComponent!" % owner.name)
-	_movement_component = owner.movement_component
-
+func setup(state_machine : StateMachine):
+	_parent = state_machine
+	owner = _parent.owner
 
 func start(args: Dictionary = {}) -> void:
-	GlobalLogger.write_to_logs(self, "Started moving")
+	GlobalLogger.write_to_logs(owner, "Started moving")
 	_active = true
 	assert(
 		args[&"target"] is Vector4i,
@@ -38,6 +38,6 @@ func start(args: Dictionary = {}) -> void:
 
 
 func stop():
-	GlobalLogger.write_to_logs(self, "Stopped moving")
+	GlobalLogger.write_to_logs(owner, "Stopped moving")
 	_movement_component.stop_moving()
 	_active = false
