@@ -18,6 +18,11 @@ enum state_types
 var _states = []
 var _current_state: BaseState
 var _parent
+var _type_map : Dictionary = {
+	state_types.idle_state : IdleState,
+	state_types.move_state : MoveState,
+	state_types.build_state : BuildState,
+}
 
 #endregion
 
@@ -76,6 +81,13 @@ func get_current_state_name() -> StringName:
 
 func get_state(state_type: state_types):
 	return _states[state_type]
+
+func add_state(state_type : state_types) -> void:
+	var state = _type_map[state_type].new()
+	_states[state_type] = state
+
+func erase_state(state_type : state_types) -> void:
+	_states[state_type] = null
 
 #endregion
 

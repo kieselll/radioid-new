@@ -20,6 +20,12 @@ var actions = []
 var _parent: CharacterBody2D
 var owner: CharacterBody2D
 
+var _type_map : Dictionary = {
+	action_types.wander : WanderAction,
+	action_types.build : BuildAction,
+	action_types.haul : HaulAction,
+}
+
 #endregion
 
 #region signals
@@ -57,6 +63,17 @@ func start_action(action_type: action_types, args = {}) -> void:
 	current_action = actions[action_type]
 	current_action.start(args)
 
+func add_action(action_type: action_types) -> void:
+	var action : BaseAction = _type_map[action_type].new()
+	action.setup(self)
+	actions[action_type] = action
+
+func erase_action(action_type: action_types) -> void:
+	actions[action_type] = null
+
+#endregion
+
+#region helpers
 
 func _on_any_action_done():
 	action_done.emit()
