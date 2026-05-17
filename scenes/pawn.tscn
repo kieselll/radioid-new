@@ -3,11 +3,7 @@
 [ext_resource type="Script" uid="uid://6c7xkrnwj04x" path="res://scripts/base_entity.gd" id="1"]
 [ext_resource type="Script" uid="uid://d0jsieodb28b8" path="res://resources/resource_scripts/pawn_stat_resouce.gd" id="2_e5j7u"]
 [ext_resource type="Texture2D" uid="uid://b0roe34h6tov1" path="res://man_S.png" id="3_ycofb"]
-[ext_resource type="Script" uid="uid://coyult43c47ei" path="res://scripts/components/state_machine.gd" id="4"]
 [ext_resource type="Script" uid="uid://cjj5f7c8sr5ja" path="res://scripts/components/animation_player.gd" id="5"]
-[ext_resource type="Script" uid="uid://cvf7cyvmsnhhf" path="res://scripts/components/states/move_state.gd" id="7_ojbo2"]
-[ext_resource type="Script" uid="uid://cyml8tsc5rk7i" path="res://scripts/components/states/idle_state.gd" id="8_ycofb"]
-[ext_resource type="Script" uid="uid://nbiig222rder" path="res://scripts/components/states/build_state.gd" id="11_snu10"]
 [ext_resource type="Script" uid="uid://bhsj43xf8ynaq" path="res://scripts/components/decision_maker.gd" id="12_snu10"]
 [ext_resource type="Script" uid="uid://b7tqs8421b0q7" path="res://scripts/components/ability_manager.gd" id="13_77t1k"]
 
@@ -82,22 +78,6 @@ theme_override_colors/font_color = Color(0.686624, 0.686624, 0.686624, 1)
 theme_override_font_sizes/font_size = 50
 text = "Чюпеп"
 horizontal_alignment = 1
-
-[node name="StateMachine" type="Node" parent="." unique_id=1864938713]
-script = ExtResource("4")
-metadata/_custom_type_script = "uid://coyult43c47ei"
-
-[node name="IdleState" type="Node" parent="StateMachine" unique_id=149075669]
-script = ExtResource("8_ycofb")
-metadata/_custom_type_script = "uid://cyml8tsc5rk7i"
-
-[node name="MoveState" type="Node" parent="StateMachine" unique_id=882617367]
-script = ExtResource("7_ojbo2")
-metadata/_custom_type_script = "uid://cvf7cyvmsnhhf"
-
-[node name="BuildState" type="Node" parent="StateMachine" unique_id=611919989]
-script = ExtResource("11_snu10")
-metadata/_custom_type_script = "uid://nbiig222rder"
 
 [node name="DecisionMaker" type="Node" parent="." unique_id=790860303]
 script = ExtResource("12_snu10")
