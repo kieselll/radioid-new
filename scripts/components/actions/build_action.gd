@@ -59,7 +59,7 @@ func start(args: Dictionary = {&"partial": true}) -> void:
 		)
 	)
 	await _move_state.done
-	_state_machine.change_state(&"build_state", args)
+	_state_machine.change_state(StateMachine.state_types.build_state, args)
 	await _build_state.done
 	done.emit()
 
