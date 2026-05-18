@@ -1,6 +1,7 @@
 extends Resource
 class_name EntityTemplate
 
+@export var type : EntityManager.types
 @export var can_move : bool
 @export var can_build : bool
 # Populate later
