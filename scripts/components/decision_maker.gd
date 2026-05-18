@@ -1,5 +1,5 @@
 @icon("res://textures/editor_icons/brain.svg")
-extends Node
+extends BaseComponent
 class_name DecisionMaker
 ## Component of a pawn that should be placed as the [CharacterBody2D]'s child in the scene tree.
 ## The [CharacterBody2D] should be the root of the scene, else an error will occur.
@@ -31,15 +31,19 @@ var _current_action: QueuedAction
 var _action_machine: ActionMachine
 var _movement_component: MovementComponent
 var _ability_manager: AbilityManager
+var _parent: CharacterBody2D
 
+@warning_ignore("unused_parameter")
+func tick(delta : float) -> void:
+	pass
 
-func _ready() -> void:
-	await owner.ready
-	_action_machine = owner.action_machine
-	_ability_manager = owner.ability_manager
-	_movement_component = owner.movement_component
+func setup(parent : CharacterBody2D) -> void:
+	_parent = parent
+	_action_machine = _parent.action_machine
+	_ability_manager = _parent.ability_manager
+	_movement_component = _parent.movement_component
 	_current_action = _action_queue[0]
-	_astar = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
+	_astar = _parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 	_action_machine.start_action(_current_action.action_name, _current_action.args)
 
 
