@@ -4,14 +4,24 @@ class_name DecisionMaker
 ## Component of a pawn that should be placed as the [CharacterBody2D]'s child in the scene tree.
 ## The [CharacterBody2D] should be the root of the scene, else an error will occur.
 
+#region constants
+
 var _astar: GlobalPathfinder
 
 const TEMP_BASE_PRIORITY = 5  #CRITICAL
+
+#endregion
+
+#region public vars
 
 @export var _base_priority_weight: float = 1
 @export var _skill_weight: float = 1
 @export var _negative_skill_weight: float = 1
 @export var _distance_weight: float = 1
+
+#endregion
+
+#region helper classes
 
 
 class QueuedAction:
@@ -24,6 +34,10 @@ class QueuedAction:
 		priority = _priority
 		args = _args
 
+#endregion
+
+#region private vars
+
 
 var _action_queue: Array[QueuedAction] = [QueuedAction.new(ActionMachine.action_types.wander, 0)]
 # ^^^ Should always stay here as priority 0, is default value
@@ -33,9 +47,17 @@ var _movement_component: MovementComponent
 var _ability_manager: AbilityManager
 var _parent: CharacterBody2D
 
+#endregion
+
+#region lifecycle
+
 @warning_ignore("unused_parameter")
 func tick(delta : float) -> void:
 	pass
+
+#endregion
+
+#region init
 
 func setup(parent : CharacterBody2D) -> void:
 	_parent = parent
@@ -46,6 +68,9 @@ func setup(parent : CharacterBody2D) -> void:
 	_astar = _parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 	_action_machine.start_action(_current_action.action_type, _current_action.args)
 
+#endregion
+
+#region API
 
 
 ## Adds a new QueuedAction to the [member _action_queue], in the format of a class. Takes in an action_type (must be a valid action_type, a wanted priority for the action,
@@ -95,6 +120,10 @@ func calculate_action_priority_modifier(
 		/ (1 + pow(distance * _distance_weight / 1000, 2))
 	)
 
+#endregion
+
+#region helpers
+
 
 func _on_action_machine_action_done() -> void:
 	if _current_action.action_type != ActionMachine.action_types.wander:
@@ -118,3 +147,5 @@ func _queue_sort(a, b):
 	else:
 		b.priority = calculate_action_priority_modifier(b.action_type, TEMP_BASE_PRIORITY)
 	return a.priority > b.priority
+
+#endregion
