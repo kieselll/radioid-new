@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://d0jsieodb28b8" path="res://resources/resource_scripts/pawn_stat_resouce.gd" id="2_e5j7u"]
 [ext_resource type="Texture2D" uid="uid://b0roe34h6tov1" path="res://man_S.png" id="3_ycofb"]
 [ext_resource type="Script" uid="uid://cjj5f7c8sr5ja" path="res://scripts/components/animation_player.gd" id="5"]
-[ext_resource type="Script" uid="uid://bhsj43xf8ynaq" path="res://scripts/components/decision_maker.gd" id="12_snu10"]
 [ext_resource type="Script" uid="uid://b7tqs8421b0q7" path="res://scripts/components/ability_manager.gd" id="13_77t1k"]
 
 [sub_resource type="Resource" id="Resource_hjss0"]
@@ -78,14 +77,6 @@ theme_override_colors/font_color = Color(0.686624, 0.686624, 0.686624, 1)
 theme_override_font_sizes/font_size = 50
 text = "Чюпеп"
 horizontal_alignment = 1
-
-[node name="DecisionMaker" type="Node" parent="." unique_id=790860303]
-script = ExtResource("12_snu10")
-_base_priority_weight = 2.0
-_skill_weight = 0.6
-_negative_skill_weight = 2.0
-_distance_weight = 2.5
-metadata/_custom_type_script = "uid://bhsj43xf8ynaq"
 
 [node name="AbilityManager" type="Node" parent="." unique_id=1511709753]
 script = ExtResource("13_77t1k")
