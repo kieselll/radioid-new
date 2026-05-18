@@ -84,6 +84,7 @@ func get_state(state_type: state_types):
 
 func add_state(state_type : state_types) -> void:
 	var state = _type_map[state_type].new()
+	state.setup(self)
 	_states[state_type] = state
 
 func erase_state(state_type : state_types) -> void:
