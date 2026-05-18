@@ -67,6 +67,7 @@ func add_action(action_type: action_types) -> void:
 	var action : BaseAction = _type_map[action_type].new()
 	action.setup(self)
 	actions[action_type] = action
+	action.done.connect(_on_any_action_done)
 
 func erase_action(action_type: action_types) -> void:
 	actions[action_type] = null
