@@ -4,8 +4,6 @@ extends CharacterBody2D
 
 @export var characteristics: PawnStats
 @export var sprite: Sprite2D
-@onready var ability_manager = $AbilityManager
-@onready var decision_maker = $DecisionMaker
 
 #endregion
 
@@ -35,6 +33,8 @@ var action_machine: ActionMachine
 var building_component : BuildingComponent
 var movement_component : MovementComponent
 var state_machine : StateMachine
+var ability_manager : AbilityManager
+var decision_maker : DecisionMaker
 
 #endregion
 
