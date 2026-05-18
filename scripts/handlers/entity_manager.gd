@@ -1,4 +1,5 @@
 extends Node
+class_name EntityManager
 
 #region enums
 
@@ -6,6 +7,20 @@ enum types
 {
 	pawn,
 }
+
+#endregion
+
+#region lifecycle
+
+func _ready() -> void:
+	load_templates()
+
+func load_templates() -> void:
+	var diracc := DirAccess.open("res://resources/entity_templates")
+	for i in diracc.get_files():
+		var template : EntityTemplate = load("res://resources/entity_templates/" + i)
+		entity_templates[template.type] = template
+
 
 #endregion
 
@@ -24,6 +39,7 @@ class entity:
 
 #region vars
 
+var entity_templates : Dictionary[types, EntityTemplate]
 var entities : Dictionary
 
 var entity_pool
