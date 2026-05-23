@@ -48,7 +48,7 @@ var entity_pool
 
 #region API
 
-func summon_pawn(characteristics : PawnStats) -> String:
+func summon_entity() -> String:
 	var pawn_scene : PackedScene = GlobalRef.get_scene(GlobalRef.scenes_enum.pawn)
 	var pawn_node = pawn_scene.instantiate()
 	pawn_node.initialize(MovementComponent.new(), BuildingComponent.new())
