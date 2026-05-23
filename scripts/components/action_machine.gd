@@ -47,9 +47,6 @@ func tick(delta : float) -> void:
 func setup(parent : CharacterBody2D) -> void:
 	_parent = parent
 	owner = _parent
-	actions.resize(action_types.size())
-
-func _ready() -> void:
 	for action in actions:
 		action.done.connect(_on_any_action_done)
 
@@ -64,6 +61,7 @@ func start_action(action_type: action_types, args = {}) -> void:
 	current_action.start(args)
 
 func add_action(action_type: action_types) -> void:
+	if not actions.size() == action_types.size(): actions.resize(action_types.size())
 	var action : BaseAction = _type_map[action_type].new()
 	action.setup(self)
 	actions[action_type] = action
