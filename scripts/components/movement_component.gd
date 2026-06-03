@@ -135,6 +135,10 @@ func set_path(path: PackedVector4Array):
 		_current_step = 1
 	print("GOT PATH ", path)
 
+	if _path.is_empty():
+		push_warning("No path found for %s to target" % [_parent.name])
+		return
+
 	if _current_step >= _path.size():
 		_path.clear()
 		_parent.velocity = Vector2.ZERO
@@ -143,9 +147,6 @@ func set_path(path: PackedVector4Array):
 		return
 
 	ticking = true
-
-	if _path.is_empty():
-		push_warning("No path found for %s to target" % [_parent.name])
 
 #endregion
 
