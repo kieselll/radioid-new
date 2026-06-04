@@ -28,8 +28,14 @@ func xp_to_level(xp: int):
 }
 
 
+func action_type_to_ability_name(action_type: ActionMachine.action_types):
+	return ability_name_map[action_type] if ability_name_map.keys().has(action_type) else null
+
+
 func action_name_to_ability_name(action_name: StringName):
-	return ability_name_map[action_name] if ability_name_map.keys().has(action_name) else null
+	if ActionMachine.action_types.has(action_name):
+		return action_type_to_ability_name(ActionMachine.action_types[action_name])
+	return null
 
 
 func get_ability_level(ability_name: ability_names) -> int:

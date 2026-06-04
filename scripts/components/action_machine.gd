@@ -47,8 +47,7 @@ func tick(delta : float) -> void:
 func setup(parent : CharacterBody2D) -> void:
 	_parent = parent
 	owner = _parent
-	for action in actions:
-		action.done.connect(_on_any_action_done)
+	actions.resize(action_types.size())
 
 #endregion
 
@@ -57,6 +56,12 @@ func setup(parent : CharacterBody2D) -> void:
 func start_action(action_type: action_types, args = {}) -> void:
 	if current_action:
 		current_action.stop()
+	if action_type >= actions.size() or actions[action_type] == null:
+		push_warning(
+			"%s tried to start missing action %s"
+			% [owner.name, action_types.find_key(action_type)]
+		)
+		return
 	current_action = actions[action_type]
 	current_action.start(args)
 

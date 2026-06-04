@@ -48,7 +48,7 @@ func initialize(movement_component : MovementComponent, building_component : Bui
 
 #endregion
 
-#region Setters
+#region Setup
 
 # Possibly boilerplate, because pawn.characteristics = PawnStats.new(...) can be used instead
 # But fuck it, the code looks cleaner with it and it contributes to an actual API

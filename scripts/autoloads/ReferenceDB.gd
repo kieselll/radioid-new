@@ -42,7 +42,7 @@ var _handlers = {
 }
 var chunks = {}
 
-@onready var pawns = ["/root/GameRoot/test_pawn"]
+var pawns: Array[String] = []
 
 
 func get_handler(handler_name: handlers_enum) -> String:

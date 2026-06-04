@@ -24,6 +24,7 @@ const action_name = &"build_action"
 func setup(action_machine : ActionMachine):
 	_parent = action_machine
 	owner = _parent.owner
+	_state_machine = owner.state_machine
 
 #endregion
 
@@ -49,10 +50,8 @@ func start(args: Dictionary = {&"partial": true}) -> void:
 		args.merged(
 			{
 				&"target":
-				Vector2i(
-					GridUtils.find_nearest_tile_coord(
-						_movement_component.get_local_position(), _neighbor_tiles
-					)
+				GridUtils.find_nearest_tile_coord(
+					_movement_component.get_local_position(), _neighbor_tiles
 				)
 			},
 			true

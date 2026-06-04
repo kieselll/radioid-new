@@ -47,12 +47,12 @@ func start_job_auction(job: Job):
 		partake_in_auction(
 			pawn,
 			_dec_maker.calculate_action_priority_modifier(
-				_queued_action.action_name, _queued_action.priority, job.location
+				_queued_action.action_type, _queued_action.priority, job.location
 			)
 		)
 	GlobalLogger.write_to_logs(self, "Auction won by %s" % auction[auction.keys().max()].name)
 	auction[auction.keys().max()].decision_maker.add_action_to_queue(
-		_queued_action.action_name, auction.keys().max(), _queued_action.args
+		_queued_action.action_type, auction.keys().max(), _queued_action.args
 	)
 	auction.clear()
 	job.reserved = true
@@ -61,7 +61,9 @@ func start_job_auction(job: Job):
 func _job_class_to_queued_action(job: Job) -> DecisionMaker.QueuedAction:
 	if job is BuildingJob:
 		return DecisionMaker.QueuedAction.new(
-			&"build_action", job.priority, {&"target": job.location, &"id": job.building_id}
+			ActionMachine.action_types.build,
+			job.priority,
+			{&"target": job.location, &"id": job.building_id}
 		)
 	return null
 

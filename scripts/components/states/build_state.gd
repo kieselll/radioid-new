@@ -12,12 +12,14 @@ const state_name = &"build_state"
 func setup(state_machine : StateMachine):
 	_parent = state_machine
 	owner = _parent.owner
+	_movement_component = owner.movement_component
+	_building_component = owner.building_component
 
 func start(args: Dictionary = {}) -> void:
 	assert(
-		args[&"target"] is Vector2i,
+		args[&"target"] is Vector4i,
 		(
-			'BuildState of %s recieved start(), but has no argument "target" of type Vector2i.'
+			'BuildState of %s recieved start(), but has no argument "target" of type Vector4i.'
 			% owner.name
 		)
 	)
@@ -26,9 +28,11 @@ func start(args: Dictionary = {}) -> void:
 		'BuildState of %s recieved start(), but has no argument "id" of type int.' % owner.name
 	)
 	GlobalLogger.write_to_logs(owner, "Started building")
-	var _local_pos: Vector4i = _movement_component.get_local_position()
-	var _diff: Vector2i = abs(_movement_component.get_local_position() - args[&"target"])
-	assert(max(_diff.x, _diff.y) == 1, "%s tried to build a non-adjacent tile" % owner.name)
+	var _neighbor_tiles := GridUtils.get_neighbor_tiles(args[&"target"], true)
+	assert(
+		_neighbor_tiles.has(_movement_component.get_local_position()),
+		"%s tried to build a non-adjacent tile" % owner.name
+	)
 	_building_component.build(args[&"target"], args[&"id"])
 	await _building_component.finished_building
 	stop()

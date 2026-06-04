@@ -52,10 +52,7 @@ func tick(delta : float) -> void:
 func setup(parent : CharacterBody2D) -> void:
 	_parent = parent
 	owner = _parent
-
-	for state in _states:
-		state.done.connect(_on_any_state_done)
-	_current_state = _states[state_types.idle_state]
+	_states.resize(state_types.size())
 
 #endregion
 
@@ -63,8 +60,11 @@ func setup(parent : CharacterBody2D) -> void:
 
 func change_state(state_type : state_types, args: Dictionary = {}) -> void:
 	assert(
-		state_type <= _states.size() and _states[state_type] != null,
-		"StateMachine of %s tried to switch to %s, but it isn't present." % [owner.name, state_types.find_key(state_type)]
+		state_type < _states.size() and _states[state_type] != null,
+		(
+			"StateMachine of %s tried to switch to %s, but it isn't present."
+			% [owner.name, state_types.find_key(state_type)]
+		)
 	)
 
 	if not _current_state:
@@ -80,12 +80,17 @@ func get_current_state_name() -> StringName:
 	return _current_state.state_name if _current_state else &"no_state"
 
 func get_state(state_type: state_types):
+	if state_type >= _states.size():
+		return null
 	return _states[state_type]
 
 func add_state(state_type : state_types) -> void:
+	if _states.is_empty():
+		_states.resize(state_types.size())
 	var state = _type_map[state_type].new()
 	state.setup(self)
 	_states[state_type] = state
+	state.done.connect(_on_any_state_done)
 
 func erase_state(state_type : state_types) -> void:
 	_states[state_type] = null

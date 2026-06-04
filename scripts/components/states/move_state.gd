@@ -11,20 +11,27 @@ const state_name = &"move_state"
 func setup(state_machine : StateMachine):
 	_parent = state_machine
 	owner = _parent.owner
+	_movement_component = owner.movement_component
 
 func start(args: Dictionary = {}) -> void:
 	GlobalLogger.write_to_logs(owner, "Started moving")
 	_active = true
 	assert(
 		args[&"target"] is Vector4i,
-		'MoveState of %s recieved start(), but has no argument "target" of type Vector2i.'
+		(
+			'MoveState of %s recieved start(), but has no argument "target" of type Vector4i.'
+			% owner.name
+		)
 	)
 
 	var move_target = args[&"target"]
 	var _partial_path = args.get(&"partial", false)
 	if typeof(_partial_path) != TYPE_BOOL:
 		push_warning(
-			'MoveState of %s recieved start(), but the argument "partial" is not a bool, the default value (false) bill be used instead.'
+			(
+				'MoveState of %s recieved start(), but the argument "partial" is not a bool, the default value (false) bill be used instead.'
+				% owner.name
+			)
 		)
 		_partial_path = false
 	if (

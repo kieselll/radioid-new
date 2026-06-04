@@ -40,7 +40,6 @@
 [ext_resource type="Texture2D" uid="uid://dfjy36vg8cx26" path="res://textures/ui/delete_save_icon.png" id="36_3x338"]
 [ext_resource type="Texture2D" uid="uid://dhq6ejmpibuub" path="res://textures/ui/resume_icon.png" id="37_1yg85"]
 [ext_resource type="Shader" uid="uid://womxiqpnc3p0" path="res://shaders/inverted_blur.gdshader" id="38_s0g06"]
-[ext_resource type="Texture2D" uid="uid://supgli3ajes5" path="res://man.png" id="41_8ool0"]
 
 [sub_resource type="Environment" id="Environment_64cr1"]
 background_mode = 3
@@ -749,7 +748,6 @@ format = 2
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=596329009]
 z_index = 200
 position = Vector2(133, 106)
-texture = ExtResource("41_8ool0")
 
 [connection signal="building_selected" from="handlers/ui_manager" to="handlers/building_agent" method="_on_ui_manager_building_selected"]
 [connection signal="chunk_deleted" from="handlers/chunks/ChunkManager" to="handlers/GlobalPathfinder" method="_on_chunk_manager_chunk_deleted"]

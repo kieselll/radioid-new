@@ -1,13 +1,8 @@
 [gd_scene format=3 uid="uid://b46j0js042i4q"]
 
 [ext_resource type="Script" uid="uid://6c7xkrnwj04x" path="res://scripts/base_entity.gd" id="1"]
-[ext_resource type="Script" uid="uid://d0jsieodb28b8" path="res://resources/resource_scripts/pawn_stat_resouce.gd" id="2_e5j7u"]
 [ext_resource type="Texture2D" uid="uid://b0roe34h6tov1" path="res://man_S.png" id="3_ycofb"]
 [ext_resource type="Script" uid="uid://cjj5f7c8sr5ja" path="res://scripts/components/animation_player.gd" id="5"]
-
-[sub_resource type="Resource" id="Resource_hjss0"]
-script = ExtResource("2_e5j7u")
-metadata/_custom_type_script = "uid://d0jsieodb28b8"
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_taskf"]
 radius = 122.0
@@ -31,7 +26,6 @@ input_pickable = true
 motion_mode = 1
 slide_on_ceiling = false
 script = ExtResource("1")
-characteristics = SubResource("Resource_hjss0")
 sprite = NodePath("Sprite2D")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1131298891]
