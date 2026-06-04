@@ -86,9 +86,9 @@ func _input(event: InputEvent) -> void:
 func _draw() -> void:
 	if rpath and not rpath.is_empty():
 		for i in rpath.size() - 1:
-			var port = get_portal(rpath[i])
-			var port_2 = get_portal(rpath[i + 1])
-			if port == null or port_2 == null:
+			var port: Vector4i = rpath[i]
+			var port_2: Vector4i = rpath[i + 1]
+			if not (port is Vector4i and port_2 is Vector4i):
 				continue
 			draw_dashed_line(
 				GridUtils.chunk_coord_to_world_coord(port),
@@ -190,6 +190,14 @@ func _calculate_astar_path_cost(astar: AStarGrid2D, path) -> float:
 
 func _calculate_cross_chunk_cost(from_node: Vector4i, to_node: Vector4i) -> float:
 	return calculate_global_tile_coords(from_node).distance_to(calculate_global_tile_coords(to_node))
+
+
+func _clear_temporary_portals() -> void:
+	# Real rough nodes always live on a chunk edge. Any interior graph node is a leftover
+	# virtual start/end node from a previous request and must not remain in the shared graph.
+	for portal in portals.duplicate():
+		if portal is Vector4i and calculate_node_side(portal) == Vector2i.ZERO:
+			erase_portal(portal)
 
 
 ## Calculates the best path between all portals in a chunk at [param chunk_coords].
@@ -374,13 +382,12 @@ func handle_chunk_edge(coords: Vector2i, direction: Vector2i) -> void:
 
 #region path stuff
 func get_rough_path(start: Vector4i, end: Vector4i):
+	_clear_temporary_portals()
 	erase_portal(start)
 	erase_portal(end)
 
 	# Creating 2 virtual portals for the start and end
-	var START_IDX = portals.size()
 	portals.append(start)
-	var END_IDX = portals.size()
 	portals.append(end)
 
 	portals_by_coords[Vector2i(start.x, start.y)].append(start)
@@ -415,8 +422,13 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 			_connect_portals(end, port, calculated_weight)
 			_connect_portals(port, end, calculated_weight)
 
-	rpath = astarportal.get_path(start, end)
-	return rpath
+	var computed_rpath := astarportal.get_path(start, end)
+	# Virtual endpoints are only for this search. Leaving them in the graph pollutes
+	# future requests with stale arbitrary nodes.
+	erase_portal(start)
+	erase_portal(end)
+	rpath = computed_rpath
+	return computed_rpath
 
 
 ## Function for agents to retrieve a path with source [param from] and destination [param to][br]

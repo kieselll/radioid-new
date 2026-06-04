@@ -29,8 +29,9 @@ class Portal:
 		var dx = abs(path_goal.x - coords.x)
 		var dy = abs(path_goal.y - coords.y)
 
-		# Octile distance in global tile space, so rough-node A* stays chunk-aware.
-		self.h_value = max(dx, dy) + 0.414 * min(dx, dy)
+		# Rough-node movement treats each tile step as cost 1, including diagonals.
+		# It's precise enough for rough path calculations
+		self.h_value = max(dx, dy)
 		self.f_value = self.g_value + self.h_value
 		self.parent = parent
 
