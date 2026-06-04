@@ -17,9 +17,9 @@ var current_health: int = 0
 
 # Move this into the new helper script and don't hardcode it
 var front_texture = load("res://man_S.png")
-var left_texture = load("res://man_W.png")
+var left_texture = load("res://man_E.png")
 var back_texture = load("res://man_N.png")
-var right_texture = load("res://man_E.png")
+var right_texture = load("res://man_W.png")
 var right_front_texture = load("res://man_SE.png")
 var left_front_texture = load("res://man_SW.png")
 var right_back_texture = load("res://man_NE.png")

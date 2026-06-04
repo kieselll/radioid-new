@@ -5,8 +5,8 @@
 [ext_resource type="Script" uid="uid://cjj5f7c8sr5ja" path="res://scripts/components/animation_player.gd" id="5"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_taskf"]
-radius = 122.0
-height = 244.0
+radius = 8.0
+height = 16.0
 
 [sub_resource type="Gradient" id="Gradient_trpkc"]
 interpolation_mode = 1
@@ -20,6 +20,8 @@ width = 1
 gradient = SubResource("Gradient_trpkc")
 width = 1
 
+[sub_resource type="LabelSettings" id="LabelSettings_eqwak"]
+
 [node name="test_pawn" type="CharacterBody2D" unique_id=1045036099 node_paths=PackedStringArray("sprite")]
 scale = Vector2(0.5, 0.5)
 input_pickable = true
@@ -29,14 +31,13 @@ script = ExtResource("1")
 sprite = NodePath("Sprite2D")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1131298891]
-position = Vector2(0, 70)
+position = Vector2(0, 4)
 shape = SubResource("CapsuleShape2D_taskf")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2027119988]
 z_index = 2
 texture_filter = 1
-position = Vector2(0, 80)
-scale = Vector2(16, 16)
+scale = Vector2(2, 2)
 texture = ExtResource("3_ycofb")
 
 [node name="RayCast2D" type="RayCast2D" parent="." unique_id=1029058316]
@@ -61,12 +62,13 @@ texture = SubResource("GradientTexture1D_bgilg")
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -136.5
-offset_top = -196.0
-offset_right = 136.5
-offset_bottom = -145.0
+offset_left = -26.0
+offset_top = -50.0
+offset_right = 25.0
+offset_bottom = -33.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.686624, 0.686624, 0.686624, 1)
 theme_override_font_sizes/font_size = 50
 text = "Чюпеп"
+label_settings = SubResource("LabelSettings_eqwak")
 horizontal_alignment = 1
