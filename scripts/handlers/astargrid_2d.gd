@@ -6,6 +6,7 @@ extends Node2D
 ## Currently being refactored from portals to tiles
 
 const PORTALS_PER_EDGE = 6
+const CHUNK_TILE_SIZE = 16
 
 #region vars
 ## The dictionary that holds all [AstarGrid2D] instances for all the chunks.
@@ -169,8 +170,26 @@ func _connect_portals(from_id, to_id, weight: float) -> void:
 	portal_nodes[from_id].append([to_id, weight])
 
 
-func calculate_portal_coords(portal: Vector4i) -> Vector2i:
-	return Vector2i(portal.z, portal.w)
+func calculate_local_tile_coords(node: Vector4i) -> Vector2i:
+	return Vector2i(node.z, node.w)
+
+
+func calculate_global_tile_coords(node: Vector4i) -> Vector2i:
+	return Vector2i(node.x * CHUNK_TILE_SIZE + node.z, node.y * CHUNK_TILE_SIZE + node.w)
+
+
+func _calculate_astar_path_cost(astar: AStarGrid2D, path) -> float:
+	if path.size() <= 1:
+		return 0.0
+
+	var total_cost := 0.0
+	for index in range(1, path.size()):
+		total_cost += astar.get_point_weight_scale(path[index])
+	return total_cost
+
+
+func _calculate_cross_chunk_cost(from_node: Vector4i, to_node: Vector4i) -> float:
+	return calculate_global_tile_coords(from_node).distance_to(calculate_global_tile_coords(to_node))
 
 
 ## Calculates the best path between all portals in a chunk at [param chunk_coords].
@@ -196,21 +215,19 @@ func calculate_portal_connections(chunk_coords: Vector2i) -> Dictionary:
 
 	for source_id in chunk_portals:
 		var source_portal: Vector4i = get_portal(source_id)
-		var source_coords := calculate_portal_coords(source_portal)
+		var source_coords := calculate_local_tile_coords(source_portal)
 		for target_id in chunk_portals:
 			result[source_id][target_id] = []
 			if source_id == target_id:
 				continue
 
 			var target_portal: Vector4i = get_portal(target_id)
-			var target_coords := calculate_portal_coords(target_portal)
+			var target_coords := calculate_local_tile_coords(target_portal)
 			var path := astargrid.get_id_path(source_coords, target_coords)
 			if path.is_empty():
 				continue
 
-			var calculated_weight := 0.0
-			for point in path:
-				calculated_weight += astargrid.get_point_weight_scale(point)
+			var calculated_weight := _calculate_astar_path_cost(astargrid, path)
 			result[source_id][target_id].append(
 				{"root": source_coords, "coords": target_coords, "weight": calculated_weight}
 			)
@@ -240,21 +257,19 @@ func handle_portals_by_coords(coords) -> void:
 		)
 		if portal_match_index != -1:
 			var portal_match: Vector4i = portals_by_coords[coords + side_a][portal_match_index]
-			_connect_portals(portal_a, portal_match, 1.0)
-			_connect_portals(portal_match, portal_a, 1.0)
+			var crossing_cost := _calculate_cross_chunk_cost(portal_a, portal_match)
+			_connect_portals(portal_a, portal_match, crossing_cost)
+			_connect_portals(portal_match, portal_a, crossing_cost)
 		# Check all other portals in the same chunk. The a + 1 part guarantees no repetitions and gives some optimization in extreme cases
 		for b in range(a + 1, portals_by_coords[coords].size()):
 			var i: Vector4i = portals_by_coords[coords][a]
 			var j: Vector4i = portals_by_coords[coords][b]
 
 			# Trying to get a path between the 2 studied portals
-			var path = astar.get_id_path(calculate_portal_coords(i), calculate_portal_coords(j))
+			var path = astar.get_id_path(calculate_local_tile_coords(i), calculate_local_tile_coords(j))
 
 			if not path.is_empty():
-				var calculated_weight: float = 0
-				# Calculating the weight for going between the 2 portals
-				for point in path:
-					calculated_weight += astar.get_point_weight_scale(point)
+				var calculated_weight := _calculate_astar_path_cost(astar, path)
 				# Adding a new portal connecton
 				_connect_portals(i, j, calculated_weight)
 				_connect_portals(j, i, calculated_weight)
@@ -380,12 +395,10 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 			continue
 		var astar = astargrids[Vector2i(start.x, start.y)]
 		var path_start = Vector2i(start.z, start.w)
-		var path_end = calculate_portal_coords(get_portal(port))
+		var path_end = calculate_local_tile_coords(get_portal(port))
 		var path = astargrids[Vector2i(start.x, start.y)].get_id_path(path_start, path_end)
 		if not path.is_empty():
-			var calculated_weight = 0
-			for i in path:
-				calculated_weight += astar.get_point_weight_scale(i)
+			var calculated_weight := _calculate_astar_path_cost(astar, path)
 			_connect_portals(start, port, calculated_weight)
 			_connect_portals(port, start, calculated_weight)
 
@@ -395,12 +408,10 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 			continue
 		var astar = astargrids[Vector2i(end.x, end.y)]
 		var path_start = Vector2i(end.z, end.w)
-		var path_end = calculate_portal_coords(get_portal(port))
+		var path_end = calculate_local_tile_coords(get_portal(port))
 		var path = astargrids[Vector2i(end.x, end.y)].get_id_path(path_start, path_end)
 		if not path.is_empty():
-			var calculated_weight = 0
-			for i in path:
-				calculated_weight += astar.get_point_weight_scale(i)
+			var calculated_weight := _calculate_astar_path_cost(astar, path)
 			_connect_portals(end, port, calculated_weight)
 			_connect_portals(port, end, calculated_weight)
 

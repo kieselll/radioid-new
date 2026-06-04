@@ -29,7 +29,7 @@ class Portal:
 		var dx = abs(path_goal.x - coords.x)
 		var dy = abs(path_goal.y - coords.y)
 
-		# Octile distance
+		# Octile distance in global tile space, so rough-node A* stays chunk-aware.
 		self.h_value = max(dx, dy) + 0.414 * min(dx, dy)
 		self.f_value = self.g_value + self.h_value
 		self.parent = parent
@@ -53,10 +53,10 @@ func get_path(start, end) -> Array:
 	var start_portal = pathfinder.get_portal(start)
 	var end_portal = pathfinder.get_portal(end)
 
-	path_goal = pathfinder.calculate_portal_coords(end_portal)
+	path_goal = pathfinder.calculate_global_tile_coords(end_portal)
 
 	var start_node := Portal.new(
-		start, pathfinder.calculate_portal_coords(start_portal), 0.0, path_goal, ""
+		start, pathfinder.calculate_global_tile_coords(start_portal), 0.0, path_goal, ""
 	)
 
 	_push_open(start_node)
@@ -104,7 +104,11 @@ func _discover_nodes(parent: Portal) -> void:
 		if not open_g_scores.has(neighbor_id) or new_g < open_g_scores[neighbor_id]:
 			var portal = pathfinder.get_portal(neighbor_id)
 			var node := Portal.new(
-				neighbor_id, pathfinder.calculate_portal_coords(portal), new_g, path_goal, parent.id
+				neighbor_id,
+				pathfinder.calculate_global_tile_coords(portal),
+				new_g,
+				path_goal,
+				parent.id
 			)
 
 			open_g_scores[neighbor_id] = new_g
