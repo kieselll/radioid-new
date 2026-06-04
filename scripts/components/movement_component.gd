@@ -17,8 +17,8 @@ var _astar: Node
 #region public vars
 
 @export var speed: float = 75
-@export var movement_smoothness: float = 15
-@export var approach_threshold: float = 4
+@export var movement_smoothness: float = 10
+@export var approach_threshold: float = 2
 
 #endregion
 
@@ -58,9 +58,6 @@ func tick(delta: float) -> void:
 	_parent.velocity = lerp(_parent.velocity, _direction * speed, 100 * delta / movement_smoothness)
 
 	if _parent.position.distance_to(_target_position) <= approach_threshold:
-		# Snap to the waypoint before advancing so the logical tile position matches the path node we just reached.
-		_parent.position = _target_position
-		_local_position = _path[_current_step]
 		_current_step += 1
 
 		if _current_step >= _path.size():

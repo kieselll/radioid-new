@@ -69,7 +69,7 @@ func setup(parent : CharacterBody2D) -> void:
 		_negative_skill_weight = _parent.behavior_data.negative_skill_weight
 		_distance_weight = _parent.behavior_data.distance_weight
 
-	var default_action := (
+	var default_action = (
 		_parent.behavior_data.default_action
 		if _parent.behavior_data
 		else ActionMachine.action_types.wander

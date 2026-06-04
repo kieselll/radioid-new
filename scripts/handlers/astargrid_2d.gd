@@ -372,7 +372,7 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 	portals_by_coords[Vector2i(end.x, end.y)].append(end)
 
 	portal_nodes[start] = []
-	portal_nodes[start] = []
+	portal_nodes[end] = []
 
 # Set up neighbors of start portal
 	for port in portals_by_coords[Vector2i(start.x, start.y)]:

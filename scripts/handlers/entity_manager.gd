@@ -14,6 +14,7 @@ enum types
 
 func _ready() -> void:
 	load_templates()
+	spawn_entity(types.pawn)
 
 func load_templates() -> void:
 	entity_templates.clear()
@@ -61,7 +62,7 @@ var entity_pool
 #region API
 
 func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO) -> BaseEntity:
-	var template := entity_templates.get(entity_type)
+	var template = entity_templates.get(entity_type)
 	assert(template != null, "EntityManager has no template for type %s" % types.find_key(entity_type))
 	assert(template.scene != null, "EntityTemplate %s is missing a scene." % template.id)
 
