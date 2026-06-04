@@ -82,3 +82,19 @@ func get_scene(scene: scenes_enum):
 
 func add_chunk(coords: Vector2i, chunk: Node):
 	chunks[coords] = chunk
+
+
+func register_pawn(pawn: Node) -> void:
+	var path := String(pawn.get_path())
+	if not pawns.has(path):
+		pawns.append(path)
+
+
+func unregister_pawn(pawn: Node) -> void:
+	var path := String(pawn.get_path())
+	pawns.erase(path)
+
+
+func get_pawns() -> Array[String]:
+	pawns = pawns.filter(func(path: String): return get_node_or_null(path) != null)
+	return pawns.duplicate()

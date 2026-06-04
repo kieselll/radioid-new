@@ -1,23 +1,17 @@
 extends Resource
 class_name EntityTemplate
 
-@export var type : EntityManager.types
-@export var can_move : bool
-@export var can_build : bool
-# Populate later
+@export var id: StringName = &"entity"
+@export var type: EntityManager.types = EntityManager.types.pawn
+@export var scene: PackedScene
 
-func encode() -> Array[Array]:
-	var actions : Array[bool]
-	var states : Array[bool]
-	var components : Array
-	if can_move:
-		actions[ActionMachine.action_types.wander] = true
-		states[StateMachine.state_types.move_state] = true
-		components.append(MovementComponent)
-	if can_build:
-		actions[ActionMachine.action_types.build] = true
-		states[StateMachine.state_types.build_state] = true
-		components.append(BuildingComponent)
+@export var entity_data: EntityData
+@export var personality_profile: PersonalityProfile
+@export var behavior_data: BehaviorData
 
+@export var uses_movement_component: bool = true
+@export var uses_building_component: bool = false
+@export var uses_ability_manager: bool = false
 
-	return [actions,states,components]
+@export var actions: Array[ActionMachine.action_types] = []
+@export var states: Array[StateMachine.state_types] = []

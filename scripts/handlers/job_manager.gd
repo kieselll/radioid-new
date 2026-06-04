@@ -41,7 +41,7 @@ func _on_building_agent_objects_built(object_id: int, coord_array: Array, queued
 func start_job_auction(job: Job):
 	var _queued_action: DecisionMaker.QueuedAction = _job_class_to_queued_action(job)
 	var _location = job.location
-	for path in GlobalRef.pawns:
+	for path in GlobalRef.get_pawns():
 		var pawn = get_node(path)
 		var _dec_maker: DecisionMaker = pawn.decision_maker
 		partake_in_auction(

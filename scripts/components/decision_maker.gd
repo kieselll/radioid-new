@@ -1,8 +1,6 @@
 @icon("res://textures/editor_icons/brain.svg")
 extends BaseComponent
 class_name DecisionMaker
-## Component of a pawn that should be placed as the [CharacterBody2D]'s child in the scene tree.
-## The [CharacterBody2D] should be the root of the scene, else an error will occur.
 
 #region constants
 
@@ -14,10 +12,10 @@ const TEMP_BASE_PRIORITY = 5  #CRITICAL
 
 #region public vars
 
-@export var _base_priority_weight: float = 1
-@export var _skill_weight: float = 1
-@export var _negative_skill_weight: float = 1
-@export var _distance_weight: float = 1
+var _base_priority_weight: float = 1
+var _skill_weight: float = 1
+var _negative_skill_weight: float = 1
+var _distance_weight: float = 1
 
 #endregion
 
@@ -64,8 +62,22 @@ func setup(parent : CharacterBody2D) -> void:
 	_action_machine = _parent.action_machine
 	_ability_manager = _parent.ability_manager
 	_movement_component = _parent.movement_component
-	_current_action = _action_queue[0]
 	_astar = _parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
+	if _parent.behavior_data:
+		_base_priority_weight = _parent.behavior_data.base_priority_weight
+		_skill_weight = _parent.behavior_data.skill_weight
+		_negative_skill_weight = _parent.behavior_data.negative_skill_weight
+		_distance_weight = _parent.behavior_data.distance_weight
+
+	var default_action := (
+		_parent.behavior_data.default_action
+		if _parent.behavior_data
+		else ActionMachine.action_types.wander
+	)
+	_action_queue = [QueuedAction.new(default_action, 0)]
+	_current_action = _action_queue[0]
+	if not _action_machine.action_done.is_connected(_on_action_machine_action_done):
+		_action_machine.action_done.connect(_on_action_machine_action_done)
 	_action_machine.start_action(_current_action.action_type, _current_action.args)
 
 #endregion
@@ -94,7 +106,7 @@ func add_action_to_queue(action_type: ActionMachine.action_types, priority: int,
 ## [color=red][b] NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color][br][br]
 ## The function takes in the base priority, location and the emotion modifier [color=red][b] LAST ONE NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color]
 func calculate_action_priority_modifier(
-	action_type: StringName,
+	action_type: ActionMachine.action_types,
 	base_priority: int,
 	location: Vector4i = Vector4i.MAX,
 	emotion_modifier: float = 1
@@ -106,8 +118,8 @@ func calculate_action_priority_modifier(
 		else 0
 	)
 	var skill_level: int
-	var priority = 0 if action_type == &"wander_action" else base_priority
-	if _ability_manager.action_type_to_ability_name(action_type):
+	var priority = 0 if action_type == ActionMachine.action_types.wander else base_priority
+	if _ability_manager and _ability_manager.action_type_to_ability_name(action_type) != null:
 		skill_level = _ability_manager.get_ability_level(
 			_ability_manager.action_type_to_ability_name(action_type)
 		)

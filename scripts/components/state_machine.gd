@@ -95,6 +95,18 @@ func add_state(state_type : state_types) -> void:
 func erase_state(state_type : state_types) -> void:
 	_states[state_type] = null
 
+
+func set_initial_state(state_type: state_types) -> void:
+	assert(
+		state_type < _states.size() and _states[state_type] != null,
+		(
+			"StateMachine of %s cannot set initial state %s because it isn't present."
+			% [owner.name, state_types.find_key(state_type)]
+		)
+	)
+	_current_state = _states[state_type]
+	_current_state.start()
+
 #endregion
 
 #region helpers

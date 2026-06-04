@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="EntityTemplate" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/entity_template.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/pawn.tscn" id="2"]
+[ext_resource type="Script" path="res://resources/resource_scripts/EntityData.gd" id="3"]
+[ext_resource type="Script" path="res://resources/resource_scripts/PersonalityProfile.gd" id="4"]
+[ext_resource type="Script" path="res://resources/resource_scripts/BehaviorData.gd" id="5"]
+
+[sub_resource type="Resource" id="1"]
+script = ExtResource("3")
+display_name = &"Pawn"
+faction = 1
+max_health = 100
+base_move_speed = 75.0
+footprint = Vector2i(1, 1)
+
+[sub_resource type="Resource" id="2"]
+script = ExtResource("4")
+archetype = &"colonist"
+sociability = 0.25
+curiosity = 0.25
+activity = 0.25
+traits = []
+
+[sub_resource type="Resource" id="3"]
+script = ExtResource("5")
+default_action = 0
+auto_wander = true
+takes_jobs = false
+wander_radius = 5
+wander_delay_min = 0.3
+wander_delay_max = 1.5
+base_priority_weight = 1.0
+skill_weight = 1.0
+negative_skill_weight = 1.0
+distance_weight = 1.0
+
+[resource]
+script = ExtResource("1")
+id = &"pawn"
+type = 0
+scene = ExtResource("2")
+entity_data = SubResource("1")
+personality_profile = SubResource("2")
+behavior_data = SubResource("3")
+uses_movement_component = true
+uses_building_component = false
+uses_ability_manager = false
+actions = [0]
+states = [1]
