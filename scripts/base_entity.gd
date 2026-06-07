@@ -8,6 +8,7 @@ class_name BaseEntity
 @export var behavior_data: BehaviorData
 @export var sprite: Sprite2D
 
+var template_id: StringName = &""
 var entity_id: int = -1
 var current_health: int = 0
 
@@ -49,6 +50,8 @@ var _components: Array[BaseComponent] = []
 
 func initialize(template: EntityTemplate, components: Dictionary = {}) -> void:
 	_apply_template_data(template)
+	template_id = template.id
+
 	movement_component = components.get("movement_component")
 	building_component = components.get("building_component")
 	state_machine = components.get("state_machine")
@@ -159,6 +162,21 @@ func rotate_sprite(direction: Vector2) -> void:
 		5: sprite.texture = left_back_texture
 		6: sprite.texture = back_texture
 		7: sprite.texture = right_back_texture
+
+#endregion
+
+#region Saving
+
+func serialize() -> Dictionary:
+	var result := {
+		"entity_id" : entity_id,
+		"template_id" : template_id,
+		"position" : GridUtils.world_coord_to_chunk_coord(position),
+		"current_health" : current_health,
+		"current_action" : action_machine.current_action,
+		"current_state" : state_machine._current_state
+	}
+	return result
 
 #endregion
 
