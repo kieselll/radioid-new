@@ -8,6 +8,7 @@ var _movement_component: MovementComponent
 var _state_machine: StateMachine
 var _move_state: MoveState
 var _build_state: BuildState
+var current_step : steps
 var _parent
 var owner
 
@@ -16,6 +17,10 @@ var owner
 #region constants
 
 const action_name = &"build_action"
+
+enum steps {
+	move, build
+}
 
 #endregion
 
@@ -30,7 +35,15 @@ func setup(action_machine : ActionMachine):
 
 #region lifecycle
 
-func start(args: Dictionary = {&"partial": true}) -> void:
+func start(args: Dictionary = {&"partial": true}, step : steps = steps.move) -> void:
+	initialize(step)
+	if current_step == steps.move:
+		await move_step(args)
+	if current_step == steps.build:
+		await build_step(args)
+	done.emit()
+
+func initialize(step : steps = steps.move) -> void:
 	assert(
 		_state_machine.get_state(StateMachine.state_types.move_state),
 		"%s doesn't have the mandatory MoveState" % owner.name
@@ -40,10 +53,16 @@ func start(args: Dictionary = {&"partial": true}) -> void:
 		"%s doesn't have the mandatory BuildState" % owner.name
 	)
 	GlobalLogger.write_to_logs(owner, "Started building...")
+
+	current_step = step
 	_active = true
 	_movement_component = owner.movement_component
 	_move_state = _state_machine.get_state(StateMachine.state_types.move_state)
 	_build_state = _state_machine.get_state(StateMachine.state_types.build_state)
+
+#region Step functions
+
+func move_step(args: Dictionary) -> void:
 	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args[&"target"], true)
 	_state_machine.change_state(
 		StateMachine.state_types.move_state,
@@ -58,10 +77,13 @@ func start(args: Dictionary = {&"partial": true}) -> void:
 		)
 	)
 	await _move_state.done
+	current_step = steps.build
+
+func build_step(args: Dictionary) -> void:
 	_state_machine.change_state(StateMachine.state_types.build_state, args)
 	await _build_state.done
-	done.emit()
 
+#endregion
 
 func stop() -> void:
 	if _move_state.is_active():
