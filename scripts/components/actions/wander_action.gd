@@ -5,7 +5,8 @@ extends BaseAction
 
 #region constants
 
-const action_name: StringName = &"wander_action"
+const action_type =ActionMachine.action_types.wander
+
 
 #endregion
 
@@ -46,7 +47,6 @@ func start(args: Dictionary = {}) -> void:
 
 #region helpers
 
-
 func new_pos():
 	if not _active:
 		return
@@ -73,7 +73,6 @@ func new_pos():
 #endregion
 
 #region lifecycle
-
 
 func stop() -> void:
 	GlobalLogger.write_to_logs(owner, "Stopped wandering around")

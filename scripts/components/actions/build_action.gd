@@ -16,7 +16,7 @@ var owner
 
 #region constants
 
-const action_name = &"build_action"
+const action_type = ActionMachine.action_types.build
 
 enum steps {
 	move, build
