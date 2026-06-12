@@ -1,16 +1,25 @@
 extends Node
 class_name ReferenceDB
 
+## Central lookup singleton for scene paths, handler paths, and live sim references.
+##
+## This script reduces hardcoded string duplication across the project by
+## storing commonly-used root-relative paths and lightweight runtime registries
+## such as loaded chunks and active pawns.
+
 #region Nodes
+## Named root-level areas in [code]GameRoot[/code].
 enum game_nodes_enum {
 	handlers,
 	ui_layer,
 }
 
+## Logical chunk layers used throughout the simulation.
 enum tilemap_layers_enum {
 	ground, terrain, walls, terrain_queued, walls_queued, terrain_queued_d, walls_queued_d
 }
 
+## Registered handler nodes living under the handlers root.
 enum handlers_enum {
 	fancy_thing,
 	building_agent,
@@ -24,10 +33,12 @@ enum handlers_enum {
 	chunk_manager
 }
 
+## Relative paths to major [code]GameRoot[/code] nodes.
 var _game_nodes = {
 	game_nodes_enum.handlers: "handlers",
 	game_nodes_enum.ui_layer: "Control/CanvasLayer",
 }
+## Relative paths to handler nodes under the handlers root.
 var _handlers = {
 	handlers_enum.fancy_thing: "/fancy_thing",
 	handlers_enum.building_agent: "/building_agent",
@@ -40,19 +51,24 @@ var _handlers = {
 	handlers_enum.ui_manager: "/ui_manager",
 	handlers_enum.chunk_manager: "/chunks/ChunkManager"
 }
+## Runtime map of loaded chunk nodes keyed by chunk coordinate.
 var chunks = {}
 
+## Paths to currently spawned pawns that are still considered active.
 var pawns: Array[String] = []
 
 
+## Returns the absolute node path for the requested handler.
 func get_handler(handler_name: handlers_enum) -> String:
 	return get_game_node_path(game_nodes_enum.handlers) + _handlers[handler_name]
 
 
+## Returns the absolute node path for a major [code]GameRoot[/code] area.
 func get_game_node_path(node_name: game_nodes_enum) -> String:
 	return "/root/GameRoot/" + _game_nodes[node_name]
 
 
+## Returns the live chunk node at [param coords], or [code]null[/code] if missing or freed.
 func get_chunk(coords: Vector2i) -> Node:
 	if chunks.has(coords) and is_instance_valid(chunks[coords]):
 		return chunks[coords]
@@ -62,8 +78,10 @@ func get_chunk(coords: Vector2i) -> Node:
 #endregion
 
 #region Scenes
+## Commonly-instantiated gameplay scenes.
 enum scenes_enum {pawn, progressbar, save_card, game, main_menu}
 
+## Scene file names keyed by [code]scenes_enum[/code].
 var scenes = {
 	scenes_enum.pawn: "pawn.tscn",
 	scenes_enum.progressbar: "progressbar.tscn",
@@ -73,6 +91,7 @@ var scenes = {
 }
 
 
+## Loads and returns the packed scene referenced by [param scene].
 func get_scene(scene: scenes_enum):
 	return load("res://scenes/" + scenes[scene])
 
@@ -80,21 +99,25 @@ func get_scene(scene: scenes_enum):
 #endregion
 
 
+## Registers a loaded chunk node under its chunk coordinates.
 func add_chunk(coords: Vector2i, chunk: Node):
 	chunks[coords] = chunk
 
 
+## Adds a pawn's node path to the live pawn registry.
 func register_pawn(pawn: Node) -> void:
 	var path := String(pawn.get_path())
 	if not pawns.has(path):
 		pawns.append(path)
 
 
+## Removes a pawn's node path from the live pawn registry.
 func unregister_pawn(pawn: Node) -> void:
 	var path := String(pawn.get_path())
 	pawns.erase(path)
 
 
+## Returns a copy of the live pawn path list after pruning invalid entries.
 func get_pawns() -> Array[String]:
 	pawns = pawns.filter(func(path: String): return get_node_or_null(path) != null)
 	return pawns.duplicate()

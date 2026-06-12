@@ -1,12 +1,17 @@
 @icon("res://textures/editor_icons/hamburger-menu.svg")
 extends Node
 class_name BuildableDataBase
-## This is a singleton that holds all the [BuildableData] resources and gets them by id.
 
-## The [Dictionary] that holds all the [BuildableData] resources with their [member BuildableData.id]s as keys.
+## Singleton registry for all [BuildableData] resources in the project.
+##
+## On startup, the database scans [code]res://resources/buildings/[/code] and
+## stores each resource by its numeric ID for fast lookup by gameplay systems.
+
+## Loaded buildables keyed by [member BuildableData.id].
 var objects: Dictionary = {}
 
 
+## Loads every buildable resource from the buildings directory into [member objects].
 func _ready() -> void:
 	var buildings := ResourceLoader.list_directory("res://resources/buildings/")
 	for i in buildings:
@@ -14,7 +19,9 @@ func _ready() -> void:
 		objects[buildable_data.id] = buildable_data
 
 
-## Gets the [BuildableData] resource by its [member BuildableData.id]. Returns [null] if the id is nonexistent and pushes a warning.
+## Returns the buildable resource with the given [param id].
+##
+## If the ID does not exist, the method pushes a warning and returns [code]null[/code].
 func get_tile(id: int) -> BuildableData:
 	if objects.keys().has(id):
 		return objects[id]
@@ -22,6 +29,7 @@ func get_tile(id: int) -> BuildableData:
 	return null
 
 
+## Convenience helper that returns the logical layer for the given buildable ID.
 func get_tile_layer(id: int):
 	var tile = get_tile(id)
 	if tile:

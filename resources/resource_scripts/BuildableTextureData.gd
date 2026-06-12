@@ -1,12 +1,21 @@
 class_name BuildableTextureData
 extends Resource
 
+## Rendering and autotiling metadata for a [BuildableData] resource.
+##
+## This resource describes which texture atlas to use, whether neighbor-aware
+## autotiling is enabled, and how bitmask layouts map to atlas cells.
+
 @export_category("Base")
+## If [code]true[/code], the renderer picks atlas cells from [member autotile_layout].
 @export var can_autotile: bool
+## Source texture or atlas used to render the buildable.
 @export var texture: Texture2D
 @export_category("Terrain specific")
+## Size of a single atlas cell in pixels.
 @export var cell_size: Vector2i
 
+## Neighbor bit flags used to derive an autotile mask.
 enum tile_neigbors {
 	TOP_LEFT = 0b100000000,
 	TOP = 0b010000000,
@@ -19,6 +28,7 @@ enum tile_neigbors {
 	BOTTOM_RIGHT = 0b000000001
 }
 
+## Mapping from a neighbor mask to the atlas cell coordinates that should be used.
 @export var autotile_layout: Dictionary = {
 	0b000010010: Vector2i(0, 0),
 	0b000011010: Vector2i(1, 0),
@@ -71,6 +81,10 @@ enum tile_neigbors {
 }
 
 
+## Returns a normalized UV rect for the atlas cell matching [param neighbors_mask].
+##
+## If autotiling is disabled, the first atlas cell is used. If the mask is
+## unknown, the method falls back to a default error-like atlas position.
 func get_terrain_tile_rect(neighbors_mask: int):
 	if not can_autotile:
 		return Rect2i(0, 0, 1, 1)
