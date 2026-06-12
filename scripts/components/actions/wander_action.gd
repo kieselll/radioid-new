@@ -7,6 +7,9 @@ extends BaseAction
 
 const action_type =ActionMachine.action_types.wander
 
+enum steps {
+	wander
+}
 
 #endregion
 
@@ -17,6 +20,7 @@ var _state_machine: StateMachine
 var _move_state: BaseState
 var _random_pos: Vector4i = Vector4i.ZERO
 var _parent: ActionMachine
+var current_step : steps = steps.wander
 var owner: CharacterBody2D
 
 #endregion
@@ -42,6 +46,10 @@ func start(args: Dictionary = {}) -> void:
 	GlobalLogger.write_to_logs(owner, "Started wandering around...")
 	_active = true
 	new_pos()
+
+func start_from_step(args: Dictionary = {&"partial": true}, step : steps = steps.wander):
+	current_step = step
+	start(args)
 
 #endregion
 

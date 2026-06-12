@@ -8,7 +8,8 @@ var _movement_component: MovementComponent
 var _state_machine: StateMachine
 var _move_state: MoveState
 var _build_state: BuildState
-var current_step : steps
+var current_step: steps
+var current_args: Dictionary
 var _parent
 var owner
 
@@ -35,15 +36,20 @@ func setup(action_machine : ActionMachine):
 
 #region lifecycle
 
-func start(args: Dictionary = {&"partial": true}, step : steps = steps.move) -> void:
-	initialize(step)
+func start(args: Dictionary = {&"partial": true}) -> void:
+	current_args = args
+	initialize()
 	if current_step == steps.move:
 		await move_step(args)
 	if current_step == steps.build:
 		await build_step(args)
 	done.emit()
 
-func initialize(step : steps = steps.move) -> void:
+func start_from_step(args: Dictionary = {&"partial": true}, step : steps = steps.move):
+	current_step = step
+	start(args)
+
+func initialize() -> void:
 	assert(
 		_state_machine.get_state(StateMachine.state_types.move_state),
 		"%s doesn't have the mandatory MoveState" % owner.name
@@ -54,7 +60,6 @@ func initialize(step : steps = steps.move) -> void:
 	)
 	GlobalLogger.write_to_logs(owner, "Started building...")
 
-	current_step = step
 	_active = true
 	_movement_component = owner.movement_component
 	_move_state = _state_machine.get_state(StateMachine.state_types.move_state)

@@ -75,6 +75,17 @@ func add_action(action_type: action_types) -> void:
 func erase_action(action_type: action_types) -> void:
 	actions[action_type] = null
 
+func serialize() -> Dictionary:
+	var result: Dictionary = {
+		"current_action" : current_action.action_type,
+		"action_step" : current_action.current_step,
+		"action_args" : current_action.current_args
+	}
+	return result
+
+func deserialize(dictionary: Dictionary) -> void:
+	start_action(dictionary["current_action"], dictionary["action_args"])
+
 #endregion
 
 #region helpers
