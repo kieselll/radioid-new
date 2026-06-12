@@ -115,14 +115,11 @@ func stop_moving() -> void:
 	ticking = false
 	_parent.velocity = Vector2.ZERO
 
-
 func get_local_position() -> Vector4i:
 	return GridUtils.world_coord_to_chunk_coord(_parent.position)
 
-
 func is_moving() -> bool:
 	return _parent.velocity != Vector2.ZERO
-
 
 func set_path(path: PackedVector4Array):
 	_path = path

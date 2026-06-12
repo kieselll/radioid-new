@@ -3,6 +3,12 @@
 @abstract class_name BaseAction
 extends Resource
 
+## Base resource for all high-level pawn actions.
+##
+## Actions are owned by an [ActionMachine] and usually coordinate one or more
+## lower-level [StateMachine] states to complete a task. Concrete actions are
+## expected to implement setup, start, and stop behavior.
+
 #region private vars
 
 var _active: bool = false
@@ -11,18 +17,23 @@ var _active: bool = false
 
 #region signals
 
+## Emitted when the action finishes its current run.
 signal done
 
 #endregion
 
 #region API
 
+## Binds the action to its owning [ActionMachine].
 @abstract func setup(action_machine : ActionMachine)
 
+## Starts executing the action with the provided [param args].
 @abstract func start(args: Dictionary[StringName, Variant] = {}) -> void
 
+## Stops the action and leaves it in an inactive state.
 @abstract func stop() -> void
 
+## Returns [code]true[/code] while the action is actively running.
 func is_active() -> bool:
 	return _active
 

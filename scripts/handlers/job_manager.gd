@@ -1,6 +1,14 @@
 @icon("res://textures/editor_icons/briefcase.svg")
 extends Node
 
+## Converts world tasks into auctioned work for pawns.
+##
+## The current implementation focuses on building jobs: when ghost build tiles
+## are queued, it creates [code]BuildingJob[/code] entries, asks each registered pawn for a
+## bid, and forwards the winning action request to that pawn's
+## [DecisionMaker].
+
+## Base job description shared by all concrete job types.
 @abstract class Job:
 	var location: Vector4i
 	var reserved: bool
@@ -12,6 +20,7 @@ extends Node
 		self.reserved = reserved
 
 
+## Job requesting that a pawn builds a specific buildable at the stored location.
 class BuildingJob:
 	extends Job
 	var building_id: int
@@ -24,12 +33,15 @@ class BuildingJob:
 		self.building_id = building_id
 
 
+## Pending jobs waiting to be auctioned or completed.
 var jobs: Array = []
+## Temporary bid table used while choosing a pawn for the current job.
 var auction = {}
 
 # CRITICAL NEED TO ADD JOB TYPES
 
 
+## Converts queued build placements into [code]BuildingJob[/code] entries.
 func _on_building_agent_objects_built(object_id: int, coord_array: Array, queued: bool) -> void:
 	if queued:
 		GlobalLogger.write_to_logs(self, "Adding built objects to jobs...")
@@ -38,6 +50,7 @@ func _on_building_agent_objects_built(object_id: int, coord_array: Array, queued
 			_on_jobs_updated(jobs[-1])
 
 
+## Starts an auction for [param job] and assigns it to the best bidder.
 func start_job_auction(job: Job):
 	var _queued_action: DecisionMaker.QueuedAction = _job_class_to_queued_action(job)
 	var _location = job.location
@@ -58,6 +71,7 @@ func start_job_auction(job: Job):
 	job.reserved = true
 
 
+## Converts a job record into the queued action that should fulfill it.
 func _job_class_to_queued_action(job: Job) -> DecisionMaker.QueuedAction:
 	if job is BuildingJob:
 		return DecisionMaker.QueuedAction.new(
@@ -68,10 +82,12 @@ func _job_class_to_queued_action(job: Job) -> DecisionMaker.QueuedAction:
 	return null
 
 
+## Registers a pawn's bid for the active auction round.
 func partake_in_auction(pawn: Node, bet: float):
 	auction[bet] = pawn
 
 
+## Handles job creation by logging it and immediately starting an auction.
 func _on_jobs_updated(with_what) -> void:
 	var type
 	if with_what is BuildingJob:

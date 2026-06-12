@@ -3,10 +3,18 @@
 class_name WanderAction
 extends BaseAction
 
+## Default idle action that sends a pawn to a random nearby tile.
+##
+## Wander acts as the fallback behavior in the queue and intentionally supports
+## the same step-based API as more complex actions so deserialization code can
+## stay uniform.
+
 #region constants
 
+## Action-machine identifier for this action implementation.
 const action_type =ActionMachine.action_types.wander
 
+## Resumable phases of the wander action.
 enum steps {
 	wander
 }
@@ -27,6 +35,7 @@ var owner: CharacterBody2D
 
 #region init
 
+## Caches the owning action machine and movement state references.
 func setup(action_machine : ActionMachine):
 	_parent = action_machine
 	owner = _parent.owner
@@ -38,6 +47,7 @@ func setup(action_machine : ActionMachine):
 
 #region lifecycle
 
+## Starts a new wander run.
 func start(args: Dictionary = {}) -> void:
 	assert(
 		_state_machine.get_state(StateMachine.state_types.move_state),
@@ -47,6 +57,10 @@ func start(args: Dictionary = {}) -> void:
 	_active = true
 	new_pos()
 
+## Starts the action from an explicit [code]steps[/code] value.
+##
+## This wrapper is intentionally redundant so all actions expose the same
+## deserialization-friendly API.
 func start_from_step(args: Dictionary = {&"partial": true}, step : steps = steps.wander):
 	current_step = step
 	start(args)
@@ -55,6 +69,7 @@ func start_from_step(args: Dictionary = {&"partial": true}, step : steps = steps
 
 #region helpers
 
+## Picks a random reachable offset, moves there, then emits completion after a delay.
 func new_pos():
 	if not _active:
 		return
@@ -82,6 +97,7 @@ func new_pos():
 
 #region lifecycle
 
+## Cancels the current wander run and stops movement immediately.
 func stop() -> void:
 	GlobalLogger.write_to_logs(owner, "Stopped wandering around")
 	_active = false

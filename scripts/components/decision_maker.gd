@@ -2,6 +2,12 @@
 extends BaseComponent
 class_name DecisionMaker
 
+## Chooses which high-level action a pawn should perform next.
+##
+## The decision maker maintains an ordered queue of [code]QueuedAction[/code] entries,
+## recalculates their effective priority, and starts the highest-priority action
+## whenever the current one finishes.
+
 #region constants
 
 var _astar: GlobalPathfinder
@@ -22,6 +28,7 @@ var _distance_weight: float = 1
 #region helper classes
 
 
+## Lightweight queue entry describing an action request and its arguments.
 class QueuedAction:
 	var action_type: ActionMachine.action_types
 	var priority: float
@@ -57,6 +64,7 @@ func tick(delta : float) -> void:
 
 #region init
 
+## Caches component references, copies behavior weights, and starts the default action.
 func setup(parent : CharacterBody2D) -> void:
 	_parent = parent
 	_action_machine = _parent.action_machine
@@ -85,8 +93,10 @@ func setup(parent : CharacterBody2D) -> void:
 #region API
 
 
-## Adds a new QueuedAction to the [member _action_queue], in the format of a class. Takes in an action_type (must be a valid action_type, a wanted priority for the action,
-## and, optionally, arguments to the action, like the target for [MoveAction]. Doesn't have a [StateMachine] counterpart, because actions ([BaseAction]) already fulfill this need.
+## Inserts a new [code]QueuedAction[/code] into the action queue.
+##
+## [param priority] is the base priority used for queue ordering before the
+## action is re-scored by [method calculate_action_priority_modifier].
 func add_action_to_queue(action_type: ActionMachine.action_types, priority: int, action_args: Dictionary = {}):
 	GlobalLogger.write_to_logs(
 		_parent, "Added %s to queue with base priority: %f" % [action_type, priority]
@@ -97,14 +107,12 @@ func add_action_to_queue(action_type: ActionMachine.action_types, priority: int,
 			return
 
 
-## This function should be called to recalculate priorities based on: [br]
-##     1. Emotions handled and parsed from [EmotionHandler]
-## [color=red][b] NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color][br]
-##     2. Outer events recieved via [PerceptionComponent]
-##  [color=red][b] NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color][br]
-##     3. Manually encouraging the pawn to do said action
-## [color=red][b] NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color][br][br]
-## The function takes in the base priority, location and the emotion modifier [color=red][b] LAST ONE NOT DONE, PLEASE MAKE IT HAPPEN[/b][/color]
+## Returns the effective priority for an action request.
+##
+## The current formula combines the base priority with skill modifiers and then
+## discounts the result by distance to the target. [param emotion_modifier] is
+## already part of the API, but the broader emotion/perception systems
+## mentioned in the design notes are not implemented yet.
 func calculate_action_priority_modifier(
 	action_type: ActionMachine.action_types,
 	base_priority: int,
@@ -137,6 +145,7 @@ func calculate_action_priority_modifier(
 #region helpers
 
 
+## Starts the next queued action after the current one finishes.
 func _on_action_machine_action_done() -> void:
 	if _current_action.action_type != ActionMachine.action_types.wander:
 		_action_queue.erase(_current_action)
@@ -145,6 +154,7 @@ func _on_action_machine_action_done() -> void:
 	_action_machine.start_action(_current_action.action_type, _current_action.args)
 
 
+## Sort callback that recalculates queue priorities before ordering.
 func _queue_sort(a, b):
 	if a.args.keys().has(&"target"):
 		a.priority = calculate_action_priority_modifier(

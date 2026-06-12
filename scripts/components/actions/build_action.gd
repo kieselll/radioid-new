@@ -2,6 +2,11 @@
 class_name BuildAction
 extends BaseAction
 
+## Action that moves a pawn adjacent to a queued build tile and constructs it.
+##
+## The action is intentionally split into resumable steps so it can later be
+## serialized and restarted from an intermediate state.
+
 #region vars
 
 var _movement_component: MovementComponent
@@ -17,8 +22,10 @@ var owner
 
 #region constants
 
+## Action-machine identifier for this action implementation.
 const action_type = ActionMachine.action_types.build
 
+## Resumable phases of the build action.
 enum steps {
 	move, build
 }
@@ -27,6 +34,7 @@ enum steps {
 
 #region init
 
+## Caches the owning action machine and state machine.
 func setup(action_machine : ActionMachine):
 	_parent = action_machine
 	owner = _parent.owner
@@ -36,6 +44,7 @@ func setup(action_machine : ActionMachine):
 
 #region lifecycle
 
+## Starts the build action from the currently stored [code]current_step[/code].
 func start(args: Dictionary = {&"partial": true}) -> void:
 	current_args = args
 	initialize()
@@ -45,10 +54,12 @@ func start(args: Dictionary = {&"partial": true}) -> void:
 		await build_step(args)
 	done.emit()
 
+## Starts the build action from an explicit [code]steps[/code] value.
 func start_from_step(args: Dictionary = {&"partial": true}, step : steps = steps.move):
 	current_step = step
 	start(args)
 
+## Validates required states and refreshes component references.
 func initialize() -> void:
 	assert(
 		_state_machine.get_state(StateMachine.state_types.move_state),
@@ -67,6 +78,7 @@ func initialize() -> void:
 
 #region Step functions
 
+## Moves the pawn to the nearest adjacent tile around the build target.
 func move_step(args: Dictionary) -> void:
 	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args[&"target"], true)
 	_state_machine.change_state(
@@ -84,12 +96,14 @@ func move_step(args: Dictionary) -> void:
 	await _move_state.done
 	current_step = steps.build
 
+## Runs the build state once the pawn is in position.
 func build_step(args: Dictionary) -> void:
 	_state_machine.change_state(StateMachine.state_types.build_state, args)
 	await _build_state.done
 
 #endregion
 
+## Stops whichever build-related state is currently active.
 func stop() -> void:
 	if _move_state.is_active():
 		_move_state.stop()
