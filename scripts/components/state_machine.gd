@@ -75,7 +75,6 @@ func change_state(state_type : state_types, args: Dictionary = {}) -> void:
 	_current_state.start(args)
 	state_changed.emit(state_type)
 
-
 func get_current_state_name() -> StringName:
 	return _current_state.state_name if _current_state else &"no_state"
 

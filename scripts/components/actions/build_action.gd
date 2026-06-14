@@ -13,7 +13,7 @@ var _movement_component: MovementComponent
 var _state_machine: StateMachine
 var _move_state: MoveState
 var _build_state: BuildState
-var current_step: steps
+var current_step: steps = steps.move
 var current_args: Dictionary
 var _parent
 var owner
