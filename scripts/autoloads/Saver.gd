@@ -1,29 +1,51 @@
 extends Node
 class_name Saver
 
+## Autoload responsible for persisting save slots, chunk data, entity state, and
+## pathfinding navigation caches.
+##
+## World chunk data is written in an append-only binary format. Recent chunk
+## changes are first queued in memory, then periodically flushed to disk and
+## mirrored into an index so chunks can be loaded back by coordinate.
+
 #region vars
+## Absolute path of the save slot currently opened for reading/writing.
 var _current_save_path : String = ""
+## Metadata for the currently active save slot.
 var _current_save : SaveMeta
+## Binary data file that stores serialized chunk payloads.
 var _current_world_file : FileAccess
-var _current_index_file : FileAccess
 @export var _save_dir_path : String = "user://game/saves/"
+## Root game directory used by related save systems.
 @export var _game_dir_path : String = "user://game/"
+## Runtime reference to the global pathfinder used for nav graph persistence.
 @onready var pathfinder : GlobalPathfinder
 
+## Timer that batches disk writes instead of writing every chunk immediately.
 var write_timer : Timer = Timer.new()
+## In-memory queue of dirty chunks waiting to be flushed to disk.
 var _chunks_to_save : Array = []
+## Map of chunk coordinate to byte offset inside [member _current_world_file].
 var data_indices : Dictionary[Vector2i, int]
 #endregion
 
 #region classes
+## Lightweight container for user-facing save metadata stored in [code]meta.json[/code].
 class SaveMeta:
+	## Timestamp captured when the save slot was first created.
 	var creation_date : Dictionary
+	## Timestamp updated when the slot is modified.
 	var modified_date : Dictionary
+	## Name shown in the save selection UI.
 	var display_name : String
+	## Total accumulated playtime for the slot, in seconds.
 	var playtime : int
+	## Seed used to generate the world for this slot.
 	var world_seed : int
+	## Game version that created or last updated the slot.
 	var version : String
 
+	## Initializes metadata with the current system time and project version.
 	@warning_ignore("shadowed_variable")
 	func _init():
 		creation_date = Time.get_datetime_dict_from_system()
@@ -31,6 +53,7 @@ class SaveMeta:
 		version = ProjectSettings.get_setting("application/config/version")
 		playtime = 0
 
+	## Serializes this metadata object into the JSON string stored on disk.
 	func jsonify() -> String:
 		return JSON.stringify({
 			"creation_date" : creation_date,
@@ -41,6 +64,7 @@ class SaveMeta:
 			"version": version
 			})
 
+	## Populates this metadata object from a previously serialized JSON string.
 	func dejsonify(json_string : String) -> void:
 		var dict = JSON.parse_string(json_string)
 		if not dict: return
@@ -54,9 +78,14 @@ class SaveMeta:
 
 
 #region save slots
+## Returns the directory names of all save slots currently present on disk.
 func get_saves_list() -> Array:
 	return DirAccess.open(_save_dir_path).get_directories()
 
+## Creates or overwrites the active save slot and opens its core data files.
+##
+## This prepares the world, chunk-index, and entity-index files so subsequent
+## save operations can append data without reopening everything each time.
 func write_save(dirname : String, display_name : String, world_seed : int) -> void:
 	_current_save = SaveMeta.new()
 	_current_save.display_name = display_name
@@ -71,6 +100,8 @@ func write_save(dirname : String, display_name : String, world_seed : int) -> vo
 	var _meta_file = FileAccess.open(_current_save_path + "/meta.json", FileAccess.WRITE)
 	_meta_file.store_string(_current_save.jsonify())
 
+## Opens an existing save slot, rebuilds the in-memory chunk index, and returns
+## its metadata for UI/gameplay consumption.
 func load_save(dirname : String) -> SaveMeta:
 	_current_save_path = _save_dir_path + dirname
 	var _new_save = get_save_meta(dirname)
@@ -88,10 +119,12 @@ func load_save(dirname : String) -> SaveMeta:
 		data_indices[Vector2i(x, y)] = index
 	return _new_save
 
+## Moves the given save slot to the operating system trash.
 func delete_save(dirname : String) -> void:
 	OS.move_to_trash(ProjectSettings.globalize_path(_save_dir_path.path_join(dirname)))
 	GlobalLogger.write_to_logs(self, "Deleted save %s" % dirname)
 
+## Reads and deserializes the metadata file for a single save slot.
 func get_save_meta(dirname : String) -> SaveMeta:
 	var _new_save = SaveMeta.new()
 	var save_path = _save_dir_path + dirname
@@ -100,15 +133,19 @@ func get_save_meta(dirname : String) -> SaveMeta:
 	return _new_save
 #endregion
 
-
 #region world data
+## Queues a chunk for saving and serializes its entities into a sidecar file.
+##
+## Chunk tile data is converted to bytes immediately, but the actual disk write
+## happens later in [method _on_write_timer_timeout].
 func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
 	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
-
-## Function that searches for the given coords in the index file, reading from end to start because of the append-only architecture,
-## and then returning the raw buffer representing the RLE encoded chunk data. Returns [null] if no chunk with such coords is found. [br][br]
-## [color=red] NEED TO ADD DATA VALIDATION AND SKIPPING LATER!!![/color]
+## Returns the decoded RLE cell payload for the chunk at [param coords].
+##
+## The method first checks the in-memory write queue so reads can see unsaved
+## changes. If the chunk is not queued, it uses [member data_indices] to seek to
+## the latest append-only record inside [member _current_world_file].
 func read_chunk(coords : Vector2i):
 	# We try to find the chunk in memory
 	var memory_chunk = _chunks_to_save.find_custom(func(element): return element.coords == coords)
@@ -129,6 +166,11 @@ func save_character():
 func update_chunk_index(coords: Vector2i, new_position: int) -> void:
 	data_indices[coords] = new_position
 
+## Flushes queued chunks to disk and rewrites the chunk/entity indices.
+##
+## Each chunk is written as an 8-byte size header followed by the raw serialized
+## payload. After the batch completes, the index file is regenerated from the
+## current [member data_indices] map so only the latest offsets remain.
 func _on_write_timer_timeout():
 	if get_tree().current_scene and get_tree().current_scene.name != "GameRoot": return
 	var data : PackedByteArray = []
@@ -162,6 +204,7 @@ func _on_write_timer_timeout():
 
 
 #region navigation data
+## Packs a portal coordinate into the compact 18-byte format used by nav caches.
 func _encode_portal_coords(portal: Vector4i) -> PackedByteArray:
 	var result := PackedByteArray()
 	result.resize(18)
@@ -172,6 +215,11 @@ func _encode_portal_coords(portal: Vector4i) -> PackedByteArray:
 	return result
 
 
+## Serializes portal connectivity data for the current world into navigation files.
+##
+## The index file stores each portal and the offset of its detailed record inside
+## [code]navigation/data.dat[/code]. Each detailed record contains the portal,
+## its reachable target portals, and the weighted connection steps between them.
 func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary):
 	var index_data : PackedByteArray = []
 	var data : PackedByteArray = []
@@ -225,16 +273,17 @@ func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary):
 
 
 #region lifecycle
+## Starts the periodic write timer used to batch save operations.
 func _ready() -> void:
 	add_child(write_timer)
 	write_timer.start(2)
 	write_timer.connect("timeout", _on_write_timer_timeout)
-	#if OS.has_feature("editor"):
-		#load_save("test_save")
 
+## Caches the live pathfinder once the world scene has been initialized.
 func world_init():
 	pathfinder = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
+## Ensures the current game state is saved before the application exits.
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save()
@@ -243,12 +292,17 @@ func _notification(what):
 
 
 #region helpers
+## Opens a file for both reading and writing, creating it first if needed.
 func _open_file(path : String) -> FileAccess:
 	return FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE_READ)
 #endregion
 
 
 #region API
+## Saves all dirty runtime state for the active game session.
+##
+## Dirty chunks are queued, flushed immediately, and followed by navigation data
+## persistence when the current scene is [code]GameRoot[/code].
 func save():
 	if get_tree().current_scene.name == "GameRoot":
 		for i in GlobalRef.chunks.keys():
