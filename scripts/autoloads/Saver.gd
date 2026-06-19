@@ -15,6 +15,11 @@ var _current_save_path : String = ""
 var _current_save : SaveMeta
 ## Binary data file that stores serialized chunk payloads.
 var _current_world_file : FileAccess
+## Index file mapping chunk coordinates to offsets inside [member _current_world_file].
+var _current_world_index_file : FileAccess
+## Small file storing the next entity ID for the save.
+var _current_entity_index_file : FileAccess
+## Root directory that contains all save slot folders.
 @export var _save_dir_path : String = "user://game/saves/"
 ## Root game directory used by related save systems.
 @export var _game_dir_path : String = "user://game/"
@@ -95,8 +100,11 @@ func write_save(dirname : String, display_name : String, world_seed : int) -> vo
 		DirAccess.make_dir_recursive_absolute(_current_save_path)
 	if not DirAccess.dir_exists_absolute(_current_save_path + "/navigation"):
 		DirAccess.make_dir_recursive_absolute(_current_save_path + "/navigation")
+	if not DirAccess.dir_exists_absolute(_current_save_path + "/entities"):
+		DirAccess.make_dir_recursive_absolute(_current_save_path + "/entities")
 	_current_world_file = _open_file(_current_save_path + "/world.dat")
-	_current_index_file = _open_file(_current_save_path + "/index.dat")
+	_current_world_index_file = _open_file(_current_save_path + "/index.dat")
+	_current_entity_index_file = _open_file(_current_save_path + "/entities/index.dat")
 	var _meta_file = FileAccess.open(_current_save_path + "/meta.json", FileAccess.WRITE)
 	_meta_file.store_string(_current_save.jsonify())
 
@@ -106,10 +114,11 @@ func load_save(dirname : String) -> SaveMeta:
 	_current_save_path = _save_dir_path + dirname
 	var _new_save = get_save_meta(dirname)
 	_current_world_file = _open_file(_current_save_path + "/world.dat")
-	_current_index_file = _open_file(_current_save_path + "/index.dat")
-	_current_index_file.seek(0)
-	while _current_index_file.get_position() + 16 < _current_index_file.get_length():
-		var buf = _current_index_file.get_buffer(24)
+	_current_world_index_file = _open_file(_current_save_path + "/index.dat")
+	_current_entity_index_file = _open_file(_current_save_path + "/entities/index.dat")
+	_current_world_index_file.seek(0)
+	while _current_world_index_file.get_position() + 16 < _current_world_index_file.get_length():
+		var buf = _current_world_index_file.get_buffer(24)
 		if buf.size() < 24:
 			printerr("Index buffer too small! Skipping.")
 			return
@@ -141,6 +150,10 @@ func get_save_meta(dirname : String) -> SaveMeta:
 func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
 	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
+	var _entity_file_access = FileAccess.open(_save_dir_path + "/entities" + str(coords) + ".json", FileAccess.WRITE)
+	var entity_manager : EntityManager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager))
+	_entity_file_access.store_string(JSON.stringify(entity_manager.serialize_chunk(coords)))
+
 ## Returns the decoded RLE cell payload for the chunk at [param coords].
 ##
 ## The method first checks the in-memory write queue so reads can see unsaved
@@ -160,9 +173,22 @@ func read_chunk(coords : Vector2i):
 	# And then return the BINARY chunk
 	return bytes_to_var(_current_world_file.get_buffer(buffer_size))
 
-func save_character():
-	pass
+## Loads the serialized entity payload associated with the given chunk.
+func read_chunk_entities(coords: Vector2i):
+	if FileAccess.file_exists(_current_save_path + "/entities/" + str(coords)):
+		var entity_file = FileAccess.open(_current_save_path + "/entities/" + str(coords), FileAccess.READ)
+		return JSON.parse_string(entity_file.get_as_text())
+	return {}
 
+## Returns the next entity ID stored for the current save slot.
+##
+## A missing or uninitialized entity index falls back to [code]0[/code].
+func load_current_entity_id() -> int:
+	if _current_entity_index_file and FileAccess.get_size(_current_save_path + "/entities/index.dat") == 8:
+		return _current_entity_index_file.get_64()
+	return 0
+
+## Updates the in-memory byte offset for a chunk inside [member data_indices].
 func update_chunk_index(coords: Vector2i, new_position: int) -> void:
 	data_indices[coords] = new_position
 
@@ -195,11 +221,15 @@ func _on_write_timer_timeout():
 
 	# Clear the index file to prevent confusion between old and new data
 	FileAccess.open(_current_save_path + "/index.dat", FileAccess.WRITE).close()
-	_current_index_file.store_buffer(data_indices_buffer)
+	_current_world_index_file.store_buffer(data_indices_buffer)
 
 	if not data.is_empty():
 		_current_world_file.store_buffer(data)
 		_chunks_to_save.clear()
+
+	_current_entity_index_file.close()
+	_current_entity_index_file = FileAccess.open(_current_save_path + "/entities/index.dat", FileAccess.WRITE_READ)
+	_current_entity_index_file.store_64(get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager)).next_entity_id)
 #endregion
 
 

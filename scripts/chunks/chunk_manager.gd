@@ -78,6 +78,10 @@ func _process(_delta: float) -> void:
 			instantiate_chunk(generate_new_chunk(load_queue[-1], world_seed), load_queue[-1])
 		else:
 			instantiate_chunk(decompress_chunk(loaded_chunk), load_queue[-1])
+		var entities : Dictionary = GlobalSaver.read_chunk_entities(load_queue[-1])
+		var entity_manager : EntityManager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager))
+		for entity in entities:
+			entity_manager.spawn_entity(entity["entity_type"], entity["position"], entity["entity_id"])
 		load_queue.remove_at(-1)
 		return
 
