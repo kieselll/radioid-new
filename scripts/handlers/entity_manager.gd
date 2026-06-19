@@ -14,7 +14,7 @@ enum types
 
 func _ready() -> void:
 	load_templates()
-	spawn_entity(types.pawn)
+	#spawn_entity(types.pawn)
 
 func load_templates() -> void:
 	entity_templates.clear()
@@ -52,8 +52,9 @@ class entity:
 #region vars
 
 var entity_templates : Dictionary[types, EntityTemplate] = {}
-var entities : Dictionary[int, entity] = {}
-var _next_entity_id: int = 1
+var entities_by_id : Dictionary[int, entity] = {}
+var entities_by_chunk : Dictionary[Vector2i, Array] = {}
+var next_entity_id: int = 1
 
 var entity_pool
 
@@ -61,7 +62,7 @@ var entity_pool
 
 #region API
 
-func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO) -> BaseEntity:
+func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO, forced_id: int = -1) -> BaseEntity:
 	var template = entity_templates.get(entity_type)
 	assert(template != null, "EntityManager has no template for type %s" % types.find_key(entity_type))
 	assert(template.scene != null, "EntityTemplate %s is missing a scene." % template.id)
@@ -69,8 +70,12 @@ func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO) -> 
 	var entity_node := template.scene.instantiate() as BaseEntity
 	assert(entity_node != null, "EntityTemplate %s did not instantiate a BaseEntity." % template.id)
 
-	var entity_id := _next_entity_id
-	_next_entity_id += 1
+	var entity_id
+	if forced_id != -1:
+		entity_id = forced_id
+	else:
+		entity_id = next_entity_id
+		next_entity_id += 1
 	entity_node.entity_id = entity_id
 	entity_node.name = "%s_%d" % [template.id, entity_id]
 	entity_node.position = GridUtils.chunk_coord_to_world_coord(spawn_coord)
@@ -78,7 +83,11 @@ func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO) -> 
 	add_child(entity_node)
 	entity_node.initialize(template, _build_components(template))
 	GlobalRef.register_pawn(entity_node)
-	entities[entity_id] = entity.new(entity_id, entity_type, entity_node)
+	var spawned_entity = entity.new(entity_id, entity_type, entity_node)
+	entities_by_id[entity_id] = spawned_entity
+	if not entities_by_chunk.keys().has(Vector2i(spawn_coord.x, spawn_coord.y)):
+		entities_by_chunk[Vector2i(spawn_coord.x, spawn_coord.y)] = []
+	entities_by_chunk[Vector2i(spawn_coord.x, spawn_coord.y)].append(spawned_entity)
 	return entity_node
 
 
@@ -90,14 +99,14 @@ func summon_entity() -> String:
 
 
 func delete_entity(entity_id : int):
-	if not entities.has(entity_id):
+	if not entities_by_id.has(entity_id):
 		return
 
-	var entity_entry: entity = entities[entity_id]
+	var entity_entry: entity = entities_by_id[entity_id]
 	if is_instance_valid(entity_entry.node):
 		GlobalRef.unregister_pawn(entity_entry.node)
 		entity_entry.node.queue_free()
-	entities.erase(entity_id)
+	entities_by_id.erase(entity_id)
 
 
 func _build_components(template: EntityTemplate) -> Dictionary:
@@ -125,5 +134,15 @@ func _build_components(template: EntityTemplate) -> Dictionary:
 		components["decision_maker"] = DecisionMaker.new()
 
 	return components
+
+func serialize_entity(entity_id : int) -> Dictionary:
+	return {entity_id : entities_by_id[entity_id].node.serialize()}
+
+func serialize_chunk(chunk_coords : Vector2i) -> Dictionary:
+	var result := {}
+	if entities_by_chunk.has(chunk_coords):
+		for entity_instance in entities_by_chunk[chunk_coords]:
+			result[entity_instance.id] = entity_instance.node.serialize()
+	return result
 
 #endregion
