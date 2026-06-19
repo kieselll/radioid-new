@@ -29,6 +29,7 @@ var _move_state: BaseState
 var _random_pos: Vector4i = Vector4i.ZERO
 var _parent: ActionMachine
 var current_step : steps = steps.wander
+var current_args: Dictionary
 var owner: CharacterBody2D
 
 #endregion
@@ -49,6 +50,7 @@ func setup(action_machine : ActionMachine):
 
 ## Starts a new wander run.
 func start(args: Dictionary = {}) -> void:
+	current_args = args
 	assert(
 		_state_machine.get_state(StateMachine.state_types.move_state),
 		"%s doesn't have the mandatory MoveState" % owner.name
