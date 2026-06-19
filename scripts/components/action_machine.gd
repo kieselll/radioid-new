@@ -64,7 +64,7 @@ func setup(parent : CharacterBody2D) -> void:
 #region API
 
 ## Stops the current action, if any, and starts the requested action with [param args].
-func start_action(action_type: action_types, args = {}) -> void:
+func start_action(action_type: action_types, args = {}, step: int = -1) -> void:
 	if current_action:
 		current_action.stop()
 	if action_type >= actions.size() or actions[action_type] == null:
@@ -74,7 +74,10 @@ func start_action(action_type: action_types, args = {}) -> void:
 		)
 		return
 	current_action = actions[action_type]
-	current_action.start(args)
+	if step == -1:
+		current_action.start(args)
+	else:
+		current_action.start_from_step(args, step)
 
 ## Instantiates and registers an action implementation for [param action_type].
 func add_action(action_type: action_types) -> void:
@@ -103,7 +106,7 @@ func serialize() -> Dictionary:
 ## resuming can be layered on top of this through per-action helpers such as
 ## [code]start_from_step()[/code].
 func deserialize(dictionary: Dictionary) -> void:
-	start_action(dictionary["current_action"], dictionary["action_args"])
+	start_action(dictionary["current_action"], dictionary["action_args"], dictionary["action_step"])
 
 #endregion
 
