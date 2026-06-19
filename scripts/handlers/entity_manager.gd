@@ -74,6 +74,7 @@ func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO) -> 
 	entity_node.entity_id = entity_id
 	entity_node.name = "%s_%d" % [template.id, entity_id]
 	entity_node.position = GridUtils.chunk_coord_to_world_coord(spawn_coord)
+	entity_node.entity_type = entity_type
 	add_child(entity_node)
 	entity_node.initialize(template, _build_components(template))
 	GlobalRef.register_pawn(entity_node)
