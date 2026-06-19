@@ -30,7 +30,8 @@ enum handlers_enum {
 	grid_utils,
 	job_manager,
 	ui_manager,
-	chunk_manager
+	chunk_manager,
+	entity_manager
 }
 
 ## Relative paths to major [code]GameRoot[/code] nodes.
@@ -49,7 +50,8 @@ var _handlers = {
 	handlers_enum.grid_utils: "/grid_utils",
 	handlers_enum.job_manager: "/job_manager",
 	handlers_enum.ui_manager: "/ui_manager",
-	handlers_enum.chunk_manager: "/chunks/ChunkManager"
+	handlers_enum.chunk_manager: "/chunks/ChunkManager",
+	handlers_enum.entity_manager: "/EntityManager"
 }
 ## Runtime map of loaded chunk nodes keyed by chunk coordinate.
 var chunks = {}
