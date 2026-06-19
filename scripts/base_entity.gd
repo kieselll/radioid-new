@@ -174,7 +174,6 @@ func serialize() -> Dictionary:
 		"position" : GridUtils.world_coord_to_chunk_coord(position),
 		"current_health" : current_health,
 		"current_action" : action_machine.serialize(),
-		"current_state" : state_machine._current_state
 	}
 	return result
 
