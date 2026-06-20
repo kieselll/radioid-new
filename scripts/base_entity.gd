@@ -11,6 +11,7 @@ class_name BaseEntity
 var template_id: StringName = &""
 var entity_id: int = -1
 var current_health: int = 0
+var entity_type: EntityManager.types
 
 #endregion
 
@@ -171,7 +172,9 @@ func serialize() -> Dictionary:
 	var result := {
 		"entity_id" : entity_id,
 		"template_id" : template_id,
-		"position" : GridUtils.world_coord_to_chunk_coord(position),
+		"entity_type" :entity_type,
+		#I'm using var_to_str because THE FUCKASS VECTOR4I WON'T PARSE NORMALLY
+		"position" : var_to_str(GridUtils.world_coord_to_chunk_coord(position)),
 		"current_health" : current_health,
 		"current_action" : action_machine.serialize(),
 	}

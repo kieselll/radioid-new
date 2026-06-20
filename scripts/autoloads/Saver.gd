@@ -150,8 +150,10 @@ func get_save_meta(dirname : String) -> SaveMeta:
 func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
 	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
-	var _entity_file_access = FileAccess.open(_save_dir_path + "/entities" + str(coords) + ".json", FileAccess.WRITE)
 	var entity_manager : EntityManager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager))
+	if entity_manager.serialize_chunk(coords).is_empty()\
+	and not FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"): return
+	var _entity_file_access = FileAccess.open(_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.WRITE)
 	_entity_file_access.store_string(JSON.stringify(entity_manager.serialize_chunk(coords)))
 
 ## Returns the decoded RLE cell payload for the chunk at [param coords].
@@ -175,8 +177,9 @@ func read_chunk(coords : Vector2i):
 
 ## Loads the serialized entity payload associated with the given chunk.
 func read_chunk_entities(coords: Vector2i):
-	if FileAccess.file_exists(_current_save_path + "/entities/" + str(coords)):
-		var entity_file = FileAccess.open(_current_save_path + "/entities/" + str(coords), FileAccess.READ)
+	if FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"):
+		print(coords)
+		var entity_file = FileAccess.open(_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.READ)
 		return JSON.parse_string(entity_file.get_as_text())
 	return {}
 
