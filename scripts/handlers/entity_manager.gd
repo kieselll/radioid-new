@@ -90,14 +90,6 @@ func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO, for
 	entities_by_chunk[Vector2i(spawn_coord.x, spawn_coord.y)].append(spawned_entity)
 	return entity_node
 
-
-func summon_entity() -> String:
-	var entity_node := spawn_entity(types.pawn, Vector4i.ZERO)
-	if entity_node == null:
-		return ""
-	return String(entity_node.name)
-
-
 func delete_entity(entity_id : int):
 	if not entities_by_id.has(entity_id):
 		return
