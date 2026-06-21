@@ -131,6 +131,12 @@ func _build_components(template: EntityTemplate) -> Dictionary:
 func serialize_entity(entity_id : int) -> Dictionary:
 	return {entity_id : entities_by_id[entity_id].node.serialize()}
 
+func deserialize_entity(serialized_dict: Dictionary) -> void:
+	@warning_ignore("shadowed_variable")
+	var entity = spawn_entity(serialized_dict["entity_type"], str_to_var(serialized_dict["position"]), serialized_dict["entity_id"])
+	entity.current_health = serialized_dict["current_health"]
+	entity.action_machine.deserialize(serialized_dict["current_action"])
+
 func serialize_chunk(chunk_coords : Vector2i) -> Dictionary:
 	var result := {}
 	if entities_by_chunk.has(chunk_coords):
