@@ -8,11 +8,10 @@
 
 [sub_resource type="Resource" id="3"]
 script = ExtResource("5")
-takes_jobs = false
 
 [sub_resource type="Resource" id="1"]
 script = ExtResource("3")
-display_name = &"Pawn"
+display_name = &"Чюпеп"
 faction = 1
 
 [sub_resource type="Resource" id="2"]
@@ -29,5 +28,7 @@ scene = ExtResource("2")
 entity_data = SubResource("1")
 personality_profile = SubResource("2")
 behavior_data = SubResource("3")
-actions = Array[int]([0])
-states = Array[int]([1])
+uses_building_component = true
+uses_ability_manager = true
+actions = Array[int]([0, 1])
+states = Array[int]([1, 2])
