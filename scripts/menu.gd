@@ -35,7 +35,7 @@ func _ready() -> void:
 		SceneTransition.start_animation(0.5)
 		await SceneTransition.done
 		SceneTransition.first_entry = false
-	SceneTransition.finish_trans(0.2)
+	SceneTransition.finish_trans()
 
 	for i in menu_buttons:
 		i.pivot_offset_ratio = Vector2(0.5, 0.5)
@@ -74,6 +74,7 @@ func _modulate_body(body: RigidBody2D, color: Color):
 
 func _on_new_game_pressed():
 	SceneTransition.start_trans()
+	await SceneTransition.done
 	get_tree().change_scene_to_file("res://scenes/worldmaking.tscn")
 
 

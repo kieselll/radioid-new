@@ -330,6 +330,6 @@ func _on_delete_button_pressed(save_name: String):
 
 
 func _on_back_button_pressed() -> void:
-	SceneTransition.start_trans(false, 0.4)
+	SceneTransition.start_trans(false, 1)
 	await SceneTransition.done
 	get_tree().change_scene_to_packed(GlobalRef.get_scene(GlobalRef.scenes_enum.main_menu))
