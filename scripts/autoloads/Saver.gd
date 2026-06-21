@@ -12,7 +12,7 @@ class_name Saver
 ## Absolute path of the save slot currently opened for reading/writing.
 var _current_save_path : String = ""
 ## Metadata for the currently active save slot.
-var _current_save : SaveMeta
+var current_save : SaveMeta
 ## Binary data file that stores serialized chunk payloads.
 var _current_world_file : FileAccess
 ## Index file mapping chunk coordinates to offsets inside [member _current_world_file].
@@ -92,9 +92,9 @@ func get_saves_list() -> Array:
 ## This prepares the world, chunk-index, and entity-index files so subsequent
 ## save operations can append data without reopening everything each time.
 func write_save(dirname : String, display_name : String, world_seed : int) -> void:
-	_current_save = SaveMeta.new()
-	_current_save.display_name = display_name
-	_current_save.world_seed = world_seed
+	current_save = SaveMeta.new()
+	current_save.display_name = display_name
+	current_save.world_seed = world_seed
 	_current_save_path = _save_dir_path + dirname
 	if not DirAccess.dir_exists_absolute(_current_save_path):
 		DirAccess.make_dir_recursive_absolute(_current_save_path)
@@ -106,7 +106,7 @@ func write_save(dirname : String, display_name : String, world_seed : int) -> vo
 	_current_world_index_file = _open_file(_current_save_path + "/index.dat")
 	_current_entity_index_file = _open_file(_current_save_path + "/entities/index.dat")
 	var _meta_file = FileAccess.open(_current_save_path + "/meta.json", FileAccess.WRITE)
-	_meta_file.store_string(_current_save.jsonify())
+	_meta_file.store_string(current_save.jsonify())
 
 ## Opens an existing save slot, rebuilds the in-memory chunk index, and returns
 ## its metadata for UI/gameplay consumption.

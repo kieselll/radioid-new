@@ -12,7 +12,7 @@ var unload_queue: Array[Vector2i]
 var current_chunk: Vector2i
 var old_chunk: Vector2i
 
-var world_seed = randi()
+var world_seed
 var tilemap: TileMap
 
 #endregion
@@ -54,10 +54,8 @@ signal chunk_generated(coords: Vector2i)
 
 #region Lifecycle
 
-func _temp_saver():
-	for i in GlobalRef.chunks:
-		GlobalSaver.save_chunk(Vector2i(i))
-
+func _ready() -> void:
+	world_seed = GlobalSaver.current_save.world_seed if GlobalSaver.current_save else randi()
 
 func _process(_delta: float) -> void:
 	if (
