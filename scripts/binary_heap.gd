@@ -25,7 +25,9 @@ func pop_back() -> Variant:
 
 
 func move_last_to_front() -> void:
-	heap.insert(0, heap[-1])
+	if heap.is_empty():
+		return
+	heap[0] = heap[-1]
 
 
 func is_empty() -> bool:
@@ -48,10 +50,10 @@ func bubble_up_heap_custom(function: Callable) -> void:
 		return
 	var current_index: int = heap.size() - 1
 	@warning_ignore_start("integer_division")
-	while (
-		not current_index == 0 and function.call(heap[(current_index - 1) / 2], heap[current_index])
-	):
+	while not current_index == 0:
 		var parent_index: int = (current_index - 1) / 2
+		if not function.call(heap[current_index], heap[parent_index]):
+			break
 		var temp_parent = heap[parent_index]
 		heap[parent_index] = heap[current_index]
 		heap[current_index] = temp_parent
@@ -70,19 +72,15 @@ func bubble_down_heap_custom(function: Callable) -> void:
 		var left: int = current_index * 2 + 1
 		var right: int = current_index * 2 + 2
 		var has_right: bool = right < heap.size()
-		if (
-			function.call(heap[left], heap[current_index])
-			or (has_right and function.call(heap[right], heap[current_index]))
-		):
-			var temp_child_index: int = (
-				right if has_right and function.call(heap[left], heap[right]) else left
-			)
-			var temp_child = heap[temp_child_index]
-			heap[temp_child_index] = heap[current_index]
-			heap[current_index] = temp_child
-			current_index = temp_child_index
-		else:
+		var best_child_index := left
+		if has_right and function.call(heap[right], heap[left]):
+			best_child_index = right
+		if not function.call(heap[best_child_index], heap[current_index]):
 			break
+		var temp_child = heap[best_child_index]
+		heap[best_child_index] = heap[current_index]
+		heap[current_index] = temp_child
+		current_index = best_child_index
 
 
 func bubble_up_heap() -> void:
