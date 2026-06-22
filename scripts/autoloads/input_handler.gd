@@ -171,54 +171,6 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 				GlobalLogger.write_to_logs(self, "UI was shown")
 				_ui_layer.show()
 
-		KEY_I:
-			if get_tree().current_scene.name != "GameRoot":
-				return
-			var mouse_position = GridUtils.world_coord_to_chunk_coord(get_global_mouse_position())
-			print(
-				"GROUND: ",
-				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
-					GlobalRef.tilemap_layers_enum.ground
-				]
-			)
-			print(
-				"TERRAIN: ",
-				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
-					GlobalRef.tilemap_layers_enum.terrain
-				]
-			)
-			print(
-				"WALLS: ",
-				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
-					GlobalRef.tilemap_layers_enum.walls
-				]
-			)
-			print(
-				"TERRAIN QUEUED: ",
-				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
-					GlobalRef.tilemap_layers_enum.terrain_queued
-				]
-			)
-			print(
-				"WALLS QUEUED: ",
-				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
-					GlobalRef.tilemap_layers_enum.walls_queued
-				]
-			)
-			print(
-				"TERRAIN QUEUED DELETE: ",
-				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
-					GlobalRef.tilemap_layers_enum.terrain_queued_d
-				]
-			)
-			print(
-				"WALLS QUEUED DELETE: ",
-				GlobalRef.get_chunk(Vector2i(mouse_position.x, mouse_position.x))._cells[
-					GlobalRef.tilemap_layers_enum.walls_queued_d
-				]
-			)
-			print(mouse_position)
-
 
 func _handle_mouse_motion() -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _click_1:

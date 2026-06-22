@@ -127,7 +127,6 @@ func set_path(path: PackedVector4Array):
 	var current_position := GridUtils.world_coord_to_chunk_coord(_parent.position)
 	if not _path.is_empty() and Vector4i(_path[0]) == current_position:
 		_current_step = 1
-	print("GOT PATH ", path)
 
 	if _path.is_empty():
 		push_warning("No path found for %s to target" % [_parent.name])

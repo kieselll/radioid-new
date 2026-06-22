@@ -93,11 +93,6 @@ var rpath: Array
 var epath: Array
 
 
-func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.keycode == KEY_P and event.is_pressed():
-		request_path(Vector4i(0, 0, 0, 0), Vector4i(2, -1, 0, 0), func(path): print(path))
-
-
 # Something was here
 #
 #   ⁞O       ⁞O       ⁞O        ⁞O
@@ -443,7 +438,6 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 ## [color=red]DOES NOT WORK BETWEEN CHUNKS YET![br]
 ## DOES NOT HANDLE OUT-OF-BOUNDS CASES CORRECTLY YET![/color]
 func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
-	print("REQUESTED PATH FROM ", from, " TO ", to)
 	var path: PackedVector4Array = []
 
 	# Checking if the start and end are inside the render distance

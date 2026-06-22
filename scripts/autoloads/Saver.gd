@@ -180,7 +180,6 @@ func read_chunk(coords : Vector2i):
 ## Loads the serialized entity payload associated with the given chunk.
 func read_chunk_entities(coords: Vector2i):
 	if FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"):
-		print(coords)
 		var entity_file = FileAccess.open(_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.READ)
 		return JSON.parse_string(entity_file.get_as_text())
 	return {}
