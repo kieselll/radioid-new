@@ -6,7 +6,7 @@ extends Node2D
 ## Currently being refactored from portals to tiles
 
 const CHUNK_TILE_SIZE = 16
-const PORTALS_PER_EDGE = CHUNK_TILE_SIZE
+const PORTALS_PER_EDGE = 10
 const CHUNK_TILE_COUNT = CHUNK_TILE_SIZE * CHUNK_TILE_SIZE
 const UNREACHABLE_PORTAL_COST = 1.0e20
 const LOCAL_NEIGHBOR_OFFSETS = [
