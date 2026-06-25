@@ -151,12 +151,15 @@ func save_chunk(coords : Vector2i):
 	var chunk = GlobalRef.get_chunk(coords)
 	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
 	var entity_manager : EntityManager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager))
-	if entity_manager.serialize_chunk(coords).is_empty()\
-	and not FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"): return
-	elif FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"):
+	if entity_manager.serialize_chunk(coords).is_empty() and\
+	not FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"): return
+	elif FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json") and\
+	entity_manager.serialize_chunk(coords).is_empty():
 		DirAccess.remove_absolute(_current_save_path + "/entities/" + str(coords) + ".json")
-	var _entity_file_access = FileAccess.open(_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.WRITE)
-	_entity_file_access.store_string(JSON.stringify(entity_manager.serialize_chunk(coords)))
+		print("deleted thing")
+	else:
+		var _entity_file_access = FileAccess.open(_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.WRITE)
+		_entity_file_access.store_string(JSON.stringify(entity_manager.serialize_chunk(coords)))
 
 ## Returns the decoded RLE cell payload for the chunk at [param coords].
 ##
