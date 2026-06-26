@@ -22,8 +22,6 @@ func find_nearest_tile(call_coords: Vector4i, data_array: Array[BuildableData], 
 
 
 func find_nearest_tile_coord(call_coords: Vector4i, coords_array: Array):
-	printerr("FIX ME")
-	push_error(ERR_PRINTER_ON_FIRE)
 	var nearest_coord = null
 	var nearest_distance_sqr: float = INF
 	for coord in coords_array:
@@ -59,19 +57,7 @@ func get_neighbor_tiles(pos: Vector4i, include_diagonals: bool) -> Array:
 	)
 
 	for i in offsets:
-		var new_element
-		if (pos + i).z >= CHUNK_SIZE:
-			new_element = pos + i + Vector4i(1, 0, -CHUNK_SIZE, 0)
-		elif (pos + i).z < 0:
-			new_element = pos + i + Vector4i(-1, 0, CHUNK_SIZE, 0)
-		elif (pos + i).w >= CHUNK_SIZE:
-			new_element = pos + i + Vector4i(0, 1, 0, -CHUNK_SIZE)
-		elif (pos + i).w < 0:
-			new_element = pos + i + Vector4i(0, -1, 0, CHUNK_SIZE)
-		else:
-			new_element = pos + i
-
-		output.append(new_element)
+		output.append(normalize(pos + i))
 
 	return output
 
@@ -97,13 +83,7 @@ func tile_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 	var result = Vector4i(
 		coord.x / CHUNK_SIZE, coord.y / CHUNK_SIZE, coord.x % CHUNK_SIZE, coord.y % CHUNK_SIZE
 	)
-	if result.z < 0:
-		result.z = CHUNK_SIZE + result.z
-		result.x -= 1
-	if result.w < 0:
-		result.w = CHUNK_SIZE + result.w
-		result.y -= 1
-	return result
+	return normalize(result)
 
 
 func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
@@ -115,10 +95,12 @@ func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
 		tile_coord.x % CHUNK_SIZE,
 		tile_coord.y % CHUNK_SIZE
 	)
-	if result.z < 0:
-		result.z = CHUNK_SIZE + result.z
-		result.x -= 1
-	if result.w < 0:
-		result.w = CHUNK_SIZE + result.w
-		result.y -= 1
+	return normalize(result)
+
+func normalize(coord: Vector4i) -> Vector4i:
+	var result = coord
+	if coord.z < 0: result += Vector4i(-1, 0, CHUNK_SIZE, 0)
+	if coord.w < 0: result += Vector4i(0, -1, 0, CHUNK_SIZE)
+	if coord.z >= CHUNK_SIZE: result += Vector4i(-1, 0, -CHUNK_SIZE, 0)
+	if coord.w >= CHUNK_SIZE: result += Vector4i(0, -1, 0, -CHUNK_SIZE)
 	return result
