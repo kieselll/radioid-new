@@ -108,20 +108,20 @@ func _draw() -> void:
 			if not (port is Vector4i and port_2 is Vector4i):
 				continue
 			draw_dashed_line(
-				GridUtils.chunk_coord_to_world_coord(port),
-				GridUtils.chunk_coord_to_world_coord(port_2),
+				GridUtils.chunk_coord_to_world_coord(port) + Vector2i(16, 16),
+				GridUtils.chunk_coord_to_world_coord(port_2) + Vector2i(16, 16),
 				Color.RED
 			)
-			draw_circle(GridUtils.chunk_coord_to_world_coord(port), 5, Color.RED)
+			draw_circle(GridUtils.chunk_coord_to_world_coord(port) + Vector2i(16, 16), 5, Color.RED)
 	if epath and not epath.is_empty():
 		for i in epath.size() - 1:
 			draw_dashed_line(
-				GridUtils.chunk_coord_to_world_coord(epath[i]),
-				GridUtils.chunk_coord_to_world_coord(epath[i + 1]),
+				GridUtils.chunk_coord_to_world_coord(epath[i]) + Vector2i(16, 16),
+				GridUtils.chunk_coord_to_world_coord(epath[i + 1]) + Vector2i(16, 16),
 				Color.GREEN
 			)
-			draw_circle(GridUtils.chunk_coord_to_world_coord(epath[i]), 3, Color.GREEN)
-		draw_circle(GridUtils.chunk_coord_to_world_coord(epath[-1]), 10, Color.YELLOW)
+			draw_circle(GridUtils.chunk_coord_to_world_coord(epath[i]) + Vector2i(16, 16), 3, Color.GREEN)
+		draw_circle(GridUtils.chunk_coord_to_world_coord(epath[-1]) + Vector2i(16, 16), 10, Color.YELLOW)
 
 
 #endregion
@@ -567,7 +567,7 @@ func get_portal(coord: Vector4i):
 	if portal_lookup.has(coord):
 		return coord
 	return null
-
+#endregion
 
 #region chunks stuff
 func recalc_dirty_chunks():
