@@ -14,11 +14,6 @@ enum game_nodes_enum {
 	ui_layer,
 }
 
-## Logical chunk layers used throughout the simulation.
-enum tilemap_layers_enum {
-	ground, terrain, walls, terrain_queued, walls_queued, terrain_queued_d, walls_queued_d
-}
-
 ## Registered handler nodes living under the handlers root.
 enum handlers_enum {
 	fancy_thing,
@@ -79,6 +74,31 @@ func get_chunk(coords: Vector2i) -> Node:
 
 #endregion
 
+#region layers
+
+## Logical chunk layers used throughout the simulation.
+enum tilemap_layers_enum {
+	ground, terrain, walls, terrain_queued, walls_queued, terrain_queued_d, walls_queued_d
+}
+
+const queued_layer_map: Dictionary[tilemap_layers_enum, tilemap_layers_enum] = {
+	tilemap_layers_enum.terrain: tilemap_layers_enum.terrain_queued,
+	tilemap_layers_enum.walls: tilemap_layers_enum.walls_queued,
+}
+
+const queued_deletion_layer_map: Dictionary[tilemap_layers_enum, tilemap_layers_enum] = {
+	tilemap_layers_enum.terrain: tilemap_layers_enum.terrain_queued_d,
+	tilemap_layers_enum.walls: tilemap_layers_enum.walls_queued_d,
+}
+
+func get_queued_layer(layer: tilemap_layers_enum) -> tilemap_layers_enum:
+	return queued_layer_map[layer] if queued_layer_map.has(layer) else layer
+
+func get_queued_deletion_layer(layer: tilemap_layers_enum) -> tilemap_layers_enum:
+	return queued_deletion_layer_map[layer] if queued_deletion_layer_map.has(layer) else layer
+
+#endregion
+
 #region Scenes
 ## Commonly-instantiated gameplay scenes.
 enum scenes_enum {pawn, progressbar, save_card, game, main_menu}
@@ -105,6 +125,8 @@ func get_scene(scene: scenes_enum):
 func add_chunk(coords: Vector2i, chunk: Node):
 	chunks[coords] = chunk
 
+#region entities
+# CRITICAL may be outdated
 
 ## Adds a pawn's node path to the live pawn registry.
 func register_pawn(pawn: Node) -> void:
@@ -123,3 +145,5 @@ func unregister_pawn(pawn: Node) -> void:
 func get_pawns() -> Array[String]:
 	pawns = pawns.filter(func(path: String): return get_node_or_null(path) != null)
 	return pawns.duplicate()
+
+#endregion
