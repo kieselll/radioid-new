@@ -371,5 +371,14 @@ func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void
 
 	objects_built.emit(built_object.id, tiles, queued)
 
+func erase_tiles(tiles: Array, layer: GlobalRef.tilemap_layers_enum):
+	GlobalLogger.write_to_logs(
+		self,
+		"Erasing array on layer: %d. Coords: %s."
+		% [layer, str(tiles)]
+	)
+
+	for coord in tiles:
+		GlobalRef.get_chunk(Vector2i(coord.x, coord.y)).erase_cell
 
 #endregion
