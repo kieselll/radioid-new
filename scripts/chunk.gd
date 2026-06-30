@@ -85,6 +85,10 @@ func set_cell(id: int, coords: Vector2i, layer: GlobalRef.tilemap_layers_enum) -
 	dirty = true
 	set_process(true)
 
+func erase_cell(coords: Vector2i, layer: GlobalRef.tilemap_layers_enum) -> void:
+	_new_cells.append(NewCell.new(-1, coords, layer))
+	dirty = true
+	set_process(true)
 
 #endregion
 
@@ -159,8 +163,20 @@ func _init_cells() -> void:
 ## Applies queued cell updates.
 func _update():
 	for i in _new_cells:
+
 		if i.id == -1:
 			continue
+
+			if _multimesh_instances.has(i.id):
+
+				@warning_ignore("confusable_local_declaration")
+				var inst = _multimesh_instances[i.id]
+
+				@warning_ignore("confusable_local_declaration")
+				var index = abs(i.coords.y) * CHUNK_SIZE + abs(i.coords.x)
+
+				inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2i.ZERO, 0, 32 * i.coords))
+				return
 
 		var layer = i.layer
 		_cells[layer][i.coords.x][i.coords.y] = i.id
