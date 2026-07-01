@@ -5,6 +5,8 @@ extends BaseState
 var _movement_component: MovementComponent
 var _parent : StateMachine
 var owner : CharacterBody2D
+var _run_id: int = 0
+var _target: Vector4i = Vector4i.ZERO
 
 const state_name = &"move_state"
 
@@ -16,6 +18,7 @@ func setup(state_machine : StateMachine):
 func start(args: Dictionary = {}) -> void:
 	GlobalLogger.write_to_logs(owner, "Started moving")
 	_active = true
+	_run_id += 1
 	assert(
 		args[&"target"] is Vector4i,
 		(
@@ -24,7 +27,9 @@ func start(args: Dictionary = {}) -> void:
 		)
 	)
 
-	var move_target = args[&"target"]
+	var run_id := _run_id
+	var move_target: Vector4i = args[&"target"]
+	_target = move_target
 	var _partial_path = args.get(&"partial", false)
 	if typeof(_partial_path) != TYPE_BOOL:
 		push_warning(
@@ -34,12 +39,19 @@ func start(args: Dictionary = {}) -> void:
 			)
 		)
 		_partial_path = false
-	if (
-		_movement_component.get_local_position() != move_target
-		and not _movement_component.is_moving()
-	):
+	if _movement_component.get_local_position() == move_target:
+		stop()
+		done.emit()
+		return
+
+	if not _movement_component.is_moving():
 		_movement_component.move_to_coord(move_target)
+
 	await _movement_component.arrived_at_destination
+	if not _active or run_id != _run_id:
+		return
+	if _movement_component.get_local_position() != move_target:
+		return
 	stop()
 	done.emit()
 
