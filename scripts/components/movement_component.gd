@@ -47,7 +47,7 @@ func tick(delta: float) -> void:
 		ticking = false
 		return
 
-	_target_position = GridUtils.chunk_coord_to_world_coord(_path[_current_step])
+	_target_position = Vector2i(GridUtils.chunk_coord_to_world_coord(_path[_current_step])) + Vector2i(16, 16)
 
 	# Recalculate path if obstacle appears
 	if _astar.is_tile_solid(_path[_current_step]):
@@ -58,6 +58,7 @@ func tick(delta: float) -> void:
 	_parent.velocity = lerp(_parent.velocity, _direction * speed, 100 * delta / movement_smoothness)
 
 	if _parent.position.distance_to(_target_position) <= approach_threshold:
+		_parent.position = GridUtils.chunk_coord_to_world_coord(_path[_current_step]) + Vector2i(16, 16)
 		_current_step += 1
 
 		if _current_step >= _path.size():
@@ -101,11 +102,7 @@ func set_approach_threshold(value: float) -> MovementComponent:
 
 func move_to_coord(to: Vector4i) -> void:
 	GlobalLogger.write_to_logs(_parent, "Moving to coords %v..." % to)
-	var from = (
-		_local_position
-		if _local_position
-		else GridUtils.world_coord_to_chunk_coord(_parent.position)
-	)
+	var from = _local_position if ticking else GridUtils.world_coord_to_chunk_coord(_parent.position)
 	_update_path(from, to)
 	ticking = true
 
