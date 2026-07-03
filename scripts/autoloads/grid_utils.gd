@@ -22,12 +22,14 @@ func find_nearest_tile(call_coords: Vector4i, data_array: Array[BuildableData], 
 
 
 func find_nearest_tile_coord(call_coords: Vector4i, coords_array: Array):
+	var vec2_call_coord = chunk_coord_to_tile_coord(call_coords)
 	var nearest_coord = null
 	var nearest_distance_sqr: float = INF
 	for coord in coords_array:
+		var vec2_coord = chunk_coord_to_tile_coord(coord)
 		nearest_coord = (
 			coord
-			if call_coords.distance_squared_to(coord) < nearest_distance_sqr
+			if vec2_call_coord.distance_squared_to(vec2_coord) < nearest_distance_sqr
 			else nearest_coord
 		)
 	return nearest_coord
