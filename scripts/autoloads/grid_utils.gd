@@ -101,6 +101,6 @@ func normalize(coord: Vector4i) -> Vector4i:
 	var result = coord
 	if coord.z < 0: result += Vector4i(-1, 0, CHUNK_SIZE, 0)
 	if coord.w < 0: result += Vector4i(0, -1, 0, CHUNK_SIZE)
-	if coord.z >= CHUNK_SIZE: result += Vector4i(-1, 0, -CHUNK_SIZE, 0)
-	if coord.w >= CHUNK_SIZE: result += Vector4i(0, -1, 0, -CHUNK_SIZE)
+	if coord.z >= CHUNK_SIZE: result += Vector4i(1, 0, -CHUNK_SIZE, 0)
+	if coord.w >= CHUNK_SIZE: result += Vector4i(0, 1, 0, -CHUNK_SIZE)
 	return result
