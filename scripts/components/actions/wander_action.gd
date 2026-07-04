@@ -88,6 +88,8 @@ func new_pos():
 
 		_state_machine.change_state(StateMachine.state_types.move_state, {&"target": _random_pos, &"partial": true})
 	await _move_state.done
+	if not _active:
+		return
 	_random_pos = Vector4i.ZERO
 	var delay_min = owner.behavior_data.wander_delay_min if owner.behavior_data else 0.3
 	var delay_max = owner.behavior_data.wander_delay_max if owner.behavior_data else 1.5
