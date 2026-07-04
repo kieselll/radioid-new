@@ -52,6 +52,7 @@ func start(args: Dictionary = {&"partial": true}) -> void:
 		await move_step(args)
 	if current_step == steps.build:
 		await build_step(args)
+	current_step = steps.move
 	done.emit()
 
 ## Starts the build action from an explicit [code]steps[/code] value.
