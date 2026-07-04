@@ -5,7 +5,7 @@ extends Node2D
 var _new_cells: Array[NewCell] = []  # Queue of cell updates
 var _cells: Array = []  # 3D tile storage
 var dirty: bool
-var _multimesh_instances: Dictionary[int, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
+var _multimesh_instances: Dictionary[Vector2i, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
 var _chunk_manager: ChunkManager
 
 const LAYER_COUNT = 7
@@ -167,31 +167,32 @@ func _update():
 		if i.id == -1:
 			continue
 
-			if _multimesh_instances.has(i.id):
+			if _multimesh_instances.has(Vector2i(i.id, i.layer)):
 
 				@warning_ignore("confusable_local_declaration")
-				var inst = _multimesh_instances[i.id]
+				var inst = _multimesh_instances[Vector2i(i.id, i.layer)]
 
 				@warning_ignore("confusable_local_declaration")
 				var index = abs(i.coords.y) * CHUNK_SIZE + abs(i.coords.x)
 
 				inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2i.ZERO, 0, 32 * i.coords))
+
+				_set_tile_region(i.layer, i.coords)
 				return
 
-		var layer = i.layer
-		_cells[layer][i.coords.x][i.coords.y] = i.id
+		_cells[i.layer][i.coords.x][i.coords.y] = i.id
 
 		# Create MultiMesh if needed
-		if not _multimesh_instances.has(i.id):
+		if not _multimesh_instances.has(Vector2i(i.id, i.layer)):
 			_create_multimesh(i)
 
-		var inst = _multimesh_instances[i.id]
+		var inst = _multimesh_instances[Vector2i(i.id, i.layer)]
 
 		var index = abs(i.coords.y) * CHUNK_SIZE + abs(i.coords.x)
 
 		inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, 32 * i.coords))
 
-		_set_tile_region(layer, i.coords)
+		_set_tile_region(i.layer, i.coords)
 
 	_new_cells.clear()
 
@@ -206,7 +207,7 @@ func _create_multimesh(cell: NewCell):
 	var mm = MultiMeshInstance2D.new()
 
 	mm.texture = BuildableDB.get_tile(cell.id).texture_params.texture
-	_multimesh_instances[cell.id] = mm
+	_multimesh_instances[Vector2i(cell.id, cell.layer)] = mm
 
 	mm.multimesh = MultiMesh.new()
 	mm.multimesh.use_custom_data = true
@@ -315,7 +316,7 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 
 		var index = abs(p.y) * CHUNK_SIZE + abs(p.x)
 
-		chunk._multimesh_instances[id].multimesh.set_instance_custom_data(
+		chunk._multimesh_instances[Vector2i(id, layer)].multimesh.set_instance_custom_data(
 			index, Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y)
 		)
 
