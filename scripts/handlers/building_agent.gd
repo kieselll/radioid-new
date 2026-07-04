@@ -379,6 +379,6 @@ func erase_tiles(tiles: Array, layer: GlobalRef.tilemap_layers_enum):
 	)
 
 	for coord in tiles:
-		GlobalRef.get_chunk(Vector2i(coord.x, coord.y)).erase_cell
+		GlobalRef.get_chunk(Vector2i(coord.x, coord.y)).erase_cell(Vector2i(coord.z, coord.w), layer)
 
 #endregion
