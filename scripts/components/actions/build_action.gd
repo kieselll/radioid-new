@@ -45,11 +45,11 @@ func setup(action_machine : ActionMachine):
 #region lifecycle
 
 ## Starts the build action from the currently stored [code]current_step[/code].
-func start(args: Dictionary = {&"partial": true}) -> void:
+func start(args: Dictionary = {}) -> void:
 	current_args = args
 	initialize()
 	if current_step == steps.move:
-		await move_step(args)
+		await move_step(args.merged({&"partial": true}, true))
 	if current_step == steps.build:
 		await build_step(args)
 	current_step = steps.move
