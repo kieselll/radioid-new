@@ -81,23 +81,20 @@ func chunk_coord_to_world_coord(chunk_coords: Vector4i) -> Vector2i:
 
 
 func tile_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
-	@warning_ignore("integer_division")
-	var result = Vector4i(
-		coord.x / CHUNK_SIZE, coord.y / CHUNK_SIZE, coord.x % CHUNK_SIZE, coord.y % CHUNK_SIZE
+	return Vector4i(
+		floori(float(coord.x) / CHUNK_SIZE),
+		floori(float(coord.y) / CHUNK_SIZE),
+		posmod(coord.x, CHUNK_SIZE),
+		posmod(coord.y, CHUNK_SIZE)
 	)
-	return normalize(result)
 
 
 func world_coord_to_chunk_coord(coord: Vector2i) -> Vector4i:
-	@warning_ignore("integer_division")
-	var tile_coord = coord / TILE_SIZE
-	var result = Vector4i(
-		tile_coord.x / CHUNK_SIZE,
-		tile_coord.y / CHUNK_SIZE,
-		tile_coord.x % CHUNK_SIZE,
-		tile_coord.y % CHUNK_SIZE
+	var tile_coord = Vector2i(
+		floori(float(coord.x) / TILE_SIZE),
+		floori(float(coord.y) / TILE_SIZE)
 	)
-	return normalize(result)
+	return tile_coord_to_chunk_coord(tile_coord)
 
 func normalize(coord: Vector4i) -> Vector4i:
 	var result = coord
