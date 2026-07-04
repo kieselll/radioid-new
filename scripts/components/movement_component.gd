@@ -87,15 +87,15 @@ func set_speed(value : float) -> MovementComponent:
 	return self
 
 ## Sets the movement smoothness of the entity it's attached to [br]
-## The default movement smoothness is 15
+## The default movement smoothness is 10
 func set_smoothness(value: float) -> MovementComponent:
 	movement_smoothness = value
 	return self
 
 ## Sets the approach threshold of the entity it's attached to [br]
-## The default approach threshold is 4 px
+## The default approach threshold is 2 px
 func set_approach_threshold(value: float) -> MovementComponent:
-	movement_smoothness = value
+	approach_threshold = value
 	return self
 
 #endregion
@@ -119,6 +119,7 @@ func is_moving() -> bool:
 	return _parent.velocity != Vector2.ZERO
 
 func set_path(path: PackedVector4Array):
+	GlobalLogger.write_to_logs(_parent, "Set path as " + str(path))
 	_path = path
 	_current_step = 0
 	var current_position := GridUtils.world_coord_to_chunk_coord(_parent.position)
