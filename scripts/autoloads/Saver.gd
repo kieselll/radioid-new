@@ -156,7 +156,6 @@ func save_chunk(coords : Vector2i):
 	elif FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json") and\
 	entity_manager.serialize_chunk(coords).is_empty():
 		DirAccess.remove_absolute(_current_save_path + "/entities/" + str(coords) + ".json")
-		print("deleted thing")
 	else:
 		var _entity_file_access = FileAccess.open(_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.WRITE)
 		_entity_file_access.store_string(JSON.stringify(entity_manager.serialize_chunk(coords)))
