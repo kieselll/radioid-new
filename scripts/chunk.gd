@@ -163,22 +163,9 @@ func _init_cells() -> void:
 ## Applies queued cell updates.
 func _update():
 	for i in _new_cells:
-
 		if i.id == -1:
+			_erase_cell_instance(i.layer, i.coords)
 			continue
-
-			if _multimesh_instances.has(Vector2i(i.id, i.layer)):
-
-				@warning_ignore("confusable_local_declaration")
-				var inst = _multimesh_instances[Vector2i(i.id, i.layer)]
-
-				@warning_ignore("confusable_local_declaration")
-				var index = abs(i.coords.y) * CHUNK_SIZE + abs(i.coords.x)
-
-				inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2i.ZERO, 0, 32 * i.coords))
-
-				_set_tile_region(i.layer, i.coords)
-				return
 
 		_cells[i.layer][i.coords.x][i.coords.y] = i.id
 
@@ -221,6 +208,53 @@ func _create_multimesh(cell: NewCell):
 	mm.multimesh.instance_count = CHUNK_SIZE * CHUNK_SIZE
 	add_child(mm)
 
+
+#endregion
+
+#region Private_Erase
+
+func _erase_cell_instance(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) -> void:
+	var previous_id = _cells[layer][coords.x][coords.y]
+	if previous_id == -1:
+		return
+
+	_cells[layer][coords.x][coords.y] = -1
+
+	var multimesh_key := Vector2i(previous_id, layer)
+	if _multimesh_instances.has(multimesh_key):
+		var inst = _multimesh_instances[multimesh_key]
+		var index = abs(coords.y) * CHUNK_SIZE + abs(coords.x)
+		inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2.ZERO))
+		inst.multimesh.set_instance_custom_data(index, Color(0.0, 0.0, 0.0, 0.0))
+
+	_refresh_neighbor_regions(layer, coords)
+
+
+func _refresh_neighbor_regions(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) -> void:
+	for off in offsets:
+		var neighbor = coords + off
+		var chunk_pos = Vector2i(
+			GridUtils.world_coord_to_chunk_coord(position).x,
+			GridUtils.world_coord_to_chunk_coord(position).y
+		)
+		if neighbor.x < 0:
+			chunk_pos += Vector2i(-1, 0)
+			neighbor.x = CHUNK_SIZE - 1
+		elif neighbor.x >= CHUNK_SIZE:
+			chunk_pos += Vector2i(1, 0)
+			neighbor.x = 0
+		if neighbor.y < 0:
+			chunk_pos += Vector2i(0, -1)
+			neighbor.y = CHUNK_SIZE - 1
+		elif neighbor.y >= CHUNK_SIZE:
+			chunk_pos += Vector2i(0, 1)
+			neighbor.y = 0
+
+		var chunk = GlobalRef.get_chunk(chunk_pos)
+		if chunk == null or chunk.get_cell(layer, neighbor) == -1:
+			continue
+
+		chunk._set_tile_region(layer, neighbor)
 
 #endregion
 
