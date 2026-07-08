@@ -435,7 +435,6 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 ## Function for agents to retrieve a path with source [param from] and destination [param to][br]
 ## The [param partial] parameter determines whether a partial path is returned.[br]
 ## Handles cases where destination might be outside of Astar bounds.[br]
-## [color=red]DOES NOT WORK BETWEEN CHUNKS YET![br]
 ## DOES NOT HANDLE OUT-OF-BOUNDS CASES CORRECTLY YET![/color]
 func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
 	var path: PackedVector4Array = []
