@@ -82,19 +82,10 @@ func initialize() -> void:
 ## Moves the pawn to the nearest adjacent tile around the build target.
 func move_step(args: Dictionary) -> void:
 	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args[&"target"], true)
-	_state_machine.change_state(
-		StateMachine.state_types.move_state,
-		args.merged(
-			{
-				&"target":
-				GridUtils.find_nearest_tile_coord(
-					_movement_component.get_local_position(), _neighbor_tiles
-				)
-			},
-			true
-		)
-	)
-	await _move_state.done
+	var nearest_coord = GridUtils.find_nearest_tile_coord(_movement_component.get_local_position(), _neighbor_tiles)
+	if _movement_component.get_local_position() != nearest_coord:
+		_state_machine.change_state(StateMachine.state_types.move_state, args.merged({&"target": nearest_coord}, true))
+		await _move_state.done
 	current_step = steps.build
 
 ## Runs the build state once the pawn is in position.
