@@ -79,10 +79,9 @@ func _process(_delta: float) -> void:
 		var entities : Dictionary = GlobalSaver.read_chunk_entities(load_queue[-1])
 		var entity_manager : EntityManager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager))
 		for entity in entities.values():
-			entity_manager.spawn_entity(entity["entity_type"], str_to_var(entity["position"]), entity["entity_id"])
+			entity_manager.deserialize_entity(entity)
 		load_queue.remove_at(-1)
 		return
-
 	set_process(false)
 
 
