@@ -49,7 +49,7 @@ var _components: Array[BaseComponent] = []
 
 #region Lifecycle
 
-func initialize(template: EntityTemplate, components: Dictionary = {}) -> void:
+func initialize(template: EntityTemplate, autogenerate: bool, components: Dictionary = {}) -> void:
 	_apply_template_data(template)
 	template_id = template.id
 
@@ -85,7 +85,7 @@ func initialize(template: EntityTemplate, components: Dictionary = {}) -> void:
 		_components.append(ability_manager)
 
 	if decision_maker:
-		decision_maker.setup(self)
+		decision_maker.setup(self, autogenerate)
 		_components.append(decision_maker)
 
 	_update_label()
@@ -177,6 +177,7 @@ func serialize() -> Dictionary:
 		"position" : var_to_str(GridUtils.world_coord_to_chunk_coord(position)),
 		"current_health" : current_health,
 		"current_action" : action_machine.serialize(),
+		"decision_maker" : decision_maker.serialize()
 	}
 	return result
 

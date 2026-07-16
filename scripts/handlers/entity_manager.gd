@@ -15,7 +15,7 @@ enum types
 func _ready() -> void:
 	load_templates()
 	next_entity_id = GlobalSaver.load_current_entity_id()
-	#spawn_entity(types.pawn)
+	#spawn_entity(types.pawn, true)
 
 func load_templates() -> void:
 	entity_templates.clear()
@@ -63,7 +63,7 @@ var entity_pool
 
 #region API
 
-func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO, forced_id: int = -1) -> BaseEntity:
+func spawn_entity(entity_type: types, autogenerate: bool, spawn_coord: Vector4i = Vector4i.ZERO, forced_id: int = -1) -> BaseEntity:
 	var template = entity_templates.get(entity_type)
 	assert(template != null, "EntityManager has no template for type %s" % types.find_key(entity_type))
 	assert(template.scene != null, "EntityTemplate %s is missing a scene." % template.id)
@@ -82,7 +82,7 @@ func spawn_entity(entity_type: types, spawn_coord: Vector4i = Vector4i.ZERO, for
 	entity_node.position = GridUtils.chunk_coord_to_world_coord(spawn_coord)
 	entity_node.entity_type = entity_type
 	add_child(entity_node)
-	entity_node.initialize(template, _build_components(template))
+	entity_node.initialize(template, autogenerate, _build_components(template))
 	GlobalRef.register_pawn(entity_node)
 	var spawned_entity = entity.new(entity_id, entity_type, entity_node)
 	entities_by_id[entity_id] = spawned_entity
@@ -133,7 +133,7 @@ func serialize_entity(entity_id : int) -> Dictionary:
 
 func deserialize_entity(serialized_dict: Dictionary) -> void:
 	@warning_ignore("shadowed_variable")
-	var entity = spawn_entity(serialized_dict["entity_type"], str_to_var(serialized_dict["position"]), serialized_dict["entity_id"])
+	var entity = spawn_entity(serialized_dict["entity_type"], false, str_to_var(serialized_dict["position"]), serialized_dict["entity_id"])
 	entity.current_health = serialized_dict["current_health"]
 	entity.action_machine.deserialize(serialized_dict["current_action"])
 	entity.decision_maker.deserialize(serialized_dict["decision_maker"])

@@ -75,7 +75,7 @@ func tick(delta : float) -> void:
 #region init
 
 ## Caches component references, copies behavior weights, and starts the default action.
-func setup(parent : CharacterBody2D) -> void:
+func setup(parent : CharacterBody2D, generate_actions: bool) -> void:
 	_parent = parent
 	_action_machine = _parent.action_machine
 	_ability_manager = _parent.ability_manager
@@ -93,9 +93,10 @@ func setup(parent : CharacterBody2D) -> void:
 		else ActionMachine.action_types.wander
 	)
 	_action_queue = [QueuedAction.new(default_action, 0)]
-	_current_action = _action_queue[0]
 	if not _action_machine.action_done.is_connected(_on_action_machine_action_done):
 		_action_machine.action_done.connect(_on_action_machine_action_done)
+	if not generate_actions: return
+	_current_action = _action_queue[0]
 	_action_machine.start_action(_current_action.action_type, _current_action.args)
 
 #endregion
