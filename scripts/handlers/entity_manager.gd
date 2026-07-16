@@ -136,6 +136,7 @@ func deserialize_entity(serialized_dict: Dictionary) -> void:
 	var entity = spawn_entity(serialized_dict["entity_type"], str_to_var(serialized_dict["position"]), serialized_dict["entity_id"])
 	entity.current_health = serialized_dict["current_health"]
 	entity.action_machine.deserialize(serialized_dict["current_action"])
+	entity.decision_maker.deserialize(serialized_dict["decision_maker"])
 
 func serialize_chunk(chunk_coords : Vector2i) -> Dictionary:
 	var result := {}
