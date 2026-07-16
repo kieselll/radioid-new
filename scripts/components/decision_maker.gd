@@ -39,6 +39,16 @@ class QueuedAction:
 		priority = _priority
 		args = _args
 
+	func serialize() -> Dictionary:
+		return {
+			"action_type": action_type,
+			"priority": priority,
+			"args": args
+		}
+
+	static func deserialize(data: Dictionary) -> QueuedAction:
+		return QueuedAction.new(data["action_type"], data["priority"], data["args"])
+
 #endregion
 
 #region private vars
@@ -140,6 +150,13 @@ func calculate_action_priority_modifier(
 		/ (1 + pow(distance * _distance_weight / 1000, 2))
 	)
 
+func serialize() -> Dictionary:
+	return {"_action_queue": _action_queue.map(func(element): return element.serialize()), "_current_action": _current_action.serialize()}
+
+func deserialize(data: Dictionary) -> void:
+	for action_data in data["_action_queue"]:
+		_action_queue.append(QueuedAction.deserialize(action_data))
+	_current_action = QueuedAction.deserialize(data["_current_action"])
 #endregion
 
 #region helpers
