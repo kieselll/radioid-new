@@ -63,7 +63,7 @@ func start(args: Dictionary = {}) -> void:
 ##
 ## This wrapper is intentionally redundant so all actions expose the same
 ## deserialization-friendly API.
-func start_from_step(args: Dictionary = {&"partial": true}, step : steps = steps.wander):
+func start_from_step(args: Dictionary = {"partial": true}, step : steps = steps.wander):
 	current_step = step
 	start(args)
 
@@ -86,7 +86,7 @@ func new_pos():
 			new_pos()
 			return
 
-		_state_machine.change_state(StateMachine.state_types.move_state, {&"target": _random_pos, &"partial": true})
+		_state_machine.change_state(StateMachine.state_types.move_state, {"target": _random_pos, "partial": true})
 	await _move_state.done
 	if not _active:
 		return

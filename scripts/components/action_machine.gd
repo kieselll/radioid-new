@@ -93,10 +93,13 @@ func erase_action(action_type: action_types) -> void:
 
 ## Serializes the currently active action and its resumable state.
 func serialize() -> Dictionary:
+	var new_action_args = current_action.current_args.duplicate()
+	if new_action_args.get("target") is Vector4i:
+		new_action_args["target"] = var_to_str(new_action_args["target"])
 	var result: Dictionary = {
 		"current_action" : current_action.action_type,
 		"action_step" : current_action.current_step,
-		"action_args" : current_action.current_args
+		"action_args" : new_action_args
 	}
 	return result
 
@@ -106,7 +109,10 @@ func serialize() -> Dictionary:
 ## resuming can be layered on top of this through per-action helpers such as
 ## [code]start_from_step()[/code].
 func deserialize(dictionary: Dictionary) -> void:
-	start_action(dictionary["current_action"], dictionary["action_args"], dictionary["action_step"])
+	var new_args = dictionary["action_args"].duplicate()
+	if new_args.get("target") is String:
+		new_args["target"] = str_to_var(new_args["target"])
+	start_action(dictionary["current_action"], new_args, dictionary["action_step"])
 
 #endregion
 

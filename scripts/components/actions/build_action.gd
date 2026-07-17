@@ -49,14 +49,14 @@ func start(args: Dictionary = {}) -> void:
 	current_args = args
 	initialize()
 	if current_step == steps.move:
-		await move_step(args.merged({&"partial": true}, true))
+		await move_step(args.merged({"partial": true}, true))
 	if current_step == steps.build:
 		await build_step(args)
 	current_step = steps.move
 	done.emit()
 
 ## Starts the build action from an explicit [code]steps[/code] value.
-func start_from_step(args: Dictionary = {&"partial": true}, step : steps = steps.move):
+func start_from_step(args: Dictionary = {"partial": true}, step : steps = steps.move):
 	current_step = step
 	start(args)
 
@@ -81,10 +81,11 @@ func initialize() -> void:
 
 ## Moves the pawn to the nearest adjacent tile around the build target.
 func move_step(args: Dictionary) -> void:
-	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args[&"target"], true)
+	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args["target"], true)
 	var nearest_coord = GridUtils.find_nearest_tile_coord(_movement_component.get_local_position(), _neighbor_tiles)
 	if _movement_component.get_local_position() != nearest_coord:
-		_state_machine.change_state(StateMachine.state_types.move_state, args.merged({&"target": nearest_coord}, true))
+		_state_machine.change_state(StateMachine.state_types.move_state, args.merged({"target": nearest_coord}, true))
+		print("moving to ", nearest_coord)
 		await _move_state.done
 	current_step = steps.build
 

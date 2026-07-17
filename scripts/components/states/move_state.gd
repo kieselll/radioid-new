@@ -20,7 +20,7 @@ func start(args: Dictionary = {}) -> void:
 	_active = true
 	_run_id += 1
 	assert(
-		args[&"target"] is Vector4i,
+		args["target"] is Vector4i,
 		(
 			'MoveState of %s recieved start(), but has no argument "target" of type Vector4i.'
 			% owner.name
@@ -28,9 +28,9 @@ func start(args: Dictionary = {}) -> void:
 	)
 
 	var run_id := _run_id
-	var move_target: Vector4i = args[&"target"]
+	var move_target: Vector4i = args["target"]
 	_target = move_target
-	var _partial_path = args.get(&"partial", false)
+	var _partial_path = args.get("partial", false)
 	if typeof(_partial_path) != TYPE_BOOL:
 		push_warning(
 			(

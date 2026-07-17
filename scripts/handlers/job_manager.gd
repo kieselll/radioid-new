@@ -77,7 +77,7 @@ func _job_class_to_queued_action(job: Job) -> DecisionMaker.QueuedAction:
 		return DecisionMaker.QueuedAction.new(
 			ActionMachine.action_types.build,
 			job.priority,
-			{&"target": job.location, &"id": job.building_id}
+			{"target": job.location, &"id": job.building_id}
 		)
 	return null
 

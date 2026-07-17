@@ -40,14 +40,20 @@ class QueuedAction:
 		args = _args
 
 	func serialize() -> Dictionary:
+		var new_args = args.duplicate()
+		if new_args.has("target"):
+			new_args["target"] = var_to_str(new_args["target"])
 		return {
 			"action_type": action_type,
 			"priority": priority,
-			"args": args
+			"args": new_args
 		}
 
 	static func deserialize(data: Dictionary) -> QueuedAction:
-		return QueuedAction.new(data["action_type"], data["priority"], data["args"])
+		var new_args = data["args"].duplicate()
+		if new_args.has("target"):
+			new_args["target"] = str_to_var(new_args["target"])
+		return QueuedAction.new(data["action_type"], data["priority"], new_args)
 
 #endregion
 
@@ -174,15 +180,15 @@ func _on_action_machine_action_done() -> void:
 
 ## Sort callback that recalculates queue priorities before ordering.
 func _queue_sort(a, b):
-	if a.args.keys().has(&"target"):
+	if a.args.keys().has("target"):
 		a.priority = calculate_action_priority_modifier(
-			a.action_type, TEMP_BASE_PRIORITY, a.args[&"target"]
+			a.action_type, TEMP_BASE_PRIORITY, a.args["target"]
 		)
 	else:
 		a.priority = calculate_action_priority_modifier(a.action_type, TEMP_BASE_PRIORITY)
-	if b.args.keys().has(&"target"):
+	if b.args.keys().has("target"):
 		b.priority = calculate_action_priority_modifier(
-			b.action_type, TEMP_BASE_PRIORITY, b.args[&"target"]
+			b.action_type, TEMP_BASE_PRIORITY, b.args["target"]
 		)
 	else:
 		b.priority = calculate_action_priority_modifier(b.action_type, TEMP_BASE_PRIORITY)
