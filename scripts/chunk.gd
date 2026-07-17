@@ -181,6 +181,12 @@ func _update():
 
 		_set_tile_region(i.layer, i.coords)
 
+		var self_position = GridUtils.world_coord_to_chunk_coord(position)
+		get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder)).mark_tile_solid(
+			Vector4i(self_position.x, self_position.y, i.coords.x, i.coords.y),
+			not BuildableDB.get_tile(i.id).passable
+		)
+
 	_new_cells.clear()
 
 
