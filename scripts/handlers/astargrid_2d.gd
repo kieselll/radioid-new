@@ -438,6 +438,8 @@ func get_rough_path(start: Vector4i, end: Vector4i):
 ## DOES NOT HANDLE OUT-OF-BOUNDS CASES CORRECTLY YET![/color]
 func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
 	var path: PackedVector4Array = []
+	var from_chunk := Vector2i(from.x, from.y)
+	var to_chunk := Vector2i(to.x, to.y)
 
 	# Checking if the start and end are inside the render distance
 	@warning_ignore_start("integer_division")
@@ -468,18 +470,31 @@ func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
 		# Do nothing for now
 		return
 		@warning_ignore_restore("integer_division")
+
+	# Adjacent tiles that straddle a chunk edge do not need the portal graph. The
+	# rough path for them is simply [from, to], and the stitching loop below skips
+	# that pair as a cross-chunk hop, which otherwise produces an empty exact path.
+	if astargrids.has(from_chunk) and astargrids.has(to_chunk):
+		var tile_delta := calculate_global_tile_coords(to) - calculate_global_tile_coords(from)
+		if absi(tile_delta.x) + absi(tile_delta.y) == 1:
+			if not is_tile_solid(to):
+				path.append(from)
+				path.append(to)
+			epath = path
+			callback.call(path)
+			return
 	elif (
-		not portals_by_coords.has(Vector2i(from.x, from.y))
-		or not portals_by_coords.has(Vector2i(to.x, to.y))
+		not portals_by_coords.has(from_chunk)
+		or not portals_by_coords.has(to_chunk)
 	):
 		# If they are inside the render distance, that means the chunks haven't initialized yet, and we should queue the request
 		path_request_queue.append([from, to, callback])
 		return
 
 	# If the start and end are in the same chunk
-	if from.x == to.x and from.y == to.y:
+	if from_chunk == to_chunk:
 		# We get the path directly from the astar of the chunk
-		var astar = astargrids[Vector2i(from.x, from.y)]
+		var astar = astargrids[from_chunk]
 		var temp_path = astar.get_id_path(Vector2i(from.z, from.w), Vector2i(to.z, to.w))
 		path = temp_path.map(
 			func(element: Vector2i): return Vector4i(to.x, to.y, element.x, element.y)
