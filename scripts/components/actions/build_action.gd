@@ -83,6 +83,12 @@ func initialize() -> void:
 
 ## Moves the pawn to the nearest adjacent tile around the build target.
 func move_step(args: Dictionary) -> void:
+	# BuildingComponent queues the completed tile and its ghost removal for the
+	# chunk's next process update. Wait until that update has refreshed A* before
+	# selecting an approach tile; otherwise a just-built wall still looks walkable
+	# for one frame and gets selected as the destination.
+	await owner.get_tree().physics_frame
+
 	var neighbor_tiles := GridUtils.get_neighbor_tiles(args["target"], true)
 	var walkable_neighbors := neighbor_tiles.filter(
 		func(tile: Vector4i) -> bool: return not _pathfinder.is_tile_solid(tile)
