@@ -13,6 +13,7 @@ var _movement_component: MovementComponent
 var _state_machine: StateMachine
 var _move_state: MoveState
 var _build_state: BuildState
+var _pathfinder: GlobalPathfinder
 var current_step: steps = steps.move
 var current_args: Dictionary
 var _parent
@@ -76,13 +77,23 @@ func initialize() -> void:
 	_movement_component = owner.movement_component
 	_move_state = _state_machine.get_state(StateMachine.state_types.move_state)
 	_build_state = _state_machine.get_state(StateMachine.state_types.build_state)
+	_pathfinder = owner.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
 #region Step functions
 
 ## Moves the pawn to the nearest adjacent tile around the build target.
 func move_step(args: Dictionary) -> void:
-	var _neighbor_tiles = GridUtils.get_neighbor_tiles(args["target"], true)
-	var nearest_coord = GridUtils.find_nearest_tile_coord(_movement_component.get_local_position(), _neighbor_tiles)
+	var neighbor_tiles := GridUtils.get_neighbor_tiles(args["target"], true)
+	var walkable_neighbors := neighbor_tiles.filter(
+		func(tile: Vector4i) -> bool: return not _pathfinder.is_tile_solid(tile)
+	)
+	if walkable_neighbors.is_empty():
+		push_warning("No walkable approach tile for build target %s" % args["target"])
+		return
+
+	var nearest_coord = GridUtils.find_nearest_tile_coord(
+		_movement_component.get_local_position(), walkable_neighbors
+	)
 	if _movement_component.get_local_position() != nearest_coord:
 		_state_machine.change_state(StateMachine.state_types.move_state, args.merged({"target": nearest_coord}, true))
 		print("moving to ", nearest_coord)
