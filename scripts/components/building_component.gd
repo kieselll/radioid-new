@@ -29,9 +29,13 @@ func build(coords: Vector4i, id: int, time: float = 5):
 	var progressbar_tween = _parent.create_tween()
 	progressbar_tween.tween_property(progressbar, "value", 100, time)
 	await progressbar_tween.finished
+	var chunk = GlobalRef.get_chunk(Vector2i(coords.x, coords.y))
 	_parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent)).fill_array(
 		[coords], _data, false
 	)
 	_parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent)).erase_tiles([coords], _data.queued_layer)
+	# Both operations above are queued on Chunk and applied during its next
+	# _process(). Do not finish the action until tile data and A* solidity agree.
+	await chunk.cells_updated
 	progressbar.queue_free()
 	finished_building.emit()

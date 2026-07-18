@@ -26,6 +26,7 @@ enum steps {
 var _movement_component: MovementComponent
 var _state_machine: StateMachine
 var _move_state: BaseState
+var _pathfinder: GlobalPathfinder
 var _random_pos: Vector4i = Vector4i.ZERO
 var _parent: ActionMachine
 var current_step : steps = steps.wander
@@ -43,6 +44,7 @@ func setup(action_machine : ActionMachine):
 	_movement_component = owner.movement_component
 	_state_machine = _parent.state_machine
 	_move_state = _state_machine.get_state(StateMachine.state_types.move_state)
+	_pathfinder = owner.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
 #endregion
 
@@ -77,13 +79,25 @@ func new_pos():
 		return
 	if not _random_pos:
 		var radius = owner.behavior_data.wander_radius if owner.behavior_data else 5
-		var offset := Vector2i(randi_range(-radius, radius), randi_range(-radius, radius))
-		_random_pos = GridUtils.tile_coord_to_chunk_coord(
-			GridUtils.chunk_coord_to_tile_coord(_movement_component.get_local_position()) + offset
-		)
-		if _random_pos == Vector4i.ZERO:
+		var current_position := _movement_component.get_local_position()
+		var found_candidate := false
+		for _attempt in 16:
+			var offset := Vector2i(randi_range(-radius, radius), randi_range(-radius, radius))
+			var candidate := GridUtils.tile_coord_to_chunk_coord(
+				GridUtils.chunk_coord_to_tile_coord(current_position) + offset
+			)
+			if candidate != current_position and not _pathfinder.is_tile_solid(candidate):
+				_random_pos = candidate
+				found_candidate = true
+				break
+
+		if not found_candidate:
+			# Chunks and their A* grids may still be initializing. Do not emit [signal done]
+			# here: DecisionMaker immediately starts the fallback wander action again,
+			# creating an unbounded same-frame call chain. Yield, then retry instead.
 			await owner.get_tree().process_frame
-			new_pos()
+			if _active:
+				new_pos()
 			return
 
 		_state_machine.change_state(StateMachine.state_types.move_state, {"target": _random_pos, "partial": true})

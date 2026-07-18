@@ -848,7 +848,13 @@ func mark_tile_solid(coords: Vector4i, solid: bool = true) -> void:
 
 
 func is_tile_solid(coords: Vector4i) -> bool:
-	var astar: AStarGrid2D = astargrids[Vector2i(coords.x, coords.y)]
+	var chunk_coords := Vector2i(coords.x, coords.y)
+	# Chunks are created asynchronously while the entity's default wander action
+	# can already run. Until this chunk has an A* grid, it is not safe to select
+	# as a movement destination.
+	if not astargrids.has(chunk_coords):
+		return true
+	var astar: AStarGrid2D = astargrids[chunk_coords]
 	return astar.is_point_solid(Vector2i(coords.z, coords.w))
 
 

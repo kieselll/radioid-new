@@ -52,6 +52,8 @@ func tick(delta: float) -> void:
 	# Recalculate path if obstacle appears
 	if _astar.is_tile_solid(_path[_current_step]):
 		_update_path(_local_position, _path[-1])
+		_parent.velocity = Vector2.ZERO
+		return
 
 	_direction = (Vector2(_target_position) - _parent.position).normalized()
 
