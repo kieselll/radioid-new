@@ -165,6 +165,7 @@ func _update():
 	for i in _new_cells:
 		if i.id == -1:
 			_erase_cell_instance(i.layer, i.coords)
+			_refresh_pathfinding_solid(i.coords)
 			continue
 
 		_cells[i.layer][i.coords.x][i.coords.y] = i.id
@@ -180,14 +181,30 @@ func _update():
 		inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, 32 * i.coords))
 
 		_set_tile_region(i.layer, i.coords)
-
-		var self_position = GridUtils.world_coord_to_chunk_coord(position)
-		get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder)).mark_tile_solid(
-			Vector4i(self_position.x, self_position.y, i.coords.x, i.coords.y),
-			not BuildableDB.get_tile(i.id).passable
-		)
+		_refresh_pathfinding_solid(i.coords)
 
 	_new_cells.clear()
+
+
+## Updates collision from the real world layers only. Queued build previews are
+## visual reservations and must remain walkable so builders can reach a tile
+## adjacent to another queued build job.
+func _refresh_pathfinding_solid(coords: Vector2i) -> void:
+	var solid := false
+	for layer in [
+		GlobalRef.tilemap_layers_enum.ground,
+		GlobalRef.tilemap_layers_enum.terrain,
+		GlobalRef.tilemap_layers_enum.walls,
+	]:
+		var tile_id := get_cell(layer, coords)
+		if tile_id != -1 and not BuildableDB.get_tile(tile_id).passable:
+			solid = true
+			break
+
+	var self_position := GridUtils.world_coord_to_chunk_coord(position)
+	get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder)).mark_tile_solid(
+		Vector4i(self_position.x, self_position.y, coords.x, coords.y), solid
+	)
 
 
 #endregion

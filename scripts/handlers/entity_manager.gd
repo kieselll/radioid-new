@@ -15,7 +15,7 @@ enum types
 func _ready() -> void:
 	load_templates()
 	next_entity_id = GlobalSaver.load_current_entity_id()
-	#spawn_entity(types.pawn, true)
+	spawn_entity(types.pawn, true)
 
 func load_templates() -> void:
 	entity_templates.clear()
