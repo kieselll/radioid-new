@@ -28,7 +28,7 @@ func load_templates() -> void:
 			continue
 		var template : EntityTemplate = load("res://resources/entity_templates/" + i)
 		if template == null:
-			push_warning("Failed to load entity template: %s" % i)
+			push_warning("Failed to load Entity template: %s" % i)
 			continue
 		entity_templates[template.type] = template
 
@@ -37,7 +37,7 @@ func load_templates() -> void:
 
 #region helper classes
 
-class entity:
+class Entity:
 	var id : int
 	var type : types
 	var node : BaseEntity
@@ -53,25 +53,25 @@ class entity:
 #region vars
 
 var entity_templates : Dictionary[types, EntityTemplate] = {}
-var entities_by_id : Dictionary[int, entity] = {}
+var entities_by_id : Dictionary[int, Entity] = {}
 var entities_by_chunk : Dictionary[Vector2i, Array] = {}
 var next_entity_id: int = 1
 
-var entity_pool
+var entity_pool : Array
 
 #endregion
 
 #region API
 
 func spawn_entity(entity_type: types, autogenerate: bool, spawn_coord: Vector4i = Vector4i.ZERO, forced_id: int = -1) -> BaseEntity:
-	var template = entity_templates.get(entity_type)
+	var template: EntityTemplate = entity_templates.get(entity_type)
 	assert(template != null, "EntityManager has no template for type %s" % types.find_key(entity_type))
 	assert(template.scene != null, "EntityTemplate %s is missing a scene." % template.id)
 
 	var entity_node := template.scene.instantiate() as BaseEntity
 	assert(entity_node != null, "EntityTemplate %s did not instantiate a BaseEntity." % template.id)
 
-	var entity_id
+	var entity_id: int
 	if forced_id != -1:
 		entity_id = forced_id
 	else:
@@ -84,18 +84,18 @@ func spawn_entity(entity_type: types, autogenerate: bool, spawn_coord: Vector4i 
 	add_child(entity_node)
 	entity_node.initialize(template, autogenerate, _build_components(template))
 	GlobalRef.register_pawn(entity_node)
-	var spawned_entity = entity.new(entity_id, entity_type, entity_node)
+	var spawned_entity := Entity.new(entity_id, entity_type, entity_node)
 	entities_by_id[entity_id] = spawned_entity
 	if not entities_by_chunk.keys().has(Vector2i(spawn_coord.x, spawn_coord.y)):
 		entities_by_chunk[Vector2i(spawn_coord.x, spawn_coord.y)] = []
 	entities_by_chunk[Vector2i(spawn_coord.x, spawn_coord.y)].append(spawned_entity)
 	return entity_node
 
-func delete_entity(entity_id : int):
+func delete_entity(entity_id : int) -> void:
 	if not entities_by_id.has(entity_id):
 		return
 
-	var entity_entry: entity = entities_by_id[entity_id]
+	var entity_entry: Entity = entities_by_id[entity_id]
 	if is_instance_valid(entity_entry.node):
 		GlobalRef.unregister_pawn(entity_entry.node)
 		entity_entry.node.queue_free()
@@ -132,16 +132,18 @@ func serialize_entity(entity_id : int) -> Dictionary:
 	return {entity_id : entities_by_id[entity_id].node.serialize()}
 
 func deserialize_entity(serialized_dict: Dictionary) -> void:
-	@warning_ignore("shadowed_variable")
-	var entity = spawn_entity(serialized_dict["entity_type"], false, str_to_var(serialized_dict["position"]), serialized_dict["entity_id"])
-	entity.current_health = serialized_dict["current_health"]
-	entity.action_machine.deserialize(serialized_dict["current_action"])
-	entity.decision_maker.deserialize(serialized_dict["decision_maker"])
+	@warning_ignore("shadowed_variable", "unsafe_call_argument")
+	var Entity := spawn_entity(serialized_dict["entity_type"], false, str_to_var(serialized_dict["position"]), serialized_dict["entity_id"])
+	Entity.current_health = serialized_dict["current_health"]
+	@warning_ignore("unsafe_call_argument")
+	Entity.action_machine.deserialize(serialized_dict["current_action"])
+	@warning_ignore("unsafe_call_argument")
+	Entity.decision_maker.deserialize(serialized_dict["decision_maker"])
 
 func serialize_chunk(chunk_coords : Vector2i) -> Dictionary:
 	var result := {}
 	if entities_by_chunk.has(chunk_coords):
-		for entity_instance in entities_by_chunk[chunk_coords]:
+		for entity_instance: Entity in entities_by_chunk[chunk_coords]:
 			result[entity_instance.id] = entity_instance.node.serialize()
 	return result
 
