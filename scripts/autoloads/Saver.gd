@@ -70,15 +70,17 @@ class SaveMeta:
 			})
 
 	## Populates this metadata object from a previously serialized JSON string.
-	func dejsonify(json_string : String) -> void:
+	static func dejsonify(json_string : String) -> SaveMeta:
+		var new_meta = SaveMeta.new()
 		var dict = JSON.parse_string(json_string)
-		if not dict: return
-		creation_date = dict["creation_date"]
-		modified_date = dict["modified_date"]
-		display_name = dict["display_name"]
-		playtime = dict["playtime"]
-		world_seed = dict["world_seed"]
-		version = dict["version"]
+		if not dict: return new_meta
+		new_meta.creation_date = dict["creation_date"]
+		new_meta.modified_date = dict["modified_date"]
+		new_meta.display_name = dict["display_name"]
+		new_meta.playtime = dict["playtime"]
+		new_meta.world_seed = dict["world_seed"]
+		new_meta.version = dict["version"]
+		return new_meta
 #endregion
 
 
@@ -113,6 +115,9 @@ func write_save(dirname : String, display_name : String, world_seed : int) -> vo
 func load_save(dirname : String) -> SaveMeta:
 	_current_save_path = _save_dir_path + dirname
 	var _new_save = get_save_meta(dirname)
+	var meta_file = _open_file(_current_save_path + "/world.dat")
+	if JSON.parse_string(meta_file.get_as_text()):
+		current_save = SaveMeta.dejsonify(JSON.parse_string(meta_file.get_as_text()))
 	_current_world_file = _open_file(_current_save_path + "/world.dat")
 	_current_world_index_file = _open_file(_current_save_path + "/index.dat")
 	_current_entity_index_file = _open_file(_current_save_path + "/entities/index.dat")
@@ -138,7 +143,7 @@ func get_save_meta(dirname : String) -> SaveMeta:
 	var _new_save = SaveMeta.new()
 	var save_path = _save_dir_path + dirname
 	var fileacc = FileAccess.open(save_path + "/meta.json", FileAccess.READ_WRITE)
-	_new_save.dejsonify(fileacc.get_as_text())
+	_new_save = SaveMeta.dejsonify(fileacc.get_as_text())
 	return _new_save
 #endregion
 
