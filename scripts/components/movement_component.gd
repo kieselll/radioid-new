@@ -7,10 +7,10 @@ var _path: PackedVector4Array = []
 var _current_step: int = 0
 var _target_position: Vector2i
 var _direction: Vector2
-var _local_position = null
+var _local_position: Vector4i
 
-var _parent: CharacterBody2D
-var _astar: Node
+var _parent: BaseEntity
+var _astar: GlobalPathfinder
 
 #endregion
 
@@ -31,7 +31,7 @@ signal arrived_at_destination
 #region init
 
 func setup(parent : CharacterBody2D) -> void:
-	tick_type = physics
+	tick_type = tick_types.physics
 	_parent = parent
 	_astar = parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
@@ -104,7 +104,7 @@ func set_approach_threshold(value: float) -> MovementComponent:
 
 func move_to_coord(to: Vector4i) -> void:
 	GlobalLogger.write_to_logs(_parent, "Moving to coords %v..." % to)
-	var from = _local_position if ticking else GridUtils.world_coord_to_chunk_coord(_parent.position)
+	var from: Vector4i = _local_position if ticking else GridUtils.world_coord_to_chunk_coord(_parent.position)
 	_update_path(from, to)
 	ticking = true
 
@@ -120,7 +120,7 @@ func get_local_position() -> Vector4i:
 func is_moving() -> bool:
 	return _parent.velocity != Vector2.ZERO
 
-func set_path(path: PackedVector4Array):
+func set_path(path: PackedVector4Array) -> void:
 	GlobalLogger.write_to_logs(_parent, "Set path as " + str(path))
 	_path = path
 	_current_step = 0
