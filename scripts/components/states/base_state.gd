@@ -8,9 +8,9 @@ var _active: bool = false
 
 signal done
 
-@abstract func setup(state_machine : StateMachine)
+@abstract func setup(state_machine : StateMachine) -> void
 
-@abstract func start(args = {}) -> void
+@abstract func start(args: Dictionary[String, Variant] = {}) -> void
 
 @abstract func stop() -> void
 
