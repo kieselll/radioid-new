@@ -30,12 +30,12 @@ enum handlers_enum {
 }
 
 ## Relative paths to major [code]GameRoot[/code] nodes.
-var _game_nodes = {
+var _game_nodes: Dictionary[game_nodes_enum, String] = {
 	game_nodes_enum.handlers: "handlers",
 	game_nodes_enum.ui_layer: "Control/CanvasLayer",
 }
 ## Relative paths to handler nodes under the handlers root.
-var _handlers = {
+var _handlers: Dictionary[handlers_enum, String] = {
 	handlers_enum.fancy_thing: "/fancy_thing",
 	handlers_enum.building_agent: "/building_agent",
 	handlers_enum.input_handler: "/input_handler",
@@ -49,7 +49,7 @@ var _handlers = {
 	handlers_enum.entity_manager: "/EntityManager"
 }
 ## Runtime map of loaded chunk nodes keyed by chunk coordinate.
-var chunks = {}
+var chunks: Dictionary[Vector2i, Node] = {}
 
 ## Paths to currently spawned pawns that are still considered active.
 var pawns: Array[String] = []
@@ -104,7 +104,7 @@ func get_queued_deletion_layer(layer: tilemap_layers_enum) -> tilemap_layers_enu
 enum scenes_enum {pawn, progressbar, save_card, game, main_menu}
 
 ## Scene file names keyed by [code]scenes_enum[/code].
-var scenes = {
+var scenes: Dictionary[scenes_enum, String] = {
 	scenes_enum.pawn: "pawn.tscn",
 	scenes_enum.progressbar: "progressbar.tscn",
 	scenes_enum.save_card: "save_card_blueprint.tscn",
@@ -114,7 +114,7 @@ var scenes = {
 
 
 ## Loads and returns the packed scene referenced by [param scene].
-func get_scene(scene: scenes_enum):
+func get_scene(scene: scenes_enum) -> PackedScene:
 	return load("res://scenes/" + scenes[scene])
 
 
@@ -122,7 +122,7 @@ func get_scene(scene: scenes_enum):
 
 
 ## Registers a loaded chunk node under its chunk coordinates.
-func add_chunk(coords: Vector2i, chunk: Node):
+func add_chunk(coords: Vector2i, chunk: Node) -> void:
 	chunks[coords] = chunk
 
 #region entities
@@ -143,7 +143,7 @@ func unregister_pawn(pawn: Node) -> void:
 
 ## Returns a copy of the live pawn path list after pruning invalid entries.
 func get_pawns() -> Array[String]:
-	pawns = pawns.filter(func(path: String): return get_node_or_null(path) != null)
+	pawns = pawns.filter(func(path: String) -> bool: return get_node_or_null(path) != null)
 	return pawns.duplicate()
 
 #endregion
