@@ -33,7 +33,7 @@ const CHUNK_SIZE = 16
 
 #region Private Classes
 
-class Chunk:
+class ChunkData:
 	var ground_layer: Array
 	var terrain_layer: Array
 	var wall_layer: Array
@@ -156,8 +156,8 @@ func generate_new_layer(
 	return tile_array
 
 
-func decompress_chunk(compressed_chunk: Array) -> Chunk:
-	var chunk = Chunk.new()
+func decompress_chunk(compressed_chunk: Array) -> ChunkData:
+	var chunk = ChunkData.new()
 	chunk.ground_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.ground])
 	chunk.terrain_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.terrain])
 	chunk.wall_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.walls])
@@ -194,8 +194,8 @@ func decompress_layer(compressed_layer: Array) -> Array:
 	return result
 
 
-func generate_new_chunk(coords: Vector2i, _seed: int) -> Chunk:
-	var chunk = Chunk.new()
+func generate_new_chunk(coords: Vector2i, _seed: int) -> ChunkData:
+	var chunk = ChunkData.new()
 
 	chunk.ground_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.ground, _seed)
 	chunk.terrain_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.terrain, _seed)
@@ -217,7 +217,7 @@ func generate_new_chunk(coords: Vector2i, _seed: int) -> Chunk:
 	return chunk
 
 
-func instantiate_chunk(new_chunk: Chunk, coords: Vector2i) -> void:
+func instantiate_chunk(new_chunk: ChunkData, coords: Vector2i) -> void:
 	var chunk_node: Node2D
 
 	chunk_node = chunk_scene.instantiate()

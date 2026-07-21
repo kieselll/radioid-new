@@ -1,4 +1,5 @@
 extends Node2D
+class_name Chunk
 
 #region Private_Fields
 
@@ -7,6 +8,8 @@ var _cells: Array = []  # 3D tile storage
 var dirty: bool
 var _multimesh_instances: Dictionary[Vector2i, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
 var _chunk_manager: ChunkManager
+
+signal cells_updated
 
 const LAYER_COUNT = 7
 const CHUNK_SIZE = 16
@@ -184,6 +187,7 @@ func _update():
 		_refresh_pathfinding_solid(i.coords)
 
 	_new_cells.clear()
+	cells_updated.emit()
 
 
 ## Updates collision from the real world layers only. Queued build previews are
