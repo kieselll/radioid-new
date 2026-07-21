@@ -1,7 +1,7 @@
 extends Node
 class_name GameLogger
 
-var game_dir_path
+var game_dir_path: String
 
 var _log_file: FileAccess
 var _log_file_path: String
@@ -16,18 +16,18 @@ func _ready() -> void:
 	_logs_folder = DirAccess.open(game_dir_path + "/logs")
 	_log_file_path = game_dir_path + "/logs/" + str(Time.get_unix_time_from_system()) + ".log"
 	_log_file = FileAccess.open(_log_file_path, FileAccess.WRITE)
-	var files = _logs_folder.get_files()
+	var files: Array[String] = _logs_folder.get_files()
 	if files.size() > 10:
-		var oldest_log = files[0]
-		for file in files:
+		var oldest_log: String = files[0]
+		for file: String in files:
 			if file.trim_suffix(".log").to_int() < oldest_log.trim_suffix(".log").to_int():
 				oldest_log = file
 		_logs_folder.remove(game_dir_path + "/logs/" + oldest_log)
 	GlobalLogger.write_to_logs(self, "Logger started. Hello!")
 
 
-func open_log_file():
-	var log_path = _log_file_path
+func open_log_file() -> void:
+	var log_path: String = _log_file_path
 	if not FileAccess.file_exists(log_path):
 		push_warning("Tried to open log file, but it doesn't exist!")
 		return
