@@ -7,6 +7,7 @@ class_name BaseEntity
 @export var personality_profile: PersonalityProfile
 @export var behavior_data: BehaviorData
 @export var sprite: Sprite2D
+@export var name_label: Label
 
 var template_id: StringName = &""
 var entity_id: int = -1
@@ -18,19 +19,20 @@ var entity_type: EntityManager.types
 #region Textures
 
 # Move this into the new helper script and don't hardcode it
-var front_texture = load("res://man_S.png")
-var left_texture = load("res://man_E.png")
-var back_texture = load("res://man_N.png")
-var right_texture = load("res://man_W.png")
-var right_front_texture = load("res://man_SE.png")
-var left_front_texture = load("res://man_SW.png")
-var right_back_texture = load("res://man_NE.png")
-var left_back_texture = load("res://man_NW.png")
+var front_texture: CompressedTexture2D = load("res://man_S.png")
+var left_texture: CompressedTexture2D = load("res://man_E.png")
+var back_texture: CompressedTexture2D = load("res://man_N.png")
+var right_texture: CompressedTexture2D = load("res://man_W.png")
+var right_front_texture: CompressedTexture2D = load("res://man_SE.png")
+var left_front_texture: CompressedTexture2D = load("res://man_SW.png")
+var right_back_texture: CompressedTexture2D = load("res://man_NE.png")
+var left_back_texture: CompressedTexture2D = load("res://man_NW.png")
 
 #endregion
 
 #region Signals
 
+@warning_ignore("unused_signal")
 signal died
 
 #endregion
@@ -92,11 +94,11 @@ func initialize(template: EntityTemplate, autogenerate: bool, components: Dictio
 
 
 func _process(delta: float) -> void:
-	_tick_components(BaseComponent.regular, delta)
+	_tick_components(BaseComponent.tick_types.regular, delta)
 
 
 func _physics_process(delta: float) -> void:
-	_tick_components(BaseComponent.physics, delta)
+	_tick_components(BaseComponent.tick_types.physics, delta)
 
 #endregion
 
@@ -112,11 +114,11 @@ func _apply_template_data(template: EntityTemplate) -> void:
 
 
 func _configure_states(template_states: Array[StateMachine.state_types]) -> void:
-	var states_to_add: Array = template_states.duplicate()
+	var states_to_add: Array[StateMachine.state_types] = template_states.duplicate()
 	if not states_to_add.has(StateMachine.state_types.idle_state):
 		states_to_add.push_front(StateMachine.state_types.idle_state)
 
-	for state_type in states_to_add:
+	for state_type: StateMachine.state_types in states_to_add:
 		state_machine.add_state(state_type)
 
 	state_machine.set_initial_state(StateMachine.state_types.idle_state)
@@ -132,9 +134,9 @@ func _update_label() -> void:
 		return
 
 	if entity_data and entity_data.display_name != &"":
-		$Label.text = String(entity_data.display_name)
+		name_label.text = String(entity_data.display_name)
 	else:
-		$Label.text = name
+		name_label.text = name
 
 #endregion
 
@@ -152,7 +154,7 @@ func rotate_sprite(direction: Vector2) -> void:
 		return
 
 	var angle := wrapf(direction.angle(), 0.0, TAU)
-	var octant := int(floor((angle + PI / 8.0) / (PI / 4.0))) % 8
+	var octant := floori((angle + PI / 8.0) / (PI / 4.0)) % 8
 
 	match octant:
 		0: sprite.texture = right_texture
@@ -189,8 +191,16 @@ func _input(event: InputEvent) -> void:
 	if not OS.is_debug_build():
 		return
 
-	if event is InputEventKey and event.pressed and not event.echo:
-		match event.physical_keycode:
+#region Type-safe tomfoolery
+	var event_key: InputEventKey
+	if event is InputEventKey:
+		event_key = event as InputEventKey
+	else:
+		return
+#endregion
+
+	if event_key is InputEventKey and event_key.pressed and not event_key.echo:
+		match event_key.physical_keycode:
 			KEY_Q:
 				print(current_health)
 				print(GridUtils.world_coord_to_chunk_coord(position))

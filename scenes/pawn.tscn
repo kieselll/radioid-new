@@ -22,13 +22,14 @@ width = 1
 
 [sub_resource type="LabelSettings" id="LabelSettings_eqwak"]
 
-[node name="test_pawn" type="CharacterBody2D" unique_id=1045036099 node_paths=PackedStringArray("sprite")]
+[node name="test_pawn" type="CharacterBody2D" unique_id=1045036099 node_paths=PackedStringArray("sprite", "name_label")]
 scale = Vector2(0.5, 0.5)
 input_pickable = true
 motion_mode = 1
 slide_on_ceiling = false
 script = ExtResource("1")
 sprite = NodePath("Sprite2D")
+name_label = NodePath("Label")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1131298891]
 position = Vector2(0, 4)
