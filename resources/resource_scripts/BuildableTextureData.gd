@@ -29,7 +29,7 @@ enum tile_neigbors {
 }
 
 ## Mapping from a neighbor mask to the atlas cell coordinates that should be used.
-@export var autotile_layout: Dictionary = {
+@export var autotile_layout: Dictionary[int, Vector2i] = {
 	0b000010010: Vector2i(0, 0),
 	0b000011010: Vector2i(1, 0),
 	0b000111010: Vector2i(2, 0),
@@ -85,7 +85,7 @@ enum tile_neigbors {
 ##
 ## If autotiling is disabled, the first atlas cell is used. If the mask is
 ## unknown, the method falls back to a default error-like atlas position.
-func get_terrain_tile_rect(neighbors_mask: int):
+func get_terrain_tile_rect(neighbors_mask: int) -> Rect2:
 	if not can_autotile:
 		return Rect2i(0, 0, 1, 1)
 	assert(
@@ -97,7 +97,7 @@ func get_terrain_tile_rect(neighbors_mask: int):
 			Vector2(Vector2i(0, 3) * cell_size) / texture.get_size(),
 			Vector2(cell_size) / texture.get_size()
 		)
-	var return_rect = Rect2(
+	var return_rect := Rect2(
 		Vector2(autotile_layout[neighbors_mask] * cell_size) / texture.get_size(),
 		Vector2(cell_size) / texture.get_size()
 	)
