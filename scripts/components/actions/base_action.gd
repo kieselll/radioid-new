@@ -25,7 +25,7 @@ signal done
 #region API
 
 ## Binds the action to its owning [ActionMachine].
-@abstract func setup(action_machine : ActionMachine)
+@abstract func setup(action_machine : ActionMachine) -> void
 
 ## Starts executing the action with the provided [param args].
 @abstract func start(args: Dictionary[StringName, Variant] = {}) -> void
