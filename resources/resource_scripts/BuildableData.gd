@@ -68,13 +68,6 @@ extends Resource
 @export var texture_params: BuildableTextureData
 
 
-## Returns whether the object can ignite on its own when conditions are met.
-func can_autoignite() -> bool:
-	if not flammable_params:
-		return false
-	return bool(flammable_params.burn_flags & flammable_params.CAN_AUTO_IGNITE)
-
-
 ## Returns whether external systems are allowed to ignite this object.
 func can_be_ignited() -> bool:
 	if not flammable_params:
