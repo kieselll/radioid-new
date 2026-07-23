@@ -27,11 +27,3 @@ func get_tile(id: int) -> BuildableData:
 		return objects[id]
 	push_warning("Tried to get tile by nonexisting ID: %s" % id)
 	return null
-
-
-## Convenience helper that returns the logical layer for the given buildable ID.
-func get_tile_layer(id: int):
-	var tile = get_tile(id)
-	if tile:
-		return tile.layer
-	return null
