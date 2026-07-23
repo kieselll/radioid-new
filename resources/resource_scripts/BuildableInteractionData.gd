@@ -18,7 +18,7 @@ extends Resource
 	"Can sleep on",
 	"Can heal on"
 )
-var flags
+var flags: int
 
 ## Tile-local coordinates that pawns may use to approach or interact with the object.
 @export var interaction_coords: Array[Vector2i]
