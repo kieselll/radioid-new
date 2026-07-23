@@ -31,14 +31,14 @@ var _random_pos: Vector4i = Vector4i.ZERO
 var _parent: ActionMachine
 var current_step : steps = steps.wander
 var current_args: Dictionary
-var owner: CharacterBody2D
+var owner: BaseEntity
 
 #endregion
 
 #region init
 
 ## Caches the owning action machine and movement state references.
-func setup(action_machine : ActionMachine):
+func setup(action_machine : ActionMachine) -> void:
 	_parent = action_machine
 	owner = _parent.owner
 	_movement_component = owner.movement_component
@@ -65,7 +65,7 @@ func start(args: Dictionary = {}) -> void:
 ##
 ## This wrapper is intentionally redundant so all actions expose the same
 ## deserialization-friendly API.
-func start_from_step(args: Dictionary = {"partial": true}, step : steps = steps.wander):
+func start_from_step(args: Dictionary = {"partial": true}, step : steps = steps.wander) -> void:
 	current_step = step
 	start(args)
 
@@ -74,11 +74,11 @@ func start_from_step(args: Dictionary = {"partial": true}, step : steps = steps.
 #region helpers
 
 ## Picks a random reachable offset, moves there, then emits completion after a delay.
-func new_pos():
+func new_pos() -> void:
 	if not _active:
 		return
 	if not _random_pos:
-		var radius = owner.behavior_data.wander_radius if owner.behavior_data else 5
+		var radius: int = owner.behavior_data.wander_radius if owner.behavior_data else 5
 		var current_position := _movement_component.get_local_position()
 		var found_candidate := false
 		for _attempt in 16:
@@ -105,8 +105,8 @@ func new_pos():
 	if not _active:
 		return
 	_random_pos = Vector4i.ZERO
-	var delay_min = owner.behavior_data.wander_delay_min if owner.behavior_data else 0.3
-	var delay_max = owner.behavior_data.wander_delay_max if owner.behavior_data else 1.5
+	var delay_min: float = owner.behavior_data.wander_delay_min if owner.behavior_data else 0.3
+	var delay_max: float = owner.behavior_data.wander_delay_max if owner.behavior_data else 1.5
 	await owner.get_tree().create_timer(randf_range(delay_min, delay_max)).timeout
 	if _active:
 		done.emit()
