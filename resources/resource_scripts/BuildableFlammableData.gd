@@ -18,7 +18,7 @@ extends Resource
 ## Chance in percent of spontaneous ignition when auto-ignition is allowed.
 @export_range(0, 100, 0.1) var autoignition_chance: float
 ## Bit field describing which burning behaviors are enabled.
-@export_flags("can be ignited", "can burn", "can be extingushed") var burn_flags
+@export_flags("can be ignited", "can burn", "can be extingushed") var burn_flags: int
 
 @export_subgroup("Explosive related")
 ## Explosion chance table keyed by trigger name.
@@ -36,7 +36,7 @@ extends Resource
 
 ## Bit field describing which explosion triggers are enabled.
 @export_flags("explodes on ignition", "explodes on burndown", "explodes on collision")
-var explosion_flags
+var explosion_flags: int
 
 ## Flag: the object can be ignited externally.
 const CAN_BE_IGNITED = 1 << 0
