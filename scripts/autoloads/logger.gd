@@ -16,7 +16,7 @@ func _ready() -> void:
 	_logs_folder = DirAccess.open(game_dir_path + "/logs")
 	_log_file_path = game_dir_path + "/logs/" + str(Time.get_unix_time_from_system()) + ".log"
 	_log_file = FileAccess.open(_log_file_path, FileAccess.WRITE)
-	var files: Array[String] = _logs_folder.get_files()
+	var files: PackedStringArray = _logs_folder.get_files()
 	if files.size() > 10:
 		var oldest_log: String = files[0]
 		for file: String in files:
