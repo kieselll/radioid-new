@@ -206,7 +206,6 @@ func _refresh_pathfinding_solid(coords: Vector2i) -> void:
 		var tile_id := get_cell(layer, coords)
 		if tile_id != -1 and not BuildableDB.get_tile(tile_id).passable:
 			solid = true
-			print("set tile as solid!")
 			break
 
 	var self_position := GridUtils.world_coord_to_chunk_coord(position)
@@ -265,7 +264,7 @@ func _erase_cell_instance(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i
 
 func _refresh_neighbor_regions(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) -> void:
 	for off: Vector2i in offsets:
-		var neighbor: Vector2 = coords + off
+		var neighbor: Vector2i = coords + off
 		var chunk_pos := Vector2i(
 			GridUtils.world_coord_to_chunk_coord(position).x,
 			GridUtils.world_coord_to_chunk_coord(position).y

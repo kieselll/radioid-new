@@ -23,6 +23,7 @@ const TILE_SIZE = 32
 
 
 func find_nearest_tile_coord(call_coords: Vector4i, coords_array: Array[Vector4i]) -> Vector4i:
+	assert(not coords_array.is_empty())
 	var vec2_call_coord: Vector2i = chunk_coord_to_tile_coord(call_coords)
 	var nearest_coord: Vector4i
 	var nearest_distance_sqr: float = INF
