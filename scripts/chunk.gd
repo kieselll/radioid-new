@@ -4,15 +4,15 @@ class_name Chunk
 #region Private_Fields
 
 var _new_cells: Array[NewCell] = []  # Queue of cell updates
-var _cells: Array = []  # 3D tile storage
+var _cells: Array[Array] = []  # 3D tile storage
 var dirty: bool
 var _multimesh_instances: Dictionary[Vector2i, MultiMeshInstance2D] = {}  # Tile ID → MultiMeshInstance
 var _chunk_manager: ChunkManager
 
 signal cells_updated
 
-const LAYER_COUNT = 7
-const CHUNK_SIZE = 16
+const LAYER_COUNT: int = 7
+const CHUNK_SIZE: int = 16
 
 # Neighbor offsets for autotiling
 const offsets: Array = [
@@ -106,17 +106,19 @@ func get_cells_rle() -> Array:
 	var result: Array = []
 
 	for layer in _cells.size():
-		var layer_data = []
-		var last_id = null
-		var run_length = 0
+		var layer_data: Array[Vector2i] = []
+		var first_tile: bool = true
+		var last_id: int
+		var run_length: int = 0
 
 		for y in CHUNK_SIZE:
 			for x in CHUNK_SIZE:
-				var id = _cells[layer][y][x]
+				var id: int = _cells[layer][y][x]
 
-				if last_id == null:
+				if first_tile:
 					last_id = id
 					run_length = 1
+					first_tile = false
 				elif id == last_id:
 					run_length += 1
 				else:
@@ -152,6 +154,7 @@ func _init_cells() -> void:
 
 		for x in CHUNK_SIZE:
 			_cells[layer][x] = []
+			@warning_ignore("unsafe_method_access")
 			_cells[layer][x].resize(CHUNK_SIZE)
 
 			for y in CHUNK_SIZE:
@@ -164,7 +167,7 @@ func _init_cells() -> void:
 
 
 ## Applies queued cell updates.
-func _update():
+func _update() -> void:
 	for i in _new_cells:
 		if i.id == -1:
 			_erase_cell_instance(i.layer, i.coords)
@@ -177,9 +180,9 @@ func _update():
 		if not _multimesh_instances.has(Vector2i(i.id, i.layer)):
 			_create_multimesh(i)
 
-		var inst = _multimesh_instances[Vector2i(i.id, i.layer)]
+		var inst: MultiMeshInstance2D = _multimesh_instances[Vector2i(i.id, i.layer)]
 
-		var index = abs(i.coords.y) * CHUNK_SIZE + abs(i.coords.x)
+		var index: int = abs(i.coords.y) * CHUNK_SIZE + abs(i.coords.x)
 
 		inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, 32 * i.coords))
 
@@ -195,7 +198,7 @@ func _update():
 ## adjacent to another queued build job.
 func _refresh_pathfinding_solid(coords: Vector2i) -> void:
 	var solid := false
-	for layer in [
+	for layer: GlobalRef.tilemap_layers_enum in [
 		GlobalRef.tilemap_layers_enum.ground,
 		GlobalRef.tilemap_layers_enum.terrain,
 		GlobalRef.tilemap_layers_enum.walls,
@@ -203,10 +206,12 @@ func _refresh_pathfinding_solid(coords: Vector2i) -> void:
 		var tile_id := get_cell(layer, coords)
 		if tile_id != -1 and not BuildableDB.get_tile(tile_id).passable:
 			solid = true
+			print("set tile as solid!")
 			break
 
 	var self_position := GridUtils.world_coord_to_chunk_coord(position)
-	get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder)).mark_tile_solid(
+	var pathfinder: GlobalPathfinder = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
+	pathfinder.mark_tile_solid(
 		Vector4i(self_position.x, self_position.y, coords.x, coords.y), solid
 	)
 
@@ -217,18 +222,19 @@ func _refresh_pathfinding_solid(coords: Vector2i) -> void:
 
 
 ## Creates a multimesh instance for tile type.
-func _create_multimesh(cell: NewCell):
-	var mm = MultiMeshInstance2D.new()
+func _create_multimesh(cell: NewCell) -> void:
+	var mm := MultiMeshInstance2D.new()
 
 	mm.texture = BuildableDB.get_tile(cell.id).texture_params.texture
 	_multimesh_instances[Vector2i(cell.id, cell.layer)] = mm
 
 	mm.multimesh = MultiMesh.new()
 	mm.multimesh.use_custom_data = true
-	mm.material = base_material.duplicate_deep(Resource.DEEP_DUPLICATE_ALL)
-	mm.material.set_shader_parameter("selection_color", layer_colors[cell.layer])
+	var _material : ShaderMaterial = base_material.duplicate_deep(Resource.DEEP_DUPLICATE_ALL)
+	_material.set_shader_parameter("selection_color", layer_colors[cell.layer])
+	mm.material = _material
 
-	var mesh = QuadMesh.new()
+	var mesh := QuadMesh.new()
 	mesh.size = BuildableDB.get_tile(cell.id).texture_params.cell_size
 	mm.multimesh.mesh = mesh
 
@@ -241,7 +247,7 @@ func _create_multimesh(cell: NewCell):
 #region Private_Erase
 
 func _erase_cell_instance(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) -> void:
-	var previous_id = _cells[layer][coords.x][coords.y]
+	var previous_id: int = _cells[layer][coords.x][coords.y]
 	if previous_id == -1:
 		return
 
@@ -249,8 +255,8 @@ func _erase_cell_instance(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i
 
 	var multimesh_key := Vector2i(previous_id, layer)
 	if _multimesh_instances.has(multimesh_key):
-		var inst = _multimesh_instances[multimesh_key]
-		var index = abs(coords.y) * CHUNK_SIZE + abs(coords.x)
+		var inst: MultiMeshInstance2D = _multimesh_instances[multimesh_key]
+		var index: int = abs(coords.y) * CHUNK_SIZE + abs(coords.x)
 		inst.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2.ZERO))
 		inst.multimesh.set_instance_custom_data(index, Color(0.0, 0.0, 0.0, 0.0))
 
@@ -258,9 +264,9 @@ func _erase_cell_instance(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i
 
 
 func _refresh_neighbor_regions(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) -> void:
-	for off in offsets:
-		var neighbor = coords + off
-		var chunk_pos = Vector2i(
+	for off: Vector2i in offsets:
+		var neighbor: Vector2 = coords + off
+		var chunk_pos := Vector2i(
 			GridUtils.world_coord_to_chunk_coord(position).x,
 			GridUtils.world_coord_to_chunk_coord(position).y
 		)
@@ -277,7 +283,7 @@ func _refresh_neighbor_regions(layer: GlobalRef.tilemap_layers_enum, coords: Vec
 			chunk_pos += Vector2i(0, 1)
 			neighbor.y = 0
 
-		var chunk = GlobalRef.get_chunk(chunk_pos)
+		var chunk: Chunk = GlobalRef.get_chunk(chunk_pos)
 		if chunk == null or chunk.get_cell(layer, neighbor) == -1:
 			continue
 
@@ -289,16 +295,16 @@ func _refresh_neighbor_regions(layer: GlobalRef.tilemap_layers_enum, coords: Vec
 
 
 ## Returns a bitmask of neighboring tiles for autotiling.
-func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
-	var result = 0b000010000
-	var base_chunk_pos = Vector2i(
+func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) -> int:
+	var result: int = 0b000010000
+	var base_chunk_pos := Vector2i(
 		GridUtils.world_coord_to_chunk_coord(position).x,
 		GridUtils.world_coord_to_chunk_coord(position).y
 	)
 
 	for i in offsets.size():
-		var o = coords + offsets[i]
-		var chunk_pos = base_chunk_pos
+		var o: Vector2i = coords + offsets[i]
+		var chunk_pos: Vector2i = base_chunk_pos
 
 		if o.x < 0:
 			chunk_pos += Vector2i(-1, 0)
@@ -312,7 +318,7 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 		elif o.y >= CHUNK_SIZE:
 			chunk_pos += Vector2i(0, 1)
 			o.y = 0
-		var chunk = GlobalRef.get_chunk(chunk_pos)
+		var chunk: Chunk = GlobalRef.get_chunk(chunk_pos)
 
 		if chunk == null:
 			continue
@@ -337,19 +343,19 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 
 
 ## UV update for tile and neighbors
-func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
-	var base_chunk_pos = Vector2i(
+func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) -> void:
+	var base_chunk_pos := Vector2i(
 		GridUtils.world_coord_to_chunk_coord(position).x,
 		GridUtils.world_coord_to_chunk_coord(position).y,
 	)
 
-	for off in (
+	for off: Vector2i in (
 		offsets
 		if BuildableDB.get_tile(get_cell(layer, coords)).texture_params.can_autotile
 		else [Vector2i.ZERO]
 	):
-		var p = coords + off
-		var chunk_pos = base_chunk_pos
+		var p: Vector2i = coords + off
+		var chunk_pos: Vector2i = base_chunk_pos
 		if p.x < 0:
 			chunk_pos += Vector2i(-1, 0)
 			p.x = CHUNK_SIZE - 1
@@ -362,12 +368,12 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 		elif p.y >= CHUNK_SIZE:
 			chunk_pos += Vector2i(0, 1)
 			p.y = 0
-		var chunk = GlobalRef.get_chunk(chunk_pos)
+		var chunk: Chunk = GlobalRef.get_chunk(chunk_pos)
 
 		if chunk == null:
 			continue
 
-		var id = chunk.get_cell(layer, p)
+		var id: int = chunk.get_cell(layer, p)
 		if id == -1:
 			continue
 
@@ -375,7 +381,7 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i):
 			chunk._detect_neighbors(layer, p)
 		)
 
-		var index = abs(p.y) * CHUNK_SIZE + abs(p.x)
+		var index: int = abs(p.y) * CHUNK_SIZE + abs(p.x)
 
 		chunk._multimesh_instances[Vector2i(id, layer)].multimesh.set_instance_custom_data(
 			index, Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y)
