@@ -14,6 +14,9 @@ var _astar: GlobalPathfinder
 
 const TEMP_BASE_PRIORITY = 5  #CRITICAL
 
+const NON_SKILLED_ACTIONS = [
+	ActionMachine.action_types.wander
+]
 #endregion
 
 #region public vars
@@ -40,7 +43,7 @@ class QueuedAction:
 		args = _args
 
 	func serialize() -> Dictionary:
-		var new_args = args.duplicate()
+		var new_args: Dictionary = args.duplicate()
 		if new_args.has("target"):
 			new_args["target"] = var_to_str(new_args["target"])
 		return {
@@ -50,10 +53,14 @@ class QueuedAction:
 		}
 
 	static func deserialize(data: Dictionary) -> QueuedAction:
-		var new_args = data["args"].duplicate()
+		var _args: Dictionary = data["args"]
+		var _action_type: ActionMachine.action_types = data["action_type"]
+		var _priority: float = data["priority"]
+		var new_args: Dictionary = _args.duplicate()
 		if new_args.has("target"):
-			new_args["target"] = str_to_var(new_args["target"])
-		return QueuedAction.new(data["action_type"], data["priority"], new_args)
+			var target_string: String = new_args["target"]
+			new_args["target"] = str_to_var(target_string)
+		return QueuedAction.new(_action_type, _priority, new_args)
 
 #endregion
 
@@ -66,7 +73,7 @@ var _current_action: QueuedAction
 var _action_machine: ActionMachine
 var _movement_component: MovementComponent
 var _ability_manager: AbilityManager
-var _parent: CharacterBody2D
+var _parent: BaseEntity
 
 #endregion
 
@@ -81,7 +88,7 @@ func tick(delta : float) -> void:
 #region init
 
 ## Caches component references, copies behavior weights, and starts the default action.
-func setup(parent : CharacterBody2D, generate_actions: bool) -> void:
+func setup(parent : BaseEntity, generate_actions: bool) -> void:
 	_parent = parent
 	_action_machine = _parent.action_machine
 	_ability_manager = _parent.ability_manager
@@ -93,7 +100,7 @@ func setup(parent : CharacterBody2D, generate_actions: bool) -> void:
 		_negative_skill_weight = _parent.behavior_data.negative_skill_weight
 		_distance_weight = _parent.behavior_data.distance_weight
 
-	var default_action = (
+	var default_action: ActionMachine.action_types = (
 		_parent.behavior_data.default_action
 		if _parent.behavior_data
 		else ActionMachine.action_types.wander
@@ -114,7 +121,7 @@ func setup(parent : CharacterBody2D, generate_actions: bool) -> void:
 ##
 ## [param priority] is the base priority used for queue ordering before the
 ## action is re-scored by [method calculate_action_priority_modifier].
-func add_action_to_queue(action_type: ActionMachine.action_types, priority: int, action_args: Dictionary = {}):
+func add_action_to_queue(action_type: ActionMachine.action_types, priority: int, action_args: Dictionary = {}) -> void:
 	GlobalLogger.write_to_logs(
 		_parent, "Added %s to queue with base priority: %f" % [action_type, priority]
 	)
@@ -143,8 +150,8 @@ func calculate_action_priority_modifier(
 		else 0
 	)
 	var skill_level: int
-	var priority = 0 if action_type == ActionMachine.action_types.wander else base_priority
-	if _ability_manager and _ability_manager.action_type_to_ability_name(action_type) != null:
+	var priority: float = 0 if action_type == ActionMachine.action_types.wander else base_priority
+	if _ability_manager and not NON_SKILLED_ACTIONS.has(action_type):
 		skill_level = _ability_manager.get_ability_level(
 			_ability_manager.action_type_to_ability_name(action_type)
 		)
@@ -152,18 +159,24 @@ func calculate_action_priority_modifier(
 			skill_modified = skill_level * _negative_skill_weight
 		else:
 			skill_modified = skill_level * _skill_weight
+	else:
+		skill_modified = 0
 	return (
 		(100 * (priority * _base_priority_weight + skill_modified + emotion_modifier))
 		/ (1 + pow(distance * _distance_weight / 1000, 2))
 	)
 
 func serialize() -> Dictionary:
-	return {"_action_queue": _action_queue.map(func(element): return element.serialize()), "_current_action": _current_action.serialize()}
+	return {
+		"_action_queue": _action_queue.map(func(element: QueuedAction) -> Dictionary: return element.serialize()),
+		"_current_action": _current_action.serialize()
+		}
 
 func deserialize(data: Dictionary) -> void:
-	for action_data in data["_action_queue"]:
+	for action_data: Dictionary in data["_action_queue"]:
 		_action_queue.append(QueuedAction.deserialize(action_data))
-	_current_action = QueuedAction.deserialize(data["_current_action"])
+	var action_dict: Dictionary = data["_current_action"]
+	_current_action = QueuedAction.deserialize(action_dict)
 #endregion
 
 #region helpers
@@ -179,16 +192,18 @@ func _on_action_machine_action_done() -> void:
 
 
 ## Sort callback that recalculates queue priorities before ordering.
-func _queue_sort(a, b):
+func _queue_sort(a: QueuedAction, b: QueuedAction) -> bool:
 	if a.args.keys().has("target"):
+		var target: Vector4i = a.args["target"]
 		a.priority = calculate_action_priority_modifier(
-			a.action_type, TEMP_BASE_PRIORITY, a.args["target"]
+			a.action_type, TEMP_BASE_PRIORITY, target
 		)
 	else:
 		a.priority = calculate_action_priority_modifier(a.action_type, TEMP_BASE_PRIORITY)
 	if b.args.keys().has("target"):
+		var target: Vector4i = b.args["target"]
 		b.priority = calculate_action_priority_modifier(
-			b.action_type, TEMP_BASE_PRIORITY, b.args["target"]
+			b.action_type, TEMP_BASE_PRIORITY, target
 		)
 	else:
 		b.priority = calculate_action_priority_modifier(b.action_type, TEMP_BASE_PRIORITY)

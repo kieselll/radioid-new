@@ -49,14 +49,14 @@ func get_neighbor_tiles(pos: Vector4i, include_diagonals: bool) -> Array:
 			Vector4i(0, 0, -1, 1),
 			Vector4i(0, 0, -1, 0),
 			Vector4i(0, 0, -1, -1)
-		]
+		] as Array[Vector4i]
 		if include_diagonals
 		else [
 			Vector4i(0, 0, 1, 0),
 			Vector4i(0, 0, 0, 1),
 			Vector4i(0, 0, 0, -1),
 			Vector4i(0, 0, -1, 0),
-		]
+		] as Array[Vector4i]
 	)
 
 	for i in offsets:
