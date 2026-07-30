@@ -147,4 +147,12 @@ func serialize_chunk(chunk_coords : Vector2i) -> Dictionary:
 			result[entity_instance.id] = entity_instance.node.serialize()
 	return result
 
+func update_entity_chunk(entity_id: int, old_chunk_coords: Vector2i, new_chunk_coords: Vector2i) -> void:
+	if entities_by_chunk.has(old_chunk_coords):
+		var index: int = entities_by_chunk[old_chunk_coords].find_custom(func(element: Entity) -> bool: return element.id == entity_id)
+		if index != -1:
+			if not entities_by_chunk.has(new_chunk_coords):
+				entities_by_chunk[new_chunk_coords] = []
+
+
 #endregion
