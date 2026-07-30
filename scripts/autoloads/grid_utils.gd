@@ -1,8 +1,8 @@
 @icon("res://textures/editor_icons/square.svg")
 extends Node
 
-const CHUNK_SIZE = 16
-const TILE_SIZE = 32
+const CHUNK_SIZE: int = 16
+const TILE_SIZE: int = 32
 
 
 ## Finds the coordinate of the nearest [BuildableData] object(s) [br]
@@ -36,7 +36,7 @@ func find_nearest_tile_coord(call_coords: Vector4i, coords_array: Array[Vector4i
 	return nearest_coord
 
 
-func get_neighbor_tiles(pos: Vector4i, include_diagonals: bool) -> Array:
+func get_neighbor_tiles(pos: Vector4i, include_diagonals: bool) -> Array[Vector4i]:
 	var output: Array[Vector4i] = []
 
 	var offsets: Array[Vector4i] = (
