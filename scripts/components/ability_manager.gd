@@ -36,12 +36,15 @@ func action_type_to_ability_name(action_type: ActionMachine.action_types) -> abi
 
 
 func action_name_to_ability_name(action_name: StringName) -> Variant:
-	if ActionMachine.action_types.has(action_name):
-		var action_type := (
-			ActionMachine.action_types[action_name] as ActionMachine.action_types
-		)
-		return action_type_to_ability_name(action_type)
-	return null
+	match action_name:
+		&"wander":
+			return action_type_to_ability_name(ActionMachine.action_types.wander)
+		&"build":
+			return action_type_to_ability_name(ActionMachine.action_types.build)
+		&"haul":
+			return action_type_to_ability_name(ActionMachine.action_types.haul)
+		_:
+			return null
 
 
 func get_ability_level(ability_name: ability_names) -> int:
