@@ -3,14 +3,14 @@ class_name MoveState
 extends BaseState
 
 var _movement_component: MovementComponent
-var _parent : StateMachine
-var owner : CharacterBody2D
+var _parent: StateMachine
+var owner: BaseEntity
 var _run_id: int = 0
 var _target: Vector4i = Vector4i.ZERO
 
-const state_name = &"move_state"
+const state_name: StringName = &"move_state"
 
-func setup(state_machine : StateMachine):
+func setup(state_machine: StateMachine) -> void:
 	_parent = state_machine
 	owner = _parent.owner
 	_movement_component = owner.movement_component
@@ -19,8 +19,9 @@ func start(args: Dictionary = {}) -> void:
 	GlobalLogger.write_to_logs(owner, "Started moving")
 	_active = true
 	_run_id += 1
+	var target: Variant = args.get("target")
 	assert(
-		args["target"] is Vector4i,
+		target is Vector4i,
 		(
 			'MoveState of %s recieved start(), but has no argument "target" of type Vector4i.'
 			% owner.name
@@ -28,17 +29,19 @@ func start(args: Dictionary = {}) -> void:
 	)
 
 	var run_id := _run_id
-	var move_target: Vector4i = args["target"]
+	var move_target: Vector4i = target
 	_target = move_target
-	var _partial_path = args.get("partial", false)
-	if typeof(_partial_path) != TYPE_BOOL:
+	var partial_path_value: Variant = args.get("partial", false)
+	var _partial_path: bool = false
+	if partial_path_value is bool:
+		_partial_path = partial_path_value
+	else:
 		push_warning(
 			(
 				'MoveState of %s recieved start(), but the argument "partial" is not a bool, the default value (false) bill be used instead.'
 				% owner.name
 			)
 		)
-		_partial_path = false
 	if _movement_component.get_local_position() == move_target:
 		stop()
 		done.emit()
@@ -56,7 +59,7 @@ func start(args: Dictionary = {}) -> void:
 	done.emit()
 
 
-func stop():
+func stop() -> void:
 	GlobalLogger.write_to_logs(owner, "Stopped moving")
 	_movement_component.stop_moving()
 	_active = false
