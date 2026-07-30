@@ -15,20 +15,15 @@ enum state_types
 
 #region private vars
 
-var _states = []
+var _states: Array[BaseState] = []
 var _current_state: BaseState
-var _parent
-var _type_map : Dictionary = {
-	state_types.idle_state : IdleState,
-	state_types.move_state : MoveState,
-	state_types.build_state : BuildState,
-}
+var _parent: BaseEntity
 
 #endregion
 
 #region public vars
 
-var owner : CharacterBody2D
+var owner: BaseEntity
 
 #endregion
 
@@ -41,15 +36,14 @@ signal state_done()
 
 #region lifecycle
 
-@warning_ignore("unused_parameter")
-func tick(delta : float) -> void:
+func tick(_delta: float) -> void:
 	pass
 
 #endregion
 
 #region init
 
-func setup(parent : CharacterBody2D) -> void:
+func setup(parent: BaseEntity) -> void:
 	_parent = parent
 	owner = _parent
 	_states.resize(state_types.size())
@@ -76,9 +70,10 @@ func change_state(state_type : state_types, args: Dictionary = {}) -> void:
 	state_changed.emit(state_type)
 
 func get_current_state_name() -> StringName:
+	@warning_ignore("unsafe_property_access")
 	return _current_state.state_name if _current_state else &"no_state"
 
-func get_state(state_type: state_types):
+func get_state(state_type: state_types) -> BaseState:
 	if state_type >= _states.size():
 		return null
 	return _states[state_type]
@@ -86,7 +81,7 @@ func get_state(state_type: state_types):
 func add_state(state_type : state_types) -> void:
 	if _states.is_empty():
 		_states.resize(state_types.size())
-	var state = _type_map[state_type].new()
+	var state: BaseState = _create_state(state_type)
 	state.setup(self)
 	_states[state_type] = state
 	state.done.connect(_on_any_state_done)
@@ -112,5 +107,16 @@ func set_initial_state(state_type: state_types) -> void:
 
 func _on_any_state_done() -> void:
 	state_done.emit()
+
+func _create_state(state_type: state_types) -> BaseState:
+	match state_type:
+		state_types.idle_state:
+			return IdleState.new()
+		state_types.move_state:
+			return MoveState.new()
+		state_types.build_state:
+			return BuildState.new()
+	assert(false, "Unsupported state type: %s" % state_type)
+	return null
 
 #endregion
