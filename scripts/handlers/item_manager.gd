@@ -1,26 +1,183 @@
 extends Node
 
-# Node that manages items inside a chunk. Has to be the child of a chunk node
+## Node that manages items inside a chunk. Has to be the child of a chunk node
 
+#region Classes
 
-class ItemStack:
+## Represents one item type and its associated variant data.
+class BaseItem:
+	## The identifier of the item type.
 	var id: int
-	var data: Array[Dictionary]
+	## Arbitrary properties that describe this specific item variant.
+	var data: Dictionary[String, Variant]
 
-	@warning_ignore("shadowed_variable")
-	func _init(id: int, data: Array[Dictionary]) -> void:
-		self.id = id
-		self.data = data
-
-
-var items: Dictionary[Vector2i, ItemStack]
+	## Creates an item with its type identifier and associated data.
+	func _init(_id: int, _data: Dictionary[String, Variant]) -> void:
+		self.id = _id
+		self.data = _data.duplicate(true)
 
 
-func add_item(id: int, position: Vector2i, count: int, data: Dictionary):
-	var data_array = []
-	data_array.resize(count)
-	data_array.fill(data.duplicate_deep())
-	if not items.keys().has(position):
-		items[position] = ItemStack.new(id, data_array)
-	else:
-		items[position].data.append_array(data_array)
+
+## Stores a positive number of items that share the same item ID and variant data.
+class ItemGroup:
+	extends BaseItem
+	## The number of items currently stored in this group.
+	var count: int
+
+	## Creates a group containing [param _count] identical items.
+	func _init(_id: int, _data: Dictionary[String, Variant], _count: int) -> void:
+		assert(_count > 0, "Item group count must be greater than zero.")
+		self.id = _id
+		self.data = _data
+		self.count = _count
+
+	## Removes [param _count] items and returns them as a new group.
+	func take_items(_count: int) -> ItemGroup:
+		assert(_count > 0, "The number of items to take must be greater than zero.")
+		assert(_count <= count, "Cannot take more items than the group contains.")
+		count -= _count
+		return ItemGroup.new(id, data, _count)
+
+	## Adds [param amount] identical items to this group.
+	func add_items(amount: int) -> void:
+		assert(amount > 0, "The number of items to add must be greater than zero.")
+		count += amount
+
+
+
+## Stores and indexes item groups so variants can be found by their data.
+class ItemPile:
+	## Maps each variant ID to the [ItemGroup] stored under that ID.
+	var items: Dictionary[int, ItemGroup] = {}
+	## Variant IDs that were released and may be reused by a newly added group.
+	var vacant_ids: Array[int] = []
+	## The total number of individual items stored across all groups.
+	var total_count: int = 0
+	## Maps data field names and values to the IDs of matching item variants.
+	var data_map: Dictionary[String, Dictionary]
+
+#region private functions
+
+	## Returns a reusable variant ID, or allocates the next sequential ID.
+	func _get_vacant_variant_id() -> int:
+		if not vacant_ids.is_empty():
+			return vacant_ids.pop_back()
+		else:
+			return items.size()
+
+	## Adds the indicated [param variant_id] to the [member data_map] for quick lookups
+	func index_item(item: BaseItem, variant_id: int) -> void:
+		assert(item.data)
+		for param_name: String in item.data:
+			var param_value: Variant = item.data[param_name]
+			if not data_map.has(param_name): data_map[param_name] = {}
+			if not data_map[param_name].has(param_value): data_map[param_name][param_value] = [variant_id]
+			else:
+				var id_array: Array[int] = data_map[param_name][param_value]
+				id_array.append(variant_id)
+
+	## Deletes the indicated [param variant_id] from the [member data_map], for example, when an item group was deleted
+	func unindex_item(item: BaseItem, variant_id: int) -> void:
+		assert(item.data)
+		for param_name: String in item.data:
+			var param_value: Variant = item.data[param_name]
+			if not data_map.has(param_name): continue
+			if not data_map[param_name].has(param_value): continue
+			var id_array: Array[int] = data_map[param_name][param_value]
+			id_array.erase(variant_id)
+			if id_array.is_empty():
+				data_map[param_name].erase(param_value)
+			if data_map[param_name].is_empty():
+				data_map.erase(param_name)
+#endregion
+
+#region API
+
+	## Returns the IDs of [ItemGroup]s containing every supplied data field and value.
+	func find_item(data: Dictionary[String, Variant]) -> Array[int]:
+		assert(not data.is_empty(), "Search data cannot be empty.")
+		var results: Array[Array] = []
+		var result: Array[int] = []
+		for param_name: String in data:
+			var param_value: Variant = data[param_name]
+			var param_values_dict: Dictionary = data_map.get(param_name, {})
+			results.append(param_values_dict.get(param_value, []))
+		result = results.reduce(
+		func(accumulator: Array, current_array: Array) -> Array:
+			return accumulator.filter(func(item: int) -> bool: return current_array.has(item))
+	)
+		return result
+
+	## Returns the IDs of [ItemGroup]s whose data exactly equals [param data].
+	func find_item_exact(data: Dictionary[String, Variant]) -> Array[int]:
+		return find_item(data).filter(
+			func(element: int) -> bool: return items[element].data == data
+		)
+
+	## Removes exactly [param count] items and returns them grouped by variant.
+	func take_items(count: int) -> Array[ItemGroup]:
+		assert(count > 0, "The number of items to take must be greater than zero.")
+		assert(count <= total_count, "Cannot take more items than the pile contains.")
+
+		var local_count: int = count
+		var result: Array[ItemGroup]
+		for group_id: int in items.keys():
+			var item_group: ItemGroup = items[group_id]
+			var item_amount: int = clampi(local_count, 0, item_group.count)
+			var taken_items: ItemGroup = item_group.take_items(item_amount)
+			total_count -= item_amount
+			local_count -= item_amount
+			result.append(taken_items)
+			if item_group.count == 0:
+				unindex_item(item_group, group_id)
+				items.erase(group_id)
+				vacant_ids.append(group_id)
+			else:
+				break
+			if local_count == 0:
+				break
+		return result
+
+	## Removes and returns one item whose data exactly equals [param data], or null if absent.
+	func take_specific_items(data: Dictionary[String, Variant], count: int) -> ItemGroup:
+		assert(count > 0, "The number of items to take must be greater than zero.")
+		assert(count <= total_count, "Cannot take more items than the pile contains.")
+		total_count -= count
+		var id_array: Array[int] = find_item_exact(data)
+		if not id_array.is_empty():
+			var item_id: int = id_array[0]
+			var item_group: ItemGroup = items[item_id]
+			var return_items: ItemGroup = item_group.take_items(count)
+			if item_group.count == 0:
+				unindex_item(item_group, item_id)
+				items.erase(item_group)
+				vacant_ids.append(item_group)
+			return return_items
+		return null
+
+	## Adds an item group, merging it with an existing exact data match when possible.
+	func add_items(item: ItemGroup) -> void:
+		assert(item != null, "Cannot add a null item group.")
+		assert(item.count > 0, "Cannot add an empty item group.")
+		total_count += item.count
+		var group_ids: Array[int] = find_item_exact(item.data)
+		if not group_ids.is_empty():
+			var group_id: int = group_ids[0]
+			items[group_id].add_items(item.count)
+		else:
+			var variant_id: int = _get_vacant_variant_id()
+			items[variant_id] = item
+			index_item(item, variant_id)
+
+
+#endregion
+
+#endregion
+
+#region vars
+
+## Maps each position within the chunk to the items stored at that position.
+var items: Dictionary[Vector2i, Array] = {}
+
+#endregion
+
