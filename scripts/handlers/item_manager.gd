@@ -47,6 +47,8 @@ class ItemGroup:
 
 ## Stores and indexes item groups so variants can be found by their data.
 class ItemPile:
+	## the ID of all items in the pile
+	var id: int
 	## Maps each variant ID to the [ItemGroup] stored under that ID.
 	var items: Dictionary[int, ItemGroup] = {}
 	## Variant IDs that were released and may be reused by a newly added group.
@@ -55,6 +57,11 @@ class ItemPile:
 	var total_count: int = 0
 	## Maps data field names and values to the IDs of matching item variants.
 	var data_map: Dictionary[String, Dictionary]
+	## The intra-chunk position of the item pile
+	var position: Vector2i
+
+	func _init(_position: Vector2i) -> void:
+		self.position = _position
 
 #region private functions
 
@@ -68,6 +75,7 @@ class ItemPile:
 	## Adds the indicated [param variant_id] to the [member data_map] for quick lookups
 	func index_item(item: BaseItem, variant_id: int) -> void:
 		assert(item.data)
+		assert(item.id == id, "Item ID must match pile ID")
 		for param_name: String in item.data:
 			var param_value: Variant = item.data[param_name]
 			if not data_map.has(param_name): data_map[param_name] = {}
@@ -158,6 +166,7 @@ class ItemPile:
 	func add_items(item: ItemGroup) -> void:
 		assert(item != null, "Cannot add a null item group.")
 		assert(item.count > 0, "Cannot add an empty item group.")
+		assert(item.id == id, "Item ID must match pile ID")
 		total_count += item.count
 		var group_ids: Array[int] = find_item_exact(item.data)
 		if not group_ids.is_empty():
@@ -184,7 +193,7 @@ var items: Dictionary[Vector2i, ItemPile] = {}
 
 signal item_pile_added(position: Vector2i)
 signal item_pile_count_changed(position: Vector2i)
-signal pile_deleted(position: Vector2i)
+signal item_pile_deleted(position: Vector2i)
 
 #endregion
 
@@ -204,3 +213,13 @@ func get_item_pile(position: Vector2i) -> ItemPile:
 	assert(items.has(position))
 	return items[position]
 
+func take_items(position: Vector2i, count: int) -> Array[ItemGroup]:
+	var return_items: Array[ItemGroup] = []
+	if items.has(position):
+		return_items = items[position].take_items(count)
+		if items[position].total_count == 0:
+			items.erase(position)
+			item_pile_deleted.emit(position)
+	return return_items
+
+#endregion
