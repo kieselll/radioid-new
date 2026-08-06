@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bbxxq8l1c7xsc"]
+[gd_scene format=3 uid="uid://bbxxq8l1c7xsc"]
 
 [ext_resource type="Script" uid="uid://dv0ld13x2mrb3" path="res://scripts/chunk.gd" id="1_qt7hk"]
 [ext_resource type="Shader" uid="uid://durpjnyh253jp" path="res://shaders/multimesh_shader.gdshader" id="2_qt7hk"]
@@ -13,7 +13,7 @@ shader_parameter/selection_color = Color(1, 1, 1, 1)
 [node name="Chunk" type="Node2D" unique_id=1266696573]
 script = ExtResource("1_qt7hk")
 
-[node name="ChunkRenderer" type="Node2D" parent="."]
+[node name="ChunkRenderer" type="Node2D" parent="." unique_id=424315407]
 script = ExtResource("5_renderer")
 base_material = SubResource("ShaderMaterial_01iku")
 
