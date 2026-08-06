@@ -139,21 +139,20 @@ class ItemPile:
 		return result
 
 	## Removes and returns one item whose data exactly equals [param data], or null if absent.
-	func take_specific_items(data: Dictionary[String, Variant], count: int) -> ItemGroup:
+	func take_specific_items(data: Dictionary[String, Variant], count: int) -> Array[ItemGroup]:
 		assert(count > 0, "The number of items to take must be greater than zero.")
 		assert(count <= total_count, "Cannot take more items than the pile contains.")
 		total_count -= count
-		var id_array: Array[int] = find_item_exact(data)
-		if not id_array.is_empty():
-			var item_id: int = id_array[0]
+		var id_array: Array[int] = find_item(data)
+		var return_items: Array[ItemGroup] = []
+		for item_id in id_array.size():
 			var item_group: ItemGroup = items[item_id]
-			var return_items: ItemGroup = item_group.take_items(count)
+			return_items.append(item_group.take_items(count))
 			if item_group.count == 0:
 				unindex_item(item_group, item_id)
 				items.erase(item_group)
 				vacant_ids.append(item_group)
-			return return_items
-		return null
+		return return_items
 
 	## Adds an item group, merging it with an existing exact data match when possible.
 	func add_items(item: ItemGroup) -> void:
