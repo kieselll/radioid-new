@@ -21,8 +21,6 @@ const LOCAL_NEIGHBOR_OFFSETS: Array[Vector2i] = [
 ]
 const CROSS_CHUNK_ALIGNMENT_OFFSETS: Array[int] = [-1, 0, 1]
 
-# A queued request is heterogeneous by nature, so give it a concrete shape
-# instead of passing untyped three-element arrays through the retry timer.
 class PathRequest:
 	var start: Vector4i
 	var end: Vector4i
@@ -831,6 +829,7 @@ func calculate_node_side(node_coords: Vector4i) -> Vector2i:
 ## Marks tile as solid for the Astar pathfinders.[br]
 ## Used so that nodes don't access Astar directly.
 func mark_tile_solid(coords: Vector4i, solid: bool = true) -> void:
+
 	var astar: AStarGrid2D = astargrids[Vector2i(coords.x, coords.y)]
 	astar.set_point_solid(Vector2i(coords.z, coords.w), solid)
 
