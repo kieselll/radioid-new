@@ -176,7 +176,31 @@ class ItemPile:
 #region vars
 
 ## Maps each position within the chunk to the items stored at that position.
-var items: Dictionary[Vector2i, Array] = {}
+var items: Dictionary[Vector2i, ItemPile] = {}
 
 #endregion
+
+#region signals
+
+signal item_pile_added(position: Vector2i)
+signal item_pile_count_changed(position: Vector2i)
+signal pile_deleted(position: Vector2i)
+
+#endregion
+
+#region API
+
+func add_item(id: int, position: Vector2i, count: int, data: Dictionary) -> void:
+	assert(Rect2i(0,0,16,16).has_point(position))
+	assert(count > 0)
+	if not items.has(position):
+		items[position] = ItemPile.new(position)
+		item_pile_added.emit(position)
+	items[position].add_items(ItemGroup.new(id, data, count))
+	item_pile_count_changed.emit(position)
+
+func get_item_pile(position: Vector2i) -> ItemPile:
+	assert(Rect2i(0,0,16,16).has_point(position))
+	assert(items.has(position))
+	return items[position]
 
