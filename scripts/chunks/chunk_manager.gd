@@ -56,6 +56,7 @@ signal chunk_generated(coords: Vector2i)
 
 func _ready() -> void:
 	world_seed = GlobalSaver.current_save.world_seed if GlobalSaver.current_save else randi()
+	GlobalItems.bind_chunk_manager(self)
 
 func _process(_delta: float) -> void:
 	if (
