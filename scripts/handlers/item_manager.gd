@@ -1,4 +1,5 @@
 extends Node
+class_name ItemManager
 
 ## Node that manages items inside a chunk. Has to be the child of a chunk node
 
@@ -221,5 +222,27 @@ func take_items(position: Vector2i, count: int) -> Array[ItemGroup]:
 			items.erase(position)
 			item_pile_deleted.emit(position)
 	return return_items
+
+func take_items_specific(position: Vector2i, count: int, data: Dictionary[String, Variant]) -> Array[ItemGroup]:
+	var return_items: Array[ItemGroup] = []
+	if items.has(position):
+		return_items = items[position].take_specific_items(data, count)
+		if items[position].total_count == 0:
+			items.erase(position)
+			item_pile_deleted.emit(position)
+	return return_items
+
+func get_all_items() -> Dictionary[Vector2i, ItemPile]:
+	return items
+
+func get_items_specific(id: int, data: Dictionary[String, Variant]) -> Array[ItemGroup]:
+	var result: Array[ItemGroup] = []
+	for pile: ItemPile in items.values():
+		if not pile.id == id: continue
+		var ids: Array[int] = pile.find_item(data)
+		for _id: int in ids:
+			result.append(pile.items[_id])
+	return result
+
 
 #endregion
