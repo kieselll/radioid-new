@@ -1,8 +1,8 @@
 extends Control
 
 var file_access: FileAccess
-var current_action
-var previous_key
+var current_action: StringName
+var previous_key: InputEvent
 var changed_actions : Dictionary[String, InputEvent]
 
 @export var path_text_edit : LineEdit
@@ -17,7 +17,7 @@ var changed_actions : Dictionary[String, InputEvent]
 @export var controls_map : Dictionary[TextureButton, String]
 @export var control_labels : Dictionary[String, Label]
 
-var settings_nodes
+var settings_nodes: Dictionary[String, Dictionary]
 
 func erase_key(action: StringName) -> void :
 	previous_key = InputMap.action_get_events(action)[0]
@@ -31,7 +31,7 @@ func update_settings() -> void :
 	GlobalLogger.write_to_logs(self, "Settings updated!")
 
 func update_actions() -> void :
-	for i in changed_actions.keys():
+	for i: String in changed_actions.keys():
 		InputMap.action_erase_events(i)
 		InputMap.action_add_event(i, changed_actions[i])
 
@@ -55,28 +55,32 @@ func _ready() -> void :
 
 	GlobalLogger.write_to_logs(self, "Current scene: Options")
 	SceneTransition.finish_trans()
-	var settings_dict = GlobalCfg.load_settings()
+	var settings_dict := GlobalCfg.load_settings()
 	GlobalLogger.write_to_logs(self, "Loading settings...")
-	for section in settings_dict.keys():
-		for key in settings_dict[section].keys():
-			var node = settings_nodes[section][key]
-			if node is OptionButton: node.select(settings_dict[section][key])
-			if node is SpinBox or node is Slider: node.value = settings_dict[section][key]
-			if node is Button: node.set_pressed_no_signal(settings_dict[section][key])
-			if node is LineEdit: node.text = settings_dict[section][key]
+	for section: String in settings_dict.keys():
+		var section_dict: Dictionary[String, Node]
+		for key: String in section_dict.keys():
+			var node := section_dict[key]
+			if node is OptionButton: (node as OptionButton).selected = settings_dict[section][key]
+			if node is SpinBox: (node as SpinBox).value = settings_dict[section][key]
+			if node is Slider: (node as Slider).value = settings_dict[section][key]
+			@warning_ignore("unsafe_call_argument")
+			if node is Button: (node as Button).set_pressed_no_signal(settings_dict[section][key])
+			if node is LineEdit: (node as LineEdit).text = settings_dict[section][key]
 	GlobalLogger.write_to_logs(self, "Settings loaded!")
 
-	for category in settings_nodes.keys():
-		for key in settings_nodes[category].keys():
-			var node = settings_nodes[category][key]
+	for category: String in settings_nodes.keys():
+		var category_dict: Dictionary[String, Node] = settings_nodes[category]
+		for key: String in category_dict.keys():
+			var node := category_dict[key]
 			if node is Slider:
-				node.value_changed.connect(_on_value_modified.bind(category, key))
+				(node as Slider).value_changed.connect(_on_value_modified.bind(category, key))
 			elif node is TextEdit:
-				node.text_changed.connect(_on_value_modified.bind(category, key))
+				(node as TextEdit).text_changed.connect(_on_value_modified.bind(category, key))
 			elif node is CheckButton:
-				node.toggled.connect(_on_value_modified.bind(category, key))
+				(node as CheckButton).toggled.connect(_on_value_modified.bind(category, key))
 			elif node is OptionButton:
-				node.item_selected.connect(_on_option_selected.bind(category, key, option_buttons_map[node]))
+				(node as OptionButton).item_selected.connect(_on_option_selected.bind(category, key, option_buttons_map[(node as OptionButton)]))
 
 	for node : TextureButton in controls_map.keys():
 		node.pressed.connect(_on_reset_button_pressed.bind(controls_map[node]))
@@ -105,9 +109,9 @@ func _on_path_line_edit_text_changed(new_text: String) -> void :
 	GlobalCfg.alter_setting("saves", "save_path", new_text)
 
 func _input(event: InputEvent) -> void:
-	if current_action != null and event is InputEventKey and event.is_pressed():
+	if current_action != "" and event is InputEventKey and event.is_pressed():
 		if not event.is_echo():
-			if event.keycode != KEY_ESCAPE:
+			if (event as InputEventKey).keycode != KEY_ESCAPE:
 				control_labels[current_action].text = event.as_text()
 				changed_actions[current_action] = event
 				GlobalLogger.write_to_logs(self, "Recieved key, changed action in dictionary")
@@ -115,4 +119,4 @@ func _input(event: InputEvent) -> void:
 				control_labels[current_action].text = previous_key.as_text()
 				changed_actions[current_action] = previous_key
 				GlobalLogger.write_to_logs(self, "Recieved Esc, canceled action change.")
-			current_action = null
+			current_action = ""
