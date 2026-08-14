@@ -58,25 +58,36 @@ func _ready() -> void :
 	var settings_dict := GlobalCfg.load_settings()
 	GlobalLogger.write_to_logs(self, "Loading settings...")
 	for section: String in settings_dict.keys():
-		var section_dict: Dictionary[String, Node]
+		if not settings_nodes.has(section):
+			continue
+		var section_dict: Dictionary[String, Node] = settings_nodes[section]
 		for key: String in section_dict.keys():
 			var node := section_dict[key]
-			if node is OptionButton: (node as OptionButton).selected = settings_dict[section][key]
-			if node is SpinBox: (node as SpinBox).value = settings_dict[section][key]
-			if node is Slider: (node as Slider).value = settings_dict[section][key]
+			var setting_key := "render_distance" if key.begins_with("render_distance_") else key
+			if not settings_dict[section].has(setting_key):
+				continue
+			var value = settings_dict[section][setting_key]
+			if node is OptionButton:
+				var mapped_values: Array = option_buttons_map.get(node as OptionButton, [])
+				(node as OptionButton).selected = mapped_values.find(value)
+			if node is SpinBox: (node as SpinBox).value = value
+			if node is Slider: (node as Slider).value = value
 			@warning_ignore("unsafe_call_argument")
-			if node is Button: (node as Button).set_pressed_no_signal(settings_dict[section][key])
-			if node is LineEdit: (node as LineEdit).text = settings_dict[section][key]
+			if node is Button: (node as Button).set_pressed_no_signal(value)
+			if node is LineEdit: (node as LineEdit).text = value
 	GlobalLogger.write_to_logs(self, "Settings loaded!")
 
 	for category: String in settings_nodes.keys():
 		var category_dict: Dictionary[String, Node] = settings_nodes[category]
 		for key: String in category_dict.keys():
 			var node := category_dict[key]
+			var setting_key := "render_distance" if key.begins_with("render_distance_") else key
 			if node is Slider:
-				(node as Slider).value_changed.connect(_on_value_modified.bind(category, key))
-			elif node is TextEdit:
-				(node as TextEdit).text_changed.connect(_on_value_modified.bind(category, key))
+				(node as Slider).value_changed.connect(_on_value_modified.bind(category, setting_key))
+			elif node is SpinBox:
+				(node as SpinBox).value_changed.connect(_on_value_modified.bind(category, setting_key))
+			elif node is LineEdit:
+				(node as LineEdit).text_changed.connect(_on_value_modified.bind(category, setting_key))
 			elif node is CheckButton:
 				(node as CheckButton).toggled.connect(_on_value_modified.bind(category, key))
 			elif node is OptionButton:
@@ -95,7 +106,7 @@ func _on_save_button_pressed() -> void :
 func _on_value_modified(value : Variant, category : String, key : String) -> void:
 	GlobalCfg.alter_setting(category, key, value)
 
-func _on_option_selected(value : float, category : String, key : String, map : Array) -> void:
+func _on_option_selected(value : int, category : String, key : String, map : Array) -> void:
 	GlobalCfg.alter_setting(category, key, map[value])
 
 func _on_reset_button_pressed(action : String) -> void:
@@ -106,7 +117,7 @@ func _on_path_line_edit_text_changed(new_text: String) -> void :
 		path_text_edit.add_theme_color_override("font_color", Color.CRIMSON)
 	else:
 		path_text_edit.remove_theme_color_override("font_color")
-	GlobalCfg.alter_setting("saves", "save_path", new_text)
+	GlobalCfg.alter_setting("saves", "game_path", new_text)
 
 func _input(event: InputEvent) -> void:
 	if current_action != "" and event is InputEventKey and event.is_pressed():
@@ -120,3 +131,10 @@ func _input(event: InputEvent) -> void:
 				changed_actions[current_action] = previous_key
 				GlobalLogger.write_to_logs(self, "Recieved Esc, canceled action change.")
 			current_action = ""
+
+
+func _on_render_distance_value_changed(value: float) -> void:
+	var selector: SpinBox = graphics["render_distance_selector"]
+	var slider: HSlider = graphics["render_distance_slider"]
+	selector.value = value
+	slider.value = value
