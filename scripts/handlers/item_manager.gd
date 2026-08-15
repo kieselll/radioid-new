@@ -76,7 +76,6 @@ class ItemPile:
 
 	## Adds the indicated [param variant_id] to the [member data_map] for quick lookups
 	func index_item(item: BaseItem, variant_id: int) -> void:
-		assert(item.data)
 		assert(item.id == id, "Item ID must match pile ID")
 		for param_name: String in item.data:
 			var param_value: Variant = item.data[param_name]
@@ -88,7 +87,6 @@ class ItemPile:
 
 	## Deletes the indicated [param variant_id] from the [member data_map], for example, when an item group was deleted
 	func unindex_item(item: BaseItem, variant_id: int) -> void:
-		assert(item.data)
 		for param_name: String in item.data:
 			var param_value: Variant = item.data[param_name]
 			if not data_map.has(param_name): continue
@@ -103,9 +101,21 @@ class ItemPile:
 
 #region API
 
-	## Returns the IDs of [ItemGroup]s containing every supplied data field and value.
-	func find_item(data: Dictionary[String, Variant]) -> Array[int]:
-		assert(not data.is_empty(), "Search data cannot be empty.")
+	## Returns matching [ItemGroup] IDs. Non-exclusive searches accept additional
+	## data fields; exclusive searches require the group's data to match exactly.
+	## Empty non-exclusive data matches every group, while empty exclusive data
+	## matches only groups that also have no data.
+	func find_item(
+		data: Dictionary[String, Variant] = {},
+		exclusive: bool = false
+	) -> Array[int]:
+		if data.is_empty():
+			var all_results: Array[int] = []
+			for variant_id: int in items:
+				if not exclusive or items[variant_id].data.is_empty():
+					all_results.append(variant_id)
+			return all_results
+
 		var results: Array[Array] = []
 		var result: Array[int] = []
 		for param_name: String in data:
@@ -116,13 +126,11 @@ class ItemPile:
 		func(accumulator: Array, current_array: Array) -> Array:
 			return accumulator.filter(func(item: int) -> bool: return current_array.has(item))
 	)
+		if exclusive:
+			result = result.filter(
+				func(element: int) -> bool: return items[element].data == data
+			)
 		return result
-
-	## Returns the IDs of [ItemGroup]s whose data exactly equals [param data].
-	func find_item_exact(data: Dictionary[String, Variant]) -> Array[int]:
-		return find_item(data).filter(
-			func(element: int) -> bool: return items[element].data == data
-		)
 
 	## Removes exactly [param count] items and returns them grouped by variant.
 	func take_items(count: int) -> Array[ItemGroup]:
@@ -170,7 +178,7 @@ class ItemPile:
 		assert(item.count > 0, "Cannot add an empty item group.")
 		assert(item.id == id, "Item ID must match pile ID")
 		total_count += item.count
-		var group_ids: Array[int] = find_item_exact(item.data)
+		var group_ids: Array[int] = find_item(item.data, true)
 		if not group_ids.is_empty():
 			var group_id: int = group_ids[0]
 			items[group_id].add_items(item.count)
@@ -252,11 +260,33 @@ func take_items_specific(position: Vector2i, count: int, data: Dictionary[String
 func get_all_items() -> Dictionary[Vector2i, ItemPile]:
 	return items
 
-func get_items_specific(id: int, data: Dictionary[String, Variant]) -> Array[ItemGroup]:
+## Returns groups at [param position], optionally filtered by their variant data.
+## See [method ItemPile.find_item] for exclusive and empty-data behavior.
+func get_items_by_position(
+	position: Vector2i,
+	data: Dictionary[String, Variant] = {},
+	exclusive: bool = false
+) -> Array[ItemGroup]:
+	assert(Rect2i(0,0,16,16).has_point(position))
+	var result: Array[ItemGroup] = []
+	var pile: ItemPile = items.get(position)
+	if pile == null:
+		return result
+	for variant_id: int in pile.find_item(data, exclusive):
+		result.append(pile.items[variant_id])
+	return result
+
+## Returns groups with [param id], optionally filtered by their variant data.
+## See [method ItemPile.find_item] for exclusive and empty-data behavior.
+func get_items_by_id(
+	id: int,
+	data: Dictionary[String, Variant] = {},
+	exclusive: bool = false
+) -> Array[ItemGroup]:
 	var result: Array[ItemGroup] = []
 	for pile: ItemPile in items.values():
 		if not pile.id == id: continue
-		var ids: Array[int] = pile.find_item(data)
+		var ids: Array[int] = pile.find_item(data, exclusive)
 		for _id: int in ids:
 			result.append(pile.items[_id])
 	return result
