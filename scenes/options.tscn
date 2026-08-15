@@ -97,6 +97,8 @@ graphics = {
 "brightness": NodePath("PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/brightness_slider"),
 "frame_rate_limit": NodePath("PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/frame_rate_limit/custom_fps_limit"),
 "particle_amount": NodePath("PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/particle_amount_slider"),
+"render_distance_selector": NodePath("PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/HBoxContainer/render_distance_selector"),
+"render_distance_slider": NodePath("PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/HBoxContainer/render_distance_slider"),
 "window_type": NodePath("PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/window_type/window_type_selector")
 }
 gameplay = {
@@ -153,10 +155,9 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_uon5e")
 [node name="Tabs" type="TabContainer" parent="PanelContainer" unique_id=1492256978]
 layout_mode = 2
 theme_override_styles/tab_selected = SubResource("StyleBoxFlat_o7i7e")
-current_tab = 1
+current_tab = 0
 
 [node name="Graphics" type="PanelContainer" parent="PanelContainer/Tabs" unique_id=1911138398]
-visible = false
 layout_mode = 2
 theme = ExtResource("3")
 metadata/_tab_index = 0
@@ -275,7 +276,44 @@ theme = ExtResource("3")
 theme_override_styles/slider = SubResource("StyleBoxLine_bbbdu")
 metadata/_edit_group_ = true
 
+[node name="Rendering" type="Label" parent="PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer" unique_id=1579516339]
+modulate = Color(2, 2, 2, 1)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.411765, 0.890196, 0, 1)
+theme_override_font_sizes/font_size = 25
+text = "Rendering"
+horizontal_alignment = 1
+metadata/_edit_group_ = true
+
+[node name="brightness_label2" type="Label" parent="PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer" unique_id=1203313944]
+layout_mode = 2
+text = "Rendering distance"
+horizontal_alignment = 1
+metadata/_edit_group_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer" unique_id=1532966208]
+layout_mode = 2
+
+[node name="render_distance_selector" type="SpinBox" parent="PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/HBoxContainer" unique_id=1090061743]
+layout_mode = 2
+size_flags_horizontal = 0
+min_value = 2.0
+max_value = 22.0
+value = 2.0
+
+[node name="render_distance_slider" type="HSlider" parent="PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/HBoxContainer" unique_id=137874265]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme = ExtResource("3")
+theme_override_styles/slider = SubResource("StyleBoxLine_bbbdu")
+min_value = 2.0
+max_value = 22.0
+value = 2.0
+metadata/_edit_group_ = true
+
 [node name="Gameplay" type="PanelContainer" parent="PanelContainer/Tabs" unique_id=1092337449]
+visible = false
 layout_mode = 2
 theme = ExtResource("3")
 metadata/_tab_index = 1
@@ -805,6 +843,8 @@ icon = ExtResource("7")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1083820132]
 environment = SubResource("Environment_sex1m")
 
+[connection signal="value_changed" from="PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/HBoxContainer/render_distance_selector" to="." method="_on_render_distance_value_changed"]
+[connection signal="value_changed" from="PanelContainer/Tabs/Graphics/ScrollContainer/VBoxContainer/HBoxContainer/render_distance_slider" to="." method="_on_render_distance_value_changed"]
 [connection signal="text_changed" from="PanelContainer/Tabs/Saves/ScrollContainer/VBoxContainer/WindowType/path_line_edit" to="." method="_on_path_line_edit_text_changed"]
 [connection signal="pressed" from="save_button" to="." method="_on_save_button_pressed"]
 [connection signal="pressed" from="cancel_button" to="." method="_on_cancel_button_pressed"]
