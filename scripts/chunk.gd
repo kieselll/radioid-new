@@ -9,7 +9,8 @@ var dirty: bool
 var _chunk_manager: ChunkManager
 
 ## Renderer responsible for this chunk's tile visuals.
-@onready var _renderer: ChunkRenderer = $ChunkRenderer
+@onready var renderer: ChunkRenderer = $ChunkRenderer
+@onready var item_manager: ItemManager = $ItemManager
 
 signal cells_updated
 
@@ -145,15 +146,15 @@ func _update() -> void:
 			var previous_id: int = _cells[i.layer][i.coords.x][i.coords.y]
 			if previous_id != -1:
 				_cells[i.layer][i.coords.x][i.coords.y] = -1
-				_renderer.erase_cell(previous_id, i.layer, i.coords)
+				renderer.erase_cell(previous_id, i.layer, i.coords)
 			_refresh_pathfinding_solid(i.coords)
 			continue
 
 		var existing_id: int = _cells[i.layer][i.coords.x][i.coords.y]
 		if existing_id != -1 and existing_id != i.id:
-			_renderer.erase_cell(existing_id, i.layer, i.coords)
+			renderer.erase_cell(existing_id, i.layer, i.coords)
 		_cells[i.layer][i.coords.x][i.coords.y] = i.id
-		_renderer.render_cell(i.id, i.layer, i.coords)
+		renderer.render_cell(i.id, i.layer, i.coords)
 		_refresh_pathfinding_solid(i.coords)
 
 	_new_cells.clear()
