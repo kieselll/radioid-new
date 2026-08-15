@@ -61,8 +61,9 @@ class ItemPile:
 	## The intra-chunk position of the item pile
 	var position: Vector2i
 
-	func _init(_position: Vector2i) -> void:
+	func _init(_position: Vector2i, _id: int) -> void:
 		self.position = _position
+		self.id = _id
 
 #region private functions
 
@@ -204,7 +205,7 @@ func add_item(id: int, position: Vector2i, count: int, data: Dictionary) -> void
 	assert(Rect2i(0,0,16,16).has_point(position))
 	assert(count > 0)
 	if not items.has(position):
-		items[position] = ItemPile.new(position)
+		items[position] = ItemPile.new(position, id)
 		item_pile_added.emit(position)
 	items[position].add_items(ItemGroup.new(id, data, count))
 	item_pile_count_changed.emit(position)
@@ -213,6 +214,22 @@ func get_item_pile(position: Vector2i) -> ItemPile:
 	assert(Rect2i(0,0,16,16).has_point(position))
 	assert(items.has(position))
 	return items[position]
+
+## Returns every pile in this chunk that stores [param id].
+func get_item_piles_by_id(id: int) -> Array[ItemPile]:
+	var result: Array[ItemPile] = []
+	for pile: ItemPile in items.values():
+		if pile.id == id:
+			result.append(pile)
+	return result
+
+## Returns the pile at [param position] when it stores [param id], or null otherwise.
+func get_item_pile_matching(position: Vector2i, id: int) -> ItemPile:
+	assert(Rect2i(0,0,16,16).has_point(position))
+	var pile: ItemPile = items.get(position)
+	if pile != null and pile.id == id:
+		return pile
+	return null
 
 func take_items(position: Vector2i, count: int) -> Array[ItemGroup]:
 	var return_items: Array[ItemGroup] = []
@@ -243,6 +260,5 @@ func get_items_specific(id: int, data: Dictionary[String, Variant]) -> Array[Ite
 		for _id: int in ids:
 			result.append(pile.items[_id])
 	return result
-
 
 #endregion
