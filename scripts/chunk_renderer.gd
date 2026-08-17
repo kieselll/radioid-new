@@ -13,7 +13,7 @@ class_name ChunkRenderer
 @onready var chunk: Chunk = get_parent() as Chunk
 
 ## Tile multimeshes keyed by tile ID and layer.
-var _multimesh_instances: Dictionary[Vector2i, MultiMeshInstance2D] = {}
+var _tile_multimesh_instances: Dictionary[Vector2i, MultiMeshInstance2D] = {}
 
 ## Neighbor offsets ordered to match the autotile bitmask layout.
 const OFFSETS: Array[Vector2i] = [
@@ -47,10 +47,10 @@ func render_cell(
 	coords: Vector2i,
 ) -> void:
 	var multimesh_key := Vector2i(id, layer)
-	if not _multimesh_instances.has(multimesh_key):
-		_create_multimesh(id, layer)
+	if not _tile_multimesh_instances.has(multimesh_key):
+		_create_tile_multimesh(id, layer)
 
-	var instance: MultiMeshInstance2D = _multimesh_instances[multimesh_key]
+	var instance: MultiMeshInstance2D = _tile_multimesh_instances[multimesh_key]
 	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
 	instance.multimesh.set_instance_transform_2d(
 		index,
@@ -66,8 +66,8 @@ func erase_cell(
 	coords: Vector2i,
 ) -> void:
 	var multimesh_key := Vector2i(id, layer)
-	if _multimesh_instances.has(multimesh_key):
-		var instance: MultiMeshInstance2D = _multimesh_instances[multimesh_key]
+	if _tile_multimesh_instances.has(multimesh_key):
+		var instance: MultiMeshInstance2D = _tile_multimesh_instances[multimesh_key]
 		var index := coords.y * Chunk.CHUNK_SIZE + coords.x
 		instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2.ZERO))
 		instance.multimesh.set_instance_custom_data(index, Color(0.0, 0.0, 0.0, 0.0))
@@ -76,7 +76,7 @@ func erase_cell(
 
 
 ## Creates the tile multimesh for the indicated tile ID and layer.
-func _create_multimesh(id: int, layer: GlobalRef.tilemap_layers_enum) -> void:
+func _create_tile_multimesh(id: int, layer: GlobalRef.tilemap_layers_enum) -> void:
 	assert(base_material != null, "ChunkRenderer requires a base material.")
 	var instance := MultiMeshInstance2D.new()
 	instance.texture = BuildableDB.get_tile(id).texture_params.texture
@@ -85,15 +85,15 @@ func _create_multimesh(id: int, layer: GlobalRef.tilemap_layers_enum) -> void:
 	instance.multimesh.use_custom_data = true
 	instance.multimesh.instance_count = Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE
 
-	var material: ShaderMaterial = base_material.duplicate_deep(Resource.DEEP_DUPLICATE_ALL)
-	material.set_shader_parameter("selection_color", LAYER_COLORS[layer])
-	instance.material = material
+	var _material: ShaderMaterial = base_material.duplicate_deep(Resource.DEEP_DUPLICATE_ALL)
+	_material.set_shader_parameter("selection_color", LAYER_COLORS[layer])
+	instance.material = _material
 
 	var mesh := QuadMesh.new()
 	mesh.size = BuildableDB.get_tile(id).texture_params.cell_size
 	instance.multimesh.mesh = mesh
 
-	_multimesh_instances[Vector2i(id, layer)] = instance
+	_tile_multimesh_instances[Vector2i(id, layer)] = instance
 	add_child(instance)
 
 
@@ -153,26 +153,54 @@ func _set_tile_region(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) ->
 		if target_chunk == null:
 			continue
 
-		var id := target_chunk.get_cell(layer, target_coords)
-		if id == -1:
-			continue
-
 		var renderer := target_chunk.get_node_or_null("ChunkRenderer") as ChunkRenderer
 		if renderer == null:
 			continue
+		renderer._set_single_tile_region(layer, target_coords)
 
-		var multimesh_key := Vector2i(id, layer)
-		if not renderer._multimesh_instances.has(multimesh_key):
-			continue
 
-		var rect: Rect2 = BuildableDB.get_tile(id).texture_params.get_terrain_tile_rect(
-			renderer._detect_neighbors(layer, target_coords)
-		)
-		var instance_index := target_coords.y * Chunk.CHUNK_SIZE + target_coords.x
-		renderer._multimesh_instances[multimesh_key].multimesh.set_instance_custom_data(
-			instance_index,
-			Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y),
-		)
+## Calculates one tile's region without recursively refreshing its neighbors.
+func _set_single_tile_region(
+	layer: GlobalRef.tilemap_layers_enum, coords: Vector2i
+) -> void:
+	var id := chunk.get_cell(layer, coords)
+	if id == -1:
+		return
+
+	var multimesh_key := Vector2i(id, layer)
+	if not _tile_multimesh_instances.has(multimesh_key):
+		return
+
+	var rect: Rect2 = BuildableDB.get_tile(id).texture_params.get_terrain_tile_rect(
+		_detect_neighbors(layer, coords)
+	)
+	var instance_index := coords.y * Chunk.CHUNK_SIZE + coords.x
+	_tile_multimesh_instances[multimesh_key].multimesh.set_instance_custom_data(
+		instance_index,
+		Color(rect.position.x, rect.position.y, rect.size.x, rect.size.y),
+	)
+
+
+## A newly available chunk can change autotiling on already-rendered neighbor
+## borders. Only those border cells need to be recalculated.
+func _refresh_adjacent_chunk_borders() -> void:
+	for layer: GlobalRef.tilemap_layers_enum in LAYER_COLORS:
+		for index: int in Chunk.CHUNK_SIZE:
+			for outside_coords: Vector2i in [
+				Vector2i(-1, index),
+				Vector2i(Chunk.CHUNK_SIZE, index),
+				Vector2i(index, -1),
+				Vector2i(index, Chunk.CHUNK_SIZE),
+			]:
+				var location := _resolve_chunk_location(outside_coords)
+				var neighbor_chunk: Chunk = location.chunk
+				if neighbor_chunk == null:
+					continue
+				var neighbor_renderer := (
+					neighbor_chunk.get_node_or_null("ChunkRenderer") as ChunkRenderer
+				)
+				if neighbor_renderer != null:
+					neighbor_renderer._set_single_tile_region(layer, location.coords)
 
 
 ## Resolves potentially out-of-bounds local coordinates to a chunk and local cell.

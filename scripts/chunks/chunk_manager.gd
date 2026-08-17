@@ -11,9 +11,12 @@ var unload_queue: Array[Vector2i]
 
 var current_chunk: Vector2i
 var old_chunk: Vector2i
+var _stream_center_initialized := false
 
-var world_seed
+var world_seed: int
 var tilemap: TileMap
+
+var render_distance: int
 
 #endregion
 
@@ -21,7 +24,6 @@ var tilemap: TileMap
 
 @export var cam: Camera2D
 @export var chunk_scene: PackedScene
-@export var render_distance: int = 10
 
 #endregion
 
@@ -34,13 +36,13 @@ const CHUNK_SIZE = 16
 #region Private Classes
 
 class ChunkData:
-	var ground_layer: Array
-	var terrain_layer: Array
-	var wall_layer: Array
-	var terrain_queued_layer: Array
-	var wall_queued_layer: Array
-	var terrain_queued_d_layer: Array
-	var wall_queued_d_layer: Array
+	var ground_layer: Array = []
+	var terrain_layer: Array = []
+	var wall_layer: Array = []
+	var terrain_queued_layer: Array = []
+	var wall_queued_layer: Array = []
+	var terrain_queued_d_layer: Array = []
+	var wall_queued_d_layer: Array = []
 
 #endregion
 
@@ -55,20 +57,21 @@ signal chunk_generated(coords: Vector2i)
 #region Lifecycle
 
 func _ready() -> void:
+	@warning_ignore("unsafe_call_argument")
+	render_distance = int(GlobalCfg.get_setting("graphics", "render_distance", render_distance))
 	world_seed = GlobalSaver.current_save.world_seed if GlobalSaver.current_save else randi()
 
 func _process(_delta: float) -> void:
-	if (
-		not unload_queue.is_empty()
-		and chunks.has(unload_queue[-1])
-		and is_instance_valid(chunks[unload_queue[-1]])
-	):
-		if chunks[unload_queue[-1]].dirty:
-			GlobalSaver.save_chunk(unload_queue[-1])
-		chunks[unload_queue[-1]].queue_free()
-		chunk_deleted.emit(unload_queue[-1])
-		chunks.erase(unload_queue[-1])
-		unload_queue.remove_at(-1)
+	if not unload_queue.is_empty():
+		var unload_coords = unload_queue.pop_back()
+		if chunks.has(unload_coords):
+			var chunk: Node = chunks[unload_coords]
+			if is_instance_valid(chunk):
+				if chunk.dirty:
+					GlobalSaver.save_chunk(unload_coords)
+				chunk.queue_free()
+			chunk_deleted.emit(unload_coords)
+			chunks.erase(unload_coords)
 
 	if not load_queue.is_empty():
 		var loaded_chunk = GlobalSaver.read_chunk(load_queue[-1])
@@ -82,6 +85,12 @@ func _process(_delta: float) -> void:
 			entity_manager.deserialize_entity(entity)
 		load_queue.remove_at(-1)
 		return
+
+	# Rapid center changes can invalidate work between physics frames. Before
+	# sleeping, reconcile the final render rectangle so stationary cameras cannot
+	# retain holes left by superseded queue contents.
+	if _queue_missing_visible_chunks():
+		return
 	set_process(false)
 
 
@@ -89,11 +98,14 @@ func _physics_process(_delta: float) -> void:
 	chunk_cam_coords = GridUtils.world_coord_to_chunk_coord(cam.position)
 	current_chunk = Vector2i(chunk_cam_coords.x, chunk_cam_coords.y)
 
-	if old_chunk == null or old_chunk != current_chunk:
+	if not _stream_center_initialized or old_chunk != current_chunk:
 		current_chunk_changed.emit(current_chunk)
 		old_chunk = current_chunk
+		_stream_center_initialized = true
 
-		# Mark chunks for unload
+		# Rebuild rather than append: an old queued chunk may have become visible
+		# again before its unload job ran.
+		unload_queue.clear()
 		for i in chunks.keys():
 			@warning_ignore("integer_division")
 			if not (
@@ -105,30 +117,39 @@ func _physics_process(_delta: float) -> void:
 			):
 				unload_queue.append(i)
 
-		var temp_load: Array[Vector2i] = []
-		# Mark chunks for load
-		for i in render_distance:
-			for j in render_distance:
-				@warning_ignore("integer_division")
-				var coords := (
-					Vector2i(i, j)
-					+ current_chunk
-					- Vector2i(render_distance / 2, render_distance / 2)
-				)
+		load_queue.clear()
+		_queue_missing_visible_chunks()
 
-				if not chunks.has(coords) and not load_queue.has(coords):
-					@warning_ignore("integer_division")
-					temp_load.append(coords)
-		temp_load.sort_custom(
-			func(a, b):
+		set_process(true)
+
+
+func _queue_missing_visible_chunks() -> bool:
+	var queued_any := false
+	for i: int in render_distance:
+		for j: int in render_distance:
+			@warning_ignore("integer_division")
+			var coords := (
+				Vector2i(i, j)
+				+ current_chunk
+				- Vector2i(render_distance / 2, render_distance / 2)
+			)
+			var has_live_chunk := chunks.has(coords) and is_instance_valid(chunks[coords])
+			if has_live_chunk or load_queue.has(coords):
+				continue
+			if chunks.has(coords):
+				chunks.erase(coords)
+			load_queue.append(coords)
+			queued_any = true
+
+	if queued_any:
+		load_queue.sort_custom(
+			func(a: Vector2i, b: Vector2i) -> bool:
 				return (
 					abs(current_chunk.x - a.x) + abs(current_chunk.y - a.y)
 					> abs(current_chunk.x - b.x) + abs(current_chunk.y - b.y)
 				)
 		)
-		load_queue = temp_load
-
-		set_process(true)
+	return queued_any
 
 #endregion
 
@@ -139,19 +160,12 @@ func generate_new_layer(
 ) -> Array:  # CRITICAL WIP
 	var tile_array: Array = []
 	tile_array.resize(CHUNK_SIZE)
-
-	if layer == GlobalRef.tilemap_layers_enum.ground:
-		for i in CHUNK_SIZE:
-			tile_array[i] = []
-			for j in CHUNK_SIZE:
-				tile_array[i].resize(CHUNK_SIZE)
-				tile_array[i][j] = 4
-	else:
-		for i in CHUNK_SIZE:
-			tile_array[i] = []
-			for j in CHUNK_SIZE:
-				tile_array[i].resize(CHUNK_SIZE)
-				tile_array[i][j] = -1
+	var default_id := 4 if layer == GlobalRef.tilemap_layers_enum.ground else -1
+	for x in CHUNK_SIZE:
+		var row: Array[int] = []
+		row.resize(CHUNK_SIZE)
+		row.fill(default_id)
+		tile_array[x] = row
 
 	return tile_array
 
@@ -198,21 +212,9 @@ func generate_new_chunk(coords: Vector2i, _seed: int) -> ChunkData:
 	var chunk = ChunkData.new()
 
 	chunk.ground_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.ground, _seed)
-	chunk.terrain_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.terrain, _seed)
-	chunk.wall_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.walls, _seed)
-
-	chunk.terrain_queued_layer = generate_new_layer(
-		coords, GlobalRef.tilemap_layers_enum.terrain_queued, _seed
-	)
-	chunk.wall_queued_layer = generate_new_layer(
-		coords, GlobalRef.tilemap_layers_enum.walls_queued, _seed
-	)
-	chunk.terrain_queued_d_layer = generate_new_layer(
-		coords, GlobalRef.tilemap_layers_enum.terrain_queued_d, _seed
-	)
-	chunk.wall_queued_d_layer = generate_new_layer(
-		coords, GlobalRef.tilemap_layers_enum.walls_queued_d, _seed
-	)
+	# All other layers are currently empty for a fresh chunk. Chunk initializes
+	# every omitted layer to -1, avoiding six redundant grids. When procedural
+	# terrain or walls are added, only generate those populated layers here.
 
 	return chunk
 
@@ -228,38 +230,17 @@ func instantiate_chunk(new_chunk: ChunkData, coords: Vector2i) -> void:
 	chunk_node.position = coords * CHUNK_SIZE * 32 + Vector2i(16, 16)
 	GlobalRef.add_chunk(coords, chunk_node)
 
-	@warning_ignore("integer_division")
-	for i in CHUNK_SIZE:
-		for j in CHUNK_SIZE:
-			chunk_node.set_cell(
-				new_chunk.ground_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.ground
-			)
-			chunk_node.set_cell(
-				new_chunk.terrain_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.terrain
-			)
-			chunk_node.set_cell(
-				new_chunk.wall_layer[i][j], Vector2i(i, j), GlobalRef.tilemap_layers_enum.walls
-			)
-			chunk_node.set_cell(
-				new_chunk.terrain_queued_layer[i][j],
-				Vector2i(i, j),
-				GlobalRef.tilemap_layers_enum.terrain_queued
-			)
-			chunk_node.set_cell(
-				new_chunk.wall_queued_layer[i][j],
-				Vector2i(i, j),
-				GlobalRef.tilemap_layers_enum.walls_queued
-			)
-			chunk_node.set_cell(
-				new_chunk.terrain_queued_d_layer[i][j],
-				Vector2i(i, j),
-				GlobalRef.tilemap_layers_enum.terrain_queued_d
-			)
-			chunk_node.set_cell(
-				new_chunk.wall_queued_d_layer[i][j],
-				Vector2i(i, j),
-				GlobalRef.tilemap_layers_enum.walls_queued_d
-			)
+	chunk_node.initialize_cells(
+		[
+			new_chunk.ground_layer,
+			new_chunk.terrain_layer,
+			new_chunk.wall_layer,
+			new_chunk.terrain_queued_layer,
+			new_chunk.wall_queued_layer,
+			new_chunk.terrain_queued_d_layer,
+			new_chunk.wall_queued_d_layer,
+		]
+	)
 
 	chunk_generated.emit(coords)
 

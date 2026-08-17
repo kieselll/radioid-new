@@ -66,6 +66,20 @@ func erase_cell(coords: Vector2i, layer: GlobalRef.tilemap_layers_enum) -> void:
 	dirty = true
 	set_process(true)
 
+
+## Installs generated or loaded data without replaying it as thousands of
+## incremental gameplay edits.
+func initialize_cells(layers: Array) -> void:
+	_new_cells.clear()
+	for layer: int in mini(layers.size(), LAYER_COUNT):
+		var layer_data: Array = layers[layer]
+		if not layer_data.is_empty():
+			_cells[layer] = layer_data
+
+	renderer.rebuild_from_cells()
+	dirty = false
+	cells_updated.emit()
+
 #endregion
 
 #region Public_Helpers
