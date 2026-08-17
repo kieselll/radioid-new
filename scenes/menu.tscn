@@ -51,9 +51,6 @@ shader_parameter/noise_texture = SubResource("NoiseTexture2D_70i5f")
 shader_parameter/density = 25.0
 shader_parameter/time_offset = 0.0
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_70i5f"]
-size = Vector2(111.5, 121)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g4qe6"]
 content_margin_left = 5.0
 content_margin_top = 5.0
@@ -137,7 +134,7 @@ adjustment_enabled = true
 adjustment_brightness = 0.93
 adjustment_contrast = 1.015
 
-[node name="Control" type="Control" unique_id=1479742113]
+[node name="Control" type="Control" unique_id=1479742113 node_paths=PackedStringArray("menu_buttons")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -146,6 +143,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1")
+menu_buttons = [NodePath("VBoxContainer/load_game_button"), NodePath("VBoxContainer/new_game_button"), NodePath("VBoxContainer/options_button"), NodePath("VBoxContainer/quit_button")]
 
 [node name="Node2D" type="Node2D" parent="." unique_id=1240524369]
 
@@ -291,70 +289,63 @@ grow_vertical = 2
 mouse_filter = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1800565700]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=599535738]
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.44954544
-anchor_top = 0.4
-anchor_right = 0.55045456
-anchor_bottom = 0.6
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="StaticBody2D" type="StaticBody2D" parent="MarginContainer" unique_id=964008433]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="MarginContainer/StaticBody2D" unique_id=1058294957]
-shape = SubResource("RectangleShape2D_70i5f")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=599535738]
-layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1
-metadata/_edit_use_anchors_ = true
 
-[node name="load_game_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=615101308]
+[node name="load_game_button" type="Button" parent="VBoxContainer" unique_id=615101308]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 4
+size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme = ExtResource("9")
 theme_type_variation = &"FlatButton"
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_g4qe6")
 theme_override_styles/hover = SubResource("StyleBoxFlat_g4qe6")
-text = "Load game"
-clip_text = true
+text = "BUTTON_LOAD_SAVE"
 
-[node name="new_game_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=666844776]
+[node name="new_game_button" type="Button" parent="VBoxContainer" unique_id=666844776]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 4
+size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme = ExtResource("9")
 theme_type_variation = &"FlatButton"
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_ikd8v")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ikd8v")
-text = "New game"
-clip_text = true
+text = "BUTTON_NEW_SAVE"
 
-[node name="options_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1042657793]
+[node name="options_button" type="Button" parent="VBoxContainer" unique_id=1042657793]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 4
+size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme = ExtResource("9")
 theme_type_variation = &"FlatButton"
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_7ivqb")
 theme_override_styles/hover = SubResource("StyleBoxFlat_7ivqb")
-text = "Options"
-clip_text = true
+text = "BUTTON_OPTIONS"
 
-[node name="quit_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1424155369]
+[node name="quit_button" type="Button" parent="VBoxContainer" unique_id=1424155369]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 4
+size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme = ExtResource("9")
 theme_type_variation = &"FlatButton"
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_nlby6")
 theme_override_styles/hover = SubResource("StyleBoxFlat_nlby6")
-text = "Quit"
-clip_text = true
+text = "BUTTON_QUIT"
 
 [node name="Label" type="Label" parent="." unique_id=1921749332]
 layout_mode = 1
@@ -396,7 +387,7 @@ volume_db = -30.0
 [connection signal="mouse_exited" from="Node2D/RigidBody2D5" to="." method="_on_rigid_body_2d_5_mouse_exited"]
 [connection signal="mouse_entered" from="Node2D/RigidBody2D6" to="." method="_on_rigid_body_2d_6_mouse_entered"]
 [connection signal="mouse_exited" from="Node2D/RigidBody2D6" to="." method="_on_rigid_body_2d_6_mouse_exited"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/load_game_button" to="." method="_on_load_game_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/new_game_button" to="." method="_on_new_game_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/options_button" to="." method="_on_options_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/quit_button" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="VBoxContainer/load_game_button" to="." method="_on_load_game_pressed"]
+[connection signal="pressed" from="VBoxContainer/new_game_button" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="VBoxContainer/options_button" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="VBoxContainer/quit_button" to="." method="_on_quit_pressed"]

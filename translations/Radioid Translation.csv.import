@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://clbnyavlhk1ud"
+
+[deps]
+
+files=["res://translations/Radioid Translation.en.translation", "res://translations/Radioid Translation.ru.translation"]
+
+source_file="res://translations/Radioid Translation.csv"
+dest_files=["res://translations/Radioid Translation.en.translation", "res://translations/Radioid Translation.ru.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

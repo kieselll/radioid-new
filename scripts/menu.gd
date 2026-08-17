@@ -2,7 +2,6 @@ extends Control
 var previous_position: Vector2i
 var window_velocity: Vector2
 var window: Window
-var previous_size: Vector2i
 var default_button_color = Color("1a1a1a")
 var button_hover_sound = load("res://sounds/UI/button_hover.wav")
 @onready var audiostream = $AudioStreamPlayer
@@ -14,12 +13,7 @@ var button_hover_sound = load("res://sounds/UI/button_hover.wav")
 	$Node2D/RigidBody2D5,
 	$Node2D/RigidBody2D6,
 ]
-@onready var menu_buttons: Array[Button] = [
-	$MarginContainer/VBoxContainer/load_game_button,
-	$MarginContainer/VBoxContainer/new_game_button,
-	$MarginContainer/VBoxContainer/options_button,
-	$MarginContainer/VBoxContainer/quit_button
-]
+@export var menu_buttons: Array[Button] = []
 var button_color_array: Array[Color] = [
 	Color("659900"), Color("659900"), Color("659900"), Color("90000e")
 ]
@@ -37,29 +31,30 @@ func _ready() -> void:
 		SceneTransition.first_entry = false
 	SceneTransition.finish_trans()
 
+	await get_tree().process_frame
+	var max_button_size := Vector2(0, 0)
+	var button_x_position: float = INT32_MAX
 	for i in menu_buttons:
+		if i.size > max_button_size: max_button_size = i.size
+		if i.position.x < button_x_position: button_x_position = i.position.x
+		print(max_button_size)
+		print(button_x_position)
 		i.pivot_offset_ratio = Vector2(0.5, 0.5)
 		i.mouse_entered.connect(_process_button_anims_and_sounds.bind(i, true))
 		i.mouse_exited.connect(_process_button_anims_and_sounds.bind(i, false))
 
+	for i in menu_buttons:
+		i.size = max_button_size
+		i.position.x = button_x_position
 
 func _process(delta: float) -> void:
 	$Node2D/right_border.position.x = window.size.x
 	$Node2D/bottom_border.position.y = window.size.y
 	window_velocity = ((window.position - previous_position) / delta) * -0.4
 	previous_position = window.position
-	if window.size != previous_size:
-		_on_window_size_changed()
-	previous_size = window.size
 
 	for i in rigid_bodies:
 		i.apply_central_force(window_velocity)
-
-
-func _on_window_size_changed():
-	$MarginContainer/StaticBody2D.position = $MarginContainer.size / 2
-	$MarginContainer/StaticBody2D/CollisionShape2D.shape.size = $MarginContainer.size
-
 
 func _animate_button(button: Button, button_scale: Vector2, color: Color) -> void:
 	var tween = create_tween().set_parallel(true).set_ease(Tween.EASE_IN_OUT)
