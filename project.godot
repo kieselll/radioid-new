@@ -37,6 +37,7 @@ DebugMenu="*res://scenes/autoloads/debug_menu.tscn"
 InputHandler="*res://scripts/autoloads/input_handler.gd"
 GridUtils="*uid://gbt8dd5ngoow"
 DiscordRPCLoader="*uid://capasr2uu86k"
+ItemDB="*uid://cb8kwnauk62ow"
 
 [debug]
 
@@ -45,6 +46,7 @@ gdscript/warnings/unsafe_property_access=1
 gdscript/warnings/unsafe_method_access=1
 gdscript/warnings/unsafe_cast=1
 gdscript/warnings/unsafe_call_argument=1
+gdscript/warnings/integer_division=0
 
 [display]
 
