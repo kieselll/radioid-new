@@ -55,6 +55,9 @@ var dirty_chunk_lookup: Dictionary[Vector2i, bool] = {}
 var recalc_timer: Timer
 var queue_restart_timer: Timer
 var path_request_queue: Array[PathRequest] = []
+## Tile solidity changes received before their chunk's A* grid is ready.
+## The inner dictionary coalesces repeated writes so the latest state wins.
+var pending_tile_solidity: Dictionary[Vector2i, Dictionary] = {}
 var astarportal := AstarPortal2D.new(self)
 
 @export var pathfinding_calc_per_frame: int = 2
@@ -167,6 +170,8 @@ func _on_chunk_manager_chunk_generated(coords: Vector2i) -> void:
 					# If at least one tile isn't walkable, we automatically mark it as solid
 					break
 			new_astar.set_point_solid(Vector2i(x, y), not result)
+
+	_apply_pending_tile_solidity(coords)
 
 	for i: Vector2i in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
 		handle_chunk_edge(coords, i)
@@ -432,6 +437,9 @@ func get_rough_path(start: Vector4i, end: Vector4i) -> Array[Vector4i]:
 ## Handles cases where destination might be outside of Astar bounds.[br]
 ## DOES NOT HANDLE OUT-OF-BOUNDS CASES CORRECTLY YET![/color]
 func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
+	if not callback.is_valid():
+		return
+
 	var path: PackedVector4Array = []
 	var from_chunk := Vector2i(from.x, from.y)
 	var to_chunk := Vector2i(to.x, to.y)
@@ -469,25 +477,30 @@ func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
 	# Adjacent tiles that straddle a chunk edge do not need the portal graph. The
 	# rough path for them is simply [from, to], and the stitching loop below skips
 	# that pair as a cross-chunk hop, which otherwise produces an empty exact path.
-	if astargrids.has(from_chunk) and astargrids.has(to_chunk):
-		var tile_delta := calculate_global_tile_coords(to) - calculate_global_tile_coords(from)
-		if (
-			from_chunk != to_chunk
-			and maxi(absi(tile_delta.x), absi(tile_delta.y)) == 1
-			and not is_tile_solid(to)
-			and _can_traverse_cross_chunk_step(from, to, to_chunk - from_chunk)
-		):
-			path.append(from)
-			path.append(to)
-			epath = path
-			callback.call(path)
-			return
-	elif (
-		not portals_by_coords.has(from_chunk)
-		or not portals_by_coords.has(to_chunk)
+	if not astargrids.has(from_chunk) or not astargrids.has(to_chunk):
+		_queue_path_request(from, to, callback)
+		return
+
+	var tile_delta := calculate_global_tile_coords(to) - calculate_global_tile_coords(from)
+	if (
+		from_chunk != to_chunk
+		and maxi(absi(tile_delta.x), absi(tile_delta.y)) == 1
+		and not is_tile_solid(to)
+		and _can_traverse_cross_chunk_step(from, to, to_chunk - from_chunk)
 	):
-		# If they are inside the render distance, that means the chunks haven't initialized yet, and we should queue the request
-		path_request_queue.append(PathRequest.new(from, to, callback))
+		path.append(from)
+		path.append(to)
+		epath = path
+		callback.call(path)
+		return
+
+	# Cross-chunk paths also need both endpoint portal sets. A grid is installed
+	# slightly before its portals, so treat both stages as asynchronous readiness.
+	if (
+		from_chunk != to_chunk
+		and (not portals_by_coords.has(from_chunk) or not portals_by_coords.has(to_chunk))
+	):
+		_queue_path_request(from, to, callback)
 		return
 
 	# If the start and end are in the same chunk
@@ -505,7 +518,7 @@ func request_path(from: Vector4i, to: Vector4i, callback: Callable) -> void:
 		var rough_path: Array[Vector4i] = get_rough_path(from, to)
 		if not rough_path:
 			if not pending_portal_connection_chunks.is_empty():
-				path_request_queue.append(PathRequest.new(from, to, callback))
+				_queue_path_request(from, to, callback)
 			return
 		# If there isn't one, then idk, THAT SHOULDN'T FUCKING HAPPEN
 		# Iterating through the rough path
@@ -543,7 +556,14 @@ func recalc_paths() -> void:
 	var queued_requests: Array[PathRequest] = path_request_queue.duplicate()
 	path_request_queue.clear()
 	for stored_request: PathRequest in queued_requests:
+		if not stored_request.callback.is_valid():
+			continue
 		request_path(stored_request.start, stored_request.end, stored_request.callback)
+
+
+func _queue_path_request(from: Vector4i, to: Vector4i, callback: Callable) -> void:
+	if callback.is_valid():
+		path_request_queue.append(PathRequest.new(from, to, callback))
 
 
 #endregion
@@ -829,9 +849,28 @@ func calculate_node_side(node_coords: Vector4i) -> Vector2i:
 ## Marks tile as solid for the Astar pathfinders.[br]
 ## Used so that nodes don't access Astar directly.
 func mark_tile_solid(coords: Vector4i, solid: bool = true) -> void:
+	var chunk_coords := Vector2i(coords.x, coords.y)
+	var local_coords := Vector2i(coords.z, coords.w)
+	if not astargrids.has(chunk_coords):
+		if not pending_tile_solidity.has(chunk_coords):
+			pending_tile_solidity[chunk_coords] = {}
+		var queued_changes: Dictionary = pending_tile_solidity[chunk_coords]
+		queued_changes[local_coords] = solid
+		return
 
-	var astar: AStarGrid2D = astargrids[Vector2i(coords.x, coords.y)]
-	astar.set_point_solid(Vector2i(coords.z, coords.w), solid)
+	var astar: AStarGrid2D = astargrids[chunk_coords]
+	astar.set_point_solid(local_coords, solid)
+
+
+func _apply_pending_tile_solidity(chunk_coords: Vector2i) -> void:
+	if not astargrids.has(chunk_coords) or not pending_tile_solidity.has(chunk_coords):
+		return
+
+	var astar: AStarGrid2D = astargrids[chunk_coords]
+	var queued_changes: Dictionary = pending_tile_solidity[chunk_coords]
+	for local_coords: Vector2i in queued_changes:
+		astar.set_point_solid(local_coords, queued_changes[local_coords])
+	pending_tile_solidity.erase(chunk_coords)
 
 
 func is_tile_solid(coords: Vector4i) -> bool:
