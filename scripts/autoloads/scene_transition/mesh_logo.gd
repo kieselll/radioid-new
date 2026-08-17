@@ -13,3 +13,5 @@ func _ready() -> void:
 		mesh.surface_set_uv((polygon[index] + Vector2(1, 1)) / 2)
 		mesh.surface_add_vertex_2d(polygon[index] * 250)
 	mesh.surface_end()
+	await get_tree().process_frame
+	position = get_window().size / 2

@@ -142,26 +142,14 @@ tracks/10/keys = {
 tracks/11/type = "value"
 tracks/11/imported = false
 tracks/11/enabled = true
-tracks/11/path = NodePath("TextureRect:visible")
+tracks/11/path = NodePath("CenterContainer/VBoxContainer:visible")
 tracks/11/interp = 1
 tracks/11/loop_wrap = true
 tracks/11/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [false]
-}
-tracks/12/type = "value"
-tracks/12/imported = false
-tracks/12/enabled = true
-tracks/12/path = NodePath("TextureRect:modulate")
-tracks/12/interp = 1
-tracks/12/loop_wrap = true
-tracks/12/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(1, 1, 1, 1)]
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_2sgj6"]
@@ -281,7 +269,7 @@ length = 2.0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("TextureRect:visible")
+tracks/0/path = NodePath("CenterContainer/VBoxContainer:visible")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -293,7 +281,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("TextureRect:modulate")
+tracks/1/path = NodePath("CenterContainer/VBoxContainer:modulate")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -550,32 +538,28 @@ theme = ExtResource("3_dlbfy")
 theme_override_styles/fill = SubResource("StyleBoxFlat_lgvtp")
 value = 30.43
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=791650998]
-visible = false
-texture_filter = 2
-anchors_preset = -1
-anchor_left = 0.35
-anchor_top = 0.35
-anchor_right = 0.65
-anchor_bottom = 0.65
-offset_left = -23.0
-offset_right = 23.0
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=60037349]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture = ExtResource("4_lgvtp")
-expand_mode = 3
-stretch_mode = 5
+mouse_filter = 2
 
-[node name="Label" type="Label" parent="TextureRect" unique_id=175858414]
-layout_mode = 0
-anchor_left = -0.08988759
-anchor_top = 1.0967079
-anchor_right = 1.0975486
-anchor_bottom = 1.3076133
-offset_right = -3.0517578e-05
-offset_bottom = 1.5258789e-05
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=203732295]
+modulate = Color(1.0312005, 1.0312005, 1.0312005, 0.01999998)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="CenterContainer/VBoxContainer" unique_id=791650998]
+texture_filter = 2
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("4_lgvtp")
+expand_mode = 5
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer" unique_id=175858414]
+layout_mode = 2
 text = "JustBananaPeels studios"
 label_settings = SubResource("LabelSettings_lgvtp")
 metadata/_edit_use_anchors_ = true
