@@ -5,9 +5,9 @@ class_name ConfigDB
 var _settings_file : ConfigFile
 var _settings_file_path : String
 var _settings_old_file_path : String
-var _cached_settings : Dictionary
+var _cached_settings : Dictionary[String, Dictionary]
 
-const _default_settings = {
+const _default_settings: Dictionary[String, Dictionary] = {
 	"graphics" = {
 		"window_type" = 0,
 		"frame_rate_limit" = 0,
@@ -86,7 +86,8 @@ func load_settings() -> Dictionary:
 
 func get_setting(section: String, key: String, default: Variant = null) -> Variant:
 	if _cached_settings.has(section):
-		var section_dict: Dictionary[String, Variant] = _cached_settings[section]
+		var section_dict: Dictionary[String, Variant] = {}
+		section_dict.assign(_cached_settings[section])
 		if section_dict.has(key):
 			return section_dict[key]
 	return default
@@ -100,7 +101,8 @@ func alter_setting(section : String, key : String, value: Variant) -> void:
 
 func apply_settings() -> void:
 	for section: String in _cached_settings.keys():
-		var section_dict: Dictionary[String, Variant] = _cached_settings[section]
+		var section_dict: Dictionary[String, Variant] = {}
+		section_dict.assign(_cached_settings[section])
 		for key: String in section_dict.keys():
 			apply_setting(section, key)
 
