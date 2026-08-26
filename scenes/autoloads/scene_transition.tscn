@@ -519,11 +519,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_dlbfy")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=903176191]
 layout_mode = 2
 size_flags_vertical = 4
+mouse_filter = 2
 theme_override_constants/separation = 16
 
 [node name="Label" type="Label" parent="PanelContainer/VBoxContainer" unique_id=2052961930]
@@ -534,6 +536,7 @@ horizontal_alignment = 1
 
 [node name="ProgressBar" type="ProgressBar" parent="PanelContainer/VBoxContainer" unique_id=1493497238]
 layout_mode = 2
+mouse_filter = 2
 theme = ExtResource("3_dlbfy")
 theme_override_styles/fill = SubResource("StyleBoxFlat_lgvtp")
 value = 30.43
@@ -547,13 +550,15 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=203732295]
-modulate = Color(1.0312005, 1.0312005, 1.0312005, 0.01999998)
+modulate = Color(1, 1, 1, 0)
 layout_mode = 2
+mouse_filter = 2
 
 [node name="TextureRect" type="TextureRect" parent="CenterContainer/VBoxContainer" unique_id=791650998]
 texture_filter = 2
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
 texture = ExtResource("4_lgvtp")
 expand_mode = 5
 stretch_mode = 4
