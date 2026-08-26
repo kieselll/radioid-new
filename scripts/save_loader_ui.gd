@@ -6,11 +6,11 @@ const CARD_MOVE_DURATION := 0.4
 const CARD_INTRO_DURATION := 0.5
 const SHADER_OFFSET_STEP := 15.0
 
-var saves: Dictionary = {}
-var save_order: Array = []
-var visible_card_keys: Array = []
+var saves: Dictionary[String, GlobalSaver.SaveMeta] = {}
+var save_order: PackedStringArray = []
+var visible_card_keys: Array[String] = []
 var index: int = 0
-var cards: Dictionary = {}
+var cards: Dictionary[String, SaveCard] = {}
 var is_animating: bool = false
 @export var cards_on_screen: int = 3
 @export var background: ColorRect
@@ -20,7 +20,7 @@ func _ready() -> void:
 	SceneTransition.finish_trans()
 	get_viewport().size_changed.connect(_on_window_resize)
 	save_order = GlobalSaver.get_saves_list()
-	for save_name in save_order:
+	for save_name: String in save_order:
 		var meta: GlobalSaver.SaveMeta = GlobalSaver.get_save_meta(save_name)
 		saves[save_name] = meta
 
@@ -31,7 +31,7 @@ func _ready() -> void:
 	_spawn_visible_cards()
 
 
-func _on_window_resize():
+func _on_window_resize() -> void:
 	_update_ui(false, false)
 
 
@@ -40,11 +40,12 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if event is InputEventKey and event.is_pressed():
-		if event.keycode == KEY_LEFT:
+		var key_event := event as InputEventKey
+		if key_event.keycode == KEY_LEFT:
 			index -= 1
 			index %= saves.size()
 			_update_ui(true)
-		elif event.keycode == KEY_RIGHT:
+		elif key_event.keycode == KEY_RIGHT:
 			index += 1
 			index %= saves.size()
 			_update_ui(false)
@@ -63,11 +64,11 @@ func _update_ui(forward: bool, should_move: bool = true) -> void:
 		is_animating = false
 		return
 
-	var background_tween = _animate_background(forward, CARD_MOVE_DURATION)
+	var background_tween: Tween = _animate_background(forward, CARD_MOVE_DURATION)
 
 	if saves.size() <= visible_count:
 		visible_card_keys = _get_visible_keys()
-		var rotate_tween = _create_ui_tween(true)
+		var rotate_tween: Tween = _create_ui_tween(true)
 		_tween_cards_to_positions(
 			rotate_tween, visible_card_keys, visible_count, CARD_MOVE_DURATION
 		)
@@ -87,7 +88,7 @@ func _update_ui(forward: bool, should_move: bool = true) -> void:
 		visible_card_keys[visible_count - 1] if forward else visible_card_keys[0]
 	)
 	var outgoing_card: CanvasItem = cards[outgoing_key]
-	var incoming_card = _create_card()
+	var incoming_card: SaveCard = _create_card()
 
 	incoming_card.position = _get_card_spawn_position(forward)
 	add_child(incoming_card)
@@ -101,7 +102,7 @@ func _update_ui(forward: bool, should_move: bool = true) -> void:
 		visible_card_keys.remove_at(0)
 		visible_card_keys.append(incoming_key)
 
-	var scenetween = _create_ui_tween(true)
+	var scenetween: Tween = _create_ui_tween(true)
 	_tween_cards_to_positions(scenetween, visible_card_keys, visible_count, CARD_MOVE_DURATION)
 	scenetween.tween_property(
 		outgoing_card, "position", _get_card_spawn_position(not forward), CARD_MOVE_DURATION
@@ -118,8 +119,9 @@ func _update_ui(forward: bool, should_move: bool = true) -> void:
 	is_animating = false
 
 
-func _create_card() -> Control:
-	var scene: Control = GlobalRef.get_scene(GlobalRef.scenes_enum.save_card).instantiate()
+func _create_card() -> SaveCard:
+	var scene := GlobalRef.get_scene(GlobalRef.scenes_enum.save_card).instantiate() as SaveCard
+	assert(scene != null, "Save-card scene must instantiate a SaveCard.")
 	scene.anchor_left = 0.0
 	scene.anchor_top = 0.0
 	scene.anchor_right = 0.0
@@ -131,20 +133,21 @@ func _create_card() -> Control:
 	return scene
 
 
-func _setup_card(scene, save_key: String) -> void:
-	scene.save_name_label.text = saves[save_key].display_name
+func _setup_card(scene: SaveCard, save_key: String) -> void:
+	var metadata: GlobalSaver.SaveMeta = saves[save_key]
+	scene.save_name_label.text = metadata.display_name
 	scene.save_info_label.text = (
 		"Created: %s\nLast modified: %s\nVersion: %s"
 		% [
-			Time.get_datetime_string_from_datetime_dict(saves[save_key].creation_date, true),
-			Time.get_datetime_string_from_datetime_dict(saves[save_key].modified_date, true),
+			Time.get_datetime_string_from_datetime_dict(metadata.creation_date, true),
+			Time.get_datetime_string_from_datetime_dict(metadata.modified_date, true),
 			(
-				"[color=red]" + saves[save_key].version + "[/color]"
+				"[color=red]" + metadata.version + "[/color]"
 				if not (
-					saves[save_key].version
+					metadata.version
 					== ProjectSettings.get_setting("application/config/version")
 				)
-				else saves[save_key].version
+				else metadata.version
 			)
 		]
 	)
@@ -157,20 +160,20 @@ func _spawn_visible_cards() -> void:
 	var visible_count := _get_visible_count()
 	for i in range(visible_card_keys.size()):
 		var save_key: String = visible_card_keys[i]
-		var scene = _create_card()
+		var scene: SaveCard = _create_card()
 		scene.position = _get_card_spawn_position(false)
 		add_child(scene)
 		_setup_card(scene, save_key)
 		cards[save_key] = scene
 
-		var scenetween = _create_ui_tween()
+		var scenetween: Tween = _create_ui_tween()
 		scenetween.tween_property(
 			scene, "position", _get_card_position(i, visible_count), CARD_INTRO_DURATION
 		)
 
 
-func _get_visible_keys() -> Array:
-	var result: Array = []
+func _get_visible_keys() -> Array[String]:
+	var result: Array[String] = []
 	if save_order.is_empty():
 		return result
 
@@ -180,7 +183,7 @@ func _get_visible_keys() -> Array:
 	return result
 
 
-func _place_cards_immediately(card_keys: Array, visible_count: int) -> void:
+func _place_cards_immediately(card_keys: Array[String], visible_count: int) -> void:
 	for i in range(card_keys.size()):
 		if cards.has(card_keys[i]):
 			cards[card_keys[i]].position = _get_card_position(i, visible_count)
@@ -193,23 +196,26 @@ func _create_ui_tween(parallel: bool = false) -> Tween:
 	)
 
 
-func _animate_background(forward: bool, duration: float):
+func _animate_background(forward: bool, duration: float) -> Tween:
 	if not background or not background.material:
 		return null
 
-	var current_offset: float = background.material.get_shader_parameter("time_offset")
+	var shader_material := background.material as ShaderMaterial
+	if shader_material == null:
+		return null
+	var current_offset: float = shader_material.get_shader_parameter("time_offset")
 	var target_offset := (
 		current_offset - SHADER_OFFSET_STEP if forward else current_offset + SHADER_OFFSET_STEP
 	)
-	var shader_tween := _create_ui_tween()
-	var shader_func = func(value: float):
-		background.material.set_shader_parameter("time_offset", value)
+	var shader_tween: Tween = _create_ui_tween()
+	var shader_func: Callable = func(value: float) -> void:
+		shader_material.set_shader_parameter("time_offset", value)
 	shader_tween.tween_method(shader_func, current_offset, target_offset, duration)
 	return shader_tween
 
 
 func _tween_cards_to_positions(
-	tween: Tween, card_keys: Array, visible_count: int, duration: float
+	tween: Tween, card_keys: Array[String], visible_count: int, duration: float
 ) -> void:
 	for i in range(card_keys.size()):
 		if cards.has(card_keys[i]):
@@ -250,20 +256,20 @@ func _get_card_spawn_position(from_left: bool) -> Vector2:
 	)
 
 
-func _on_play_button_pressed(save_name: String):
+func _on_play_button_pressed(save_name: String) -> void:
 	GlobalSaver.load_save(save_name)
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	get_tree().change_scene_to_packed(GlobalRef.get_scene(GlobalRef.scenes_enum.game))
 
 
-func _on_delete_button_pressed(save_name: String):
+func _on_delete_button_pressed(save_name: String) -> void:
 	if is_animating or not saves.has(save_name):
 		return
 
 	is_animating = true
 
-	var deleted_card = cards.get(save_name)
+	var deleted_card: SaveCard = cards.get(save_name)
 	var deleted_index := save_order.find(save_name)
 	if deleted_index == -1:
 		is_animating = false
@@ -281,7 +287,7 @@ func _on_delete_button_pressed(save_name: String):
 	if save_order.is_empty():
 		index = 0
 		if deleted_card:
-			var final_tween := _create_ui_tween(true)
+			var final_tween: Tween = _create_ui_tween(true)
 			final_tween.tween_property(
 				deleted_card, "modulate", Color(1.0, 1.0, 1.0, 0.0), CARD_MOVE_DURATION
 			)
@@ -293,19 +299,19 @@ func _on_delete_button_pressed(save_name: String):
 
 	index = posmod(index, save_order.size())
 
-	var next_visible_keys := _get_visible_keys()
-	var next_visible_lookup := {}
-	for key in next_visible_keys:
+	var next_visible_keys: Array[String] = _get_visible_keys()
+	var next_visible_lookup: Dictionary[String, bool] = {}
+	for key: String in next_visible_keys:
 		next_visible_lookup[key] = true
 		if not cards.has(key):
-			var incoming_card = _create_card()
+			var incoming_card: SaveCard = _create_card()
 			incoming_card.position = _get_card_spawn_position(false)
 			incoming_card.modulate = Color(1.0, 1.0, 1.0, 0.0)
 			add_child(incoming_card)
 			_setup_card(incoming_card, key)
 			cards[key] = incoming_card
 
-	var delete_tween := _create_ui_tween(true)
+	var delete_tween: Tween = _create_ui_tween(true)
 	if deleted_card:
 		delete_tween.tween_property(
 			deleted_card, "modulate", Color(1.0, 1.0, 1.0, 0.0), CARD_MOVE_DURATION
@@ -320,7 +326,7 @@ func _on_delete_button_pressed(save_name: String):
 	if deleted_card:
 		deleted_card.queue_free()
 
-	for key in cards.keys():
+	for key: String in cards.keys():
 		if not next_visible_lookup.has(key):
 			cards[key].queue_free()
 			cards.erase(key)

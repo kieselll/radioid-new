@@ -54,7 +54,7 @@ func bubble_up_heap_custom(function: Callable) -> void:
 		var parent_index: int = (current_index - 1) / 2
 		if not function.call(heap[current_index], heap[parent_index]):
 			break
-		var temp_parent = heap[parent_index]
+		var temp_parent: Variant = heap[parent_index]
 		heap[parent_index] = heap[current_index]
 		heap[current_index] = temp_parent
 		current_index = parent_index
@@ -77,7 +77,7 @@ func bubble_down_heap_custom(function: Callable) -> void:
 			best_child_index = right
 		if not function.call(heap[best_child_index], heap[current_index]):
 			break
-		var temp_child = heap[best_child_index]
+		var temp_child: Variant = heap[best_child_index]
 		heap[best_child_index] = heap[current_index]
 		heap[current_index] = temp_child
 		current_index = best_child_index

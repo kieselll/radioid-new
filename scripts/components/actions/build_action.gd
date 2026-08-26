@@ -14,18 +14,14 @@ var _state_machine: StateMachine
 var _move_state: MoveState
 var _build_state: BuildState
 var _pathfinder: GlobalPathfinder
-var current_step: steps = steps.move
-var current_args: Dictionary
-var _parent
-var owner
+var _parent: ActionMachine
+var owner: BaseEntity
 
 #endregion
 
 #region constants
 
 ## Action-machine identifier for this action implementation.
-const action_type = ActionMachine.action_types.build
-
 ## Resumable phases of the build action.
 enum steps {
 	move, build
@@ -36,10 +32,12 @@ enum steps {
 #region init
 
 ## Caches the owning action machine and state machine.
-func setup(action_machine : ActionMachine):
+func setup(action_machine: ActionMachine) -> void:
 	_parent = action_machine
 	owner = _parent.owner
 	_state_machine = owner.state_machine
+	action_type = ActionMachine.action_types.build
+	current_step = steps.move
 
 #endregion
 
@@ -57,7 +55,7 @@ func start(args: Dictionary = {}) -> void:
 	done.emit()
 
 ## Starts the build action from an explicit [code]steps[/code] value.
-func start_from_step(args: Dictionary = {"partial": true}, step : steps = steps.move):
+func start_from_step(args: Dictionary = {"partial": true}, step: int = steps.move) -> void:
 	current_step = step
 	start(args)
 
@@ -83,15 +81,16 @@ func initialize() -> void:
 
 ## Moves the pawn to the nearest adjacent tile around the build target.
 func move_step(args: Dictionary) -> void:
-	var neighbor_tiles := GridUtils.get_neighbor_tiles(args["target"], true)
-	var walkable_neighbors := neighbor_tiles.filter(
+	var target: Vector4i = args["target"]
+	var neighbor_tiles: Array[Vector4i] = GridUtils.get_neighbor_tiles(target, true)
+	var walkable_neighbors: Array = neighbor_tiles.filter(
 		func(tile: Vector4i) -> bool: return not _pathfinder.is_tile_solid(tile)
 	)
 	if walkable_neighbors.is_empty():
 		push_warning("No walkable approach tile for build target %s" % args["target"])
 		return
 
-	var nearest_coord = GridUtils.find_nearest_tile_coord(
+	var nearest_coord: Vector4i = GridUtils.find_nearest_tile_coord(
 		_movement_component.get_local_position(), walkable_neighbors
 	)
 	if _movement_component.get_local_position() != nearest_coord:

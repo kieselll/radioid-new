@@ -18,14 +18,15 @@ extends Node2D
 #				   \  $/    |  $$$$$$$ | $$        /$$$$$$$/
 #				    \_/      \_______/ |__/       |_______/
 
-var _ui_manager
+var _ui_manager: UIManager
 
 var _keyboard_input_allowed: bool = true
 var _mouse_input_allowed: bool = true
 
-var _click_1 = null
-var _click_2 = null
-var _prev_mouse_map_pos = null
+var _click_1: Vector2
+var _click_2: Vector2
+var _prev_mouse_map_pos: Vector4i
+var _has_click_start := false
 var _prev_scene: String = ""
 
 var current_item: BuildableData
@@ -91,7 +92,7 @@ func _ready() -> void:
 	#_resume_button.pressed.connect(_on_resume_button_pressed) CRITICAL
 
 
-func world_init():
+func world_init() -> void:
 	_pause_menu = $/root/GameRoot/Control/popup_layer/pause_menu
 	_resume_button = $/root/GameRoot/Control/popup_layer/pause_menu/VBoxContainer/resume_button
 	_ui_layer = $/root/GameRoot/Control/CanvasLayer
@@ -141,11 +142,11 @@ func _physics_process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and _mouse_input_allowed:
-		_handle_mouse_button(event)
+		_handle_mouse_button(event as InputEventMouseButton)
 		return
 
 	if event is InputEventKey and event.is_pressed():
-		_handle_keyboard_input(event)
+		_handle_keyboard_input(event as InputEventKey)
 
 
 func _handle_keyboard_input(event: InputEventKey) -> void:
@@ -173,13 +174,15 @@ func _handle_keyboard_input(event: InputEventKey) -> void:
 
 
 func _handle_mouse_motion() -> void:
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _click_1:
-		var mouse_map = GridUtils.world_coord_to_chunk_coord(get_global_mouse_position())
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _has_click_start:
+		var mouse_map: Vector4i = GridUtils.world_coord_to_chunk_coord(
+			Vector2i(get_global_mouse_position())
+		)
 
 		if _prev_mouse_map_pos and mouse_map != _prev_mouse_map_pos:
 			var rect := (
 				TileMapRect
-				. new(GridUtils.world_coord_to_chunk_coord(_click_1), mouse_map)
+				. new(GridUtils.world_coord_to_chunk_coord(Vector2i(_click_1)), mouse_map)
 				. normalize()
 			)
 			region_updated.emit(rect)
@@ -195,25 +198,27 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 		return
 
 	if event.pressed and not _ui_manager.button_hover:
-		_click_2 = null
+		_click_2 = Vector2.ZERO
 		_click_1 = get_global_mouse_position()
+		_has_click_start = true
 
 	elif not event.pressed:
 		_click_2 = get_global_mouse_position()
 
-		if _click_1 and _click_2:
+		if _has_click_start:
 			var rect := (
 				TileMapRect
 				. new(
-					GridUtils.world_coord_to_chunk_coord(_click_1),
-					GridUtils.world_coord_to_chunk_coord(_click_2),
+					GridUtils.world_coord_to_chunk_coord(Vector2i(_click_1)),
+					GridUtils.world_coord_to_chunk_coord(Vector2i(_click_2)),
 				)
 			)
 
 			region_selected.emit(rect)
 
-		_click_2 = null
-		_click_1 = null
+		_click_2 = Vector2.ZERO
+		_click_1 = Vector2.ZERO
+		_has_click_start = false
 
 
 #				 /$$$$$$$

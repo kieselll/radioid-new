@@ -22,17 +22,11 @@ enum action_types
 
 #region vars
 
-var state_machine
+var state_machine: StateMachine
 var current_action: BaseAction
-var actions = []
-var _parent: CharacterBody2D
-var owner: CharacterBody2D
-
-var _type_map : Dictionary = {
-	action_types.wander : WanderAction,
-	action_types.build : BuildAction,
-	action_types.haul : HaulAction,
-}
+var actions: Array[BaseAction] = []
+var _parent: BaseEntity
+var owner: BaseEntity
 
 #endregion
 
@@ -54,7 +48,7 @@ func tick(delta : float) -> void:
 #region init
 
 ## Initializes the action machine for the given pawn and resizes the action slot array.
-func setup(parent : CharacterBody2D) -> void:
+func setup(parent: BaseEntity) -> void:
 	_parent = parent
 	owner = _parent
 	actions.resize(action_types.size())
@@ -64,7 +58,7 @@ func setup(parent : CharacterBody2D) -> void:
 #region API
 
 ## Stops the current action, if any, and starts the requested action with [param args].
-func start_action(action_type: action_types, args = {}, step: int = -1) -> void:
+func start_action(action_type: action_types, args: Dictionary = {}, step: int = -1) -> void:
 	if current_action:
 		current_action.stop()
 	if action_type >= actions.size() or actions[action_type] == null:
@@ -82,7 +76,7 @@ func start_action(action_type: action_types, args = {}, step: int = -1) -> void:
 ## Instantiates and registers an action implementation for [param action_type].
 func add_action(action_type: action_types) -> void:
 	if not actions.size() == action_types.size(): actions.resize(action_types.size())
-	var action : BaseAction = _type_map[action_type].new()
+	var action: BaseAction = _create_action(action_type)
 	action.setup(self)
 	actions[action_type] = action
 	action.done.connect(_on_any_action_done)
@@ -93,7 +87,7 @@ func erase_action(action_type: action_types) -> void:
 
 ## Serializes the currently active action and its resumable state.
 func serialize() -> Dictionary:
-	var new_action_args = current_action.current_args.duplicate()
+	var new_action_args: Dictionary = current_action.current_args.duplicate()
 	if new_action_args.get("target") is Vector4i:
 		new_action_args["target"] = var_to_str(new_action_args["target"])
 	var result: Dictionary = {
@@ -109,17 +103,32 @@ func serialize() -> Dictionary:
 ## resuming can be layered on top of this through per-action helpers such as
 ## [code]start_from_step()[/code].
 func deserialize(dictionary: Dictionary) -> void:
-	var new_args = dictionary["action_args"].duplicate()
+	var serialized_args: Dictionary = dictionary["action_args"]
+	var new_args: Dictionary = serialized_args.duplicate()
 	if new_args.get("target") is String:
 		new_args["target"] = str_to_var(new_args["target"])
-	start_action(dictionary["current_action"], new_args, dictionary["action_step"])
+	var serialized_type: action_types = dictionary["current_action"]
+	var serialized_step: int = dictionary["action_step"]
+	start_action(serialized_type, new_args, serialized_step)
 
 #endregion
 
 #region helpers
 
 ## Bridges action completion back into the action-machine level signal.
-func _on_any_action_done():
+func _on_any_action_done() -> void:
 	action_done.emit()
+
+
+func _create_action(action_type: action_types) -> BaseAction:
+	match action_type:
+		action_types.wander:
+			return WanderAction.new()
+		action_types.build:
+			return BuildAction.new()
+		action_types.haul:
+			return HaulAction.new()
+	assert(false, "Unsupported action type: %s" % action_type)
+	return null
 
 #endregion

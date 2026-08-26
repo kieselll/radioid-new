@@ -2,14 +2,15 @@ extends CanvasLayer
 # Just a helper script for starting scene transitions
 
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
+@onready var planet: MeshInstance2D = $MeshInstance2D
 var first_entry: bool = true
 
 signal done
 
 
-func start_trans(animated: bool = false, duration_multiplier: float = 1):
+func start_trans(animated: bool = false, duration_multiplier: float = 1.0) -> void:
 	if not animated:
-		$MeshInstance2D.visible = false
+		planet.visible = false
 	anim_player.speed_scale = duration_multiplier
 	anim_player.play("fade_in")
 	if animated:
@@ -23,7 +24,7 @@ func start_trans(animated: bool = false, duration_multiplier: float = 1):
 	done.emit()
 
 
-func start_animation(duration_multiplier: float = 1):
+func start_animation(duration_multiplier: float = 1.0) -> void:
 	anim_player.speed_scale = duration_multiplier
 	anim_player.play("fade_in_planet")
 	await anim_player.animation_finished
@@ -33,7 +34,7 @@ func start_animation(duration_multiplier: float = 1):
 	done.emit()
 
 
-func finish_trans(duration_multiplier: float = 1):
+func finish_trans(duration_multiplier: float = 1.0) -> void:
 	anim_player.speed_scale = duration_multiplier
 	anim_player.play("fade_out")
 	GlobalLogger.write_to_logs(self, "Stopped transition")
@@ -41,7 +42,7 @@ func finish_trans(duration_multiplier: float = 1):
 	done.emit()
 
 
-func show_dev_icon(duration_multiplier: float = 1):
+func show_dev_icon(duration_multiplier: float = 1.0) -> void:
 	anim_player.speed_scale = duration_multiplier
 	anim_player.play("dev_name")
 	GlobalLogger.write_to_logs(self, "Showed dev name and icon")

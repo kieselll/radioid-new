@@ -12,6 +12,9 @@ extends Resource
 #region private vars
 
 var _active: bool = false
+var current_args: Dictionary = {}
+var current_step: int = 0
+var action_type: ActionMachine.action_types
 
 #endregion
 
@@ -29,6 +32,11 @@ signal done
 
 ## Starts executing the action with the provided [param args].
 @abstract func start(args: Dictionary[StringName, Variant] = {}) -> void
+
+## Restarts the action at a serialized step.
+func start_from_step(args: Dictionary = {}, step: int = 0) -> void:
+	current_step = step
+	start(args)
 
 ## Stops the action and leaves it in an inactive state.
 @abstract func stop() -> void

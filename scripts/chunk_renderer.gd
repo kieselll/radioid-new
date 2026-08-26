@@ -122,7 +122,8 @@ func _detect_neighbors(layer: GlobalRef.tilemap_layers_enum, coords: Vector2i) -
 	for index in OFFSETS.size():
 		var location := _resolve_chunk_location(coords + OFFSETS[index])
 		var neighbor_chunk: Chunk = location.chunk
-		if neighbor_chunk != null and neighbor_chunk.get_cell(layer, location.coords) == target_id:
+		var neighbor_coords: Vector2i = location.coords
+		if neighbor_chunk != null and neighbor_chunk.get_cell(layer, neighbor_coords) == target_id:
 			result |= 1 << index
 
 	if not ((result & (1 << 1)) and (result & (1 << 3))):
@@ -200,7 +201,8 @@ func _refresh_adjacent_chunk_borders() -> void:
 					neighbor_chunk.get_node_or_null("ChunkRenderer") as ChunkRenderer
 				)
 				if neighbor_renderer != null:
-					neighbor_renderer._set_single_tile_region(layer, location.coords)
+					var neighbor_coords: Vector2i = location.coords
+					neighbor_renderer._set_single_tile_region(layer, neighbor_coords)
 
 
 ## Resolves potentially out-of-bounds local coordinates to a chunk and local cell.

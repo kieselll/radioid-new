@@ -21,8 +21,8 @@ var _current_world_index_file : FileAccess
 var _current_entity_index_file : FileAccess
 ## Root directory that contains all save slot folders.
 @export var _save_dir_path : String = "user://game/saves/"
-## Root game directory used by related save systems.
-@export var _game_dir_path : String = "user://game/"
+## Root game directory used by logging and related persistence systems.
+@export var game_dir_path: String = "user://game/"
 ## Runtime reference to the global pathfinder used for nav graph persistence.
 @onready var pathfinder : GlobalPathfinder
 
@@ -52,7 +52,7 @@ class SaveMeta:
 
 	## Initializes metadata with the current system time and project version.
 	@warning_ignore("shadowed_variable")
-	func _init():
+	func _init() -> void:
 		creation_date = Time.get_datetime_dict_from_system()
 		modified_date = creation_date
 		version = ProjectSettings.get_setting("application/config/version")
@@ -71,9 +71,11 @@ class SaveMeta:
 
 	## Populates this metadata object from a previously serialized JSON string.
 	static func dejsonify(json_string : String) -> SaveMeta:
-		var new_meta = SaveMeta.new()
-		var dict = JSON.parse_string(json_string)
-		if not dict: return new_meta
+		var new_meta := SaveMeta.new()
+		var parsed: Variant = JSON.parse_string(json_string)
+		if not parsed is Dictionary:
+			return new_meta
+		var dict: Dictionary = parsed
 		new_meta.creation_date = dict["creation_date"]
 		new_meta.modified_date = dict["modified_date"]
 		new_meta.display_name = dict["display_name"]
@@ -86,7 +88,7 @@ class SaveMeta:
 
 #region save slots
 ## Returns the directory names of all save slots currently present on disk.
-func get_saves_list() -> Array:
+func get_saves_list() -> PackedStringArray:
 	return DirAccess.open(_save_dir_path).get_directories()
 
 ## Creates or overwrites the active save slot and opens its core data files.
@@ -107,29 +109,29 @@ func write_save(dirname : String, display_name : String, world_seed : int) -> vo
 	_current_world_file = _open_file(_current_save_path + "/world.dat")
 	_current_world_index_file = _open_file(_current_save_path + "/index.dat")
 	_current_entity_index_file = _open_file(_current_save_path + "/entities/index.dat")
-	var _meta_file = FileAccess.open(_current_save_path + "/meta.json", FileAccess.WRITE)
+	var _meta_file: FileAccess = FileAccess.open(
+		_current_save_path + "/meta.json", FileAccess.WRITE
+	)
 	_meta_file.store_string(current_save.jsonify())
 
 ## Opens an existing save slot, rebuilds the in-memory chunk index, and returns
 ## its metadata for UI/gameplay consumption.
 func load_save(dirname : String) -> SaveMeta:
 	_current_save_path = _save_dir_path + dirname
-	var _new_save = get_save_meta(dirname)
-	var meta_file = _open_file(_current_save_path + "/world.dat")
-	if JSON.parse_string(meta_file.get_as_text()):
-		current_save = SaveMeta.dejsonify(JSON.parse_string(meta_file.get_as_text()))
+	var _new_save: SaveMeta = get_save_meta(dirname)
+	current_save = _new_save
 	_current_world_file = _open_file(_current_save_path + "/world.dat")
 	_current_world_index_file = _open_file(_current_save_path + "/index.dat")
 	_current_entity_index_file = _open_file(_current_save_path + "/entities/index.dat")
 	_current_world_index_file.seek(0)
 	while _current_world_index_file.get_position() + 16 < _current_world_index_file.get_length():
-		var buf = _current_world_index_file.get_buffer(24)
+		var buf: PackedByteArray = _current_world_index_file.get_buffer(24)
 		if buf.size() < 24:
 			printerr("Index buffer too small! Skipping.")
 			return
-		var x = buf.decode_s64(0)
-		var y = buf.decode_s64(8)
-		var index = buf.decode_u64(16)
+		var x: int = buf.decode_s64(0)
+		var y: int = buf.decode_s64(8)
+		var index: int = buf.decode_u64(16)
 		data_indices[Vector2i(x, y)] = index
 	return _new_save
 
@@ -140,9 +142,9 @@ func delete_save(dirname : String) -> void:
 
 ## Reads and deserializes the metadata file for a single save slot.
 func get_save_meta(dirname : String) -> SaveMeta:
-	var _new_save = SaveMeta.new()
-	var save_path = _save_dir_path + dirname
-	var fileacc = FileAccess.open(save_path + "/meta.json", FileAccess.READ_WRITE)
+	var _new_save := SaveMeta.new()
+	var save_path: String = _save_dir_path + dirname
+	var fileacc: FileAccess = FileAccess.open(save_path + "/meta.json", FileAccess.READ_WRITE)
 	_new_save = SaveMeta.dejsonify(fileacc.get_as_text())
 	return _new_save
 #endregion
@@ -152,9 +154,11 @@ func get_save_meta(dirname : String) -> SaveMeta:
 ##
 ## Chunk tile data is converted to bytes immediately, but the actual disk write
 ## happens later in [method _on_write_timer_timeout].
-func save_chunk(coords : Vector2i):
-	var chunk = GlobalRef.get_chunk(coords)
-	_chunks_to_save.append({"coords" = coords, "data" = var_to_bytes(chunk.get_cells_rle())})
+func save_chunk(coords: Vector2i) -> void:
+	var chunk := GlobalRef.get_chunk(coords) as Chunk
+	if chunk == null:
+		return
+	_chunks_to_save.append({"coords": coords, "data": var_to_bytes(chunk.get_cells_rle())})
 	var entity_manager : EntityManager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager))
 	if entity_manager.serialize_chunk(coords).is_empty() and\
 	not FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"): return
@@ -162,7 +166,9 @@ func save_chunk(coords : Vector2i):
 	entity_manager.serialize_chunk(coords).is_empty():
 		DirAccess.remove_absolute(_current_save_path + "/entities/" + str(coords) + ".json")
 	else:
-		var _entity_file_access = FileAccess.open(_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.WRITE)
+		var _entity_file_access: FileAccess = FileAccess.open(
+			_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.WRITE
+		)
 		_entity_file_access.store_string(JSON.stringify(entity_manager.serialize_chunk(coords)))
 
 ## Returns the decoded RLE cell payload for the chunk at [param coords].
@@ -170,25 +176,32 @@ func save_chunk(coords : Vector2i):
 ## The method first checks the in-memory write queue so reads can see unsaved
 ## changes. If the chunk is not queued, it uses [member data_indices] to seek to
 ## the latest append-only record inside [member _current_world_file].
-func read_chunk(coords : Vector2i):
+func read_chunk(coords: Vector2i) -> Variant:
 	# We try to find the chunk in memory
-	var memory_chunk = _chunks_to_save.find_custom(func(element): return element.coords == coords)
+	var memory_chunk: int = _chunks_to_save.find_custom(
+		func(element: Dictionary) -> bool: return element["coords"] == coords
+	)
 	# If there is one, we return it
 	if memory_chunk != -1:
-		return bytes_to_var(_chunks_to_save[memory_chunk].data)
+		var queued_entry: Dictionary = _chunks_to_save[memory_chunk]
+		var queued_data: PackedByteArray = queued_entry["data"]
+		return bytes_to_var(queued_data)
 	# If the chunk wasn't found in the memory, we search for it on the disk
 	if not _current_world_file or not data_indices.has(coords): return null
 	_current_world_file.seek(data_indices[coords])
 	# Read the buffer size from the chunk header
-	var buffer_size = _current_world_file.get_buffer(8).decode_u64(0)
+	var buffer_size: int = _current_world_file.get_buffer(8).decode_u64(0)
 	# And then return the BINARY chunk
 	return bytes_to_var(_current_world_file.get_buffer(buffer_size))
 
 ## Loads the serialized entity payload associated with the given chunk.
-func read_chunk_entities(coords: Vector2i):
+func read_chunk_entities(coords: Vector2i) -> Dictionary:
 	if FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"):
-		var entity_file = FileAccess.open(_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.READ)
-		return JSON.parse_string(entity_file.get_as_text())
+		var entity_file: FileAccess = FileAccess.open(
+			_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.READ
+		)
+		var parsed: Variant = JSON.parse_string(entity_file.get_as_text())
+		return parsed as Dictionary if parsed is Dictionary else {}
 	return {}
 
 ## Returns the next entity ID stored for the current save slot.
@@ -208,23 +221,25 @@ func update_chunk_index(coords: Vector2i, new_position: int) -> void:
 ## Each chunk is written as an 8-byte size header followed by the raw serialized
 ## payload. After the batch completes, the index file is regenerated from the
 ## current [member data_indices] map so only the latest offsets remain.
-func _on_write_timer_timeout():
+func _on_write_timer_timeout() -> void:
 	if get_tree().current_scene and get_tree().current_scene.name != "GameRoot": return
 	var data : PackedByteArray = []
 	var data_indices_buffer : PackedByteArray = []
-	var pos = _current_world_file.get_length()
+	var pos: int = _current_world_file.get_length()
 	_current_world_file.seek(pos)
-	for i in _chunks_to_save:
-		update_chunk_index(i.coords, pos)
-		var header = PackedByteArray([])
+	for i: Dictionary in _chunks_to_save:
+		var coords: Vector2i = i["coords"]
+		var chunk_data: PackedByteArray = i["data"]
+		update_chunk_index(coords, pos)
+		var header := PackedByteArray()
 		header.resize(8)
-		header.encode_u64(0, i.data.size())
+		header.encode_u64(0, chunk_data.size())
 		data.append_array(header)
-		data.append_array(i.data)
-		pos += i.data.size() + 8
+		data.append_array(chunk_data)
+		pos += chunk_data.size() + 8
 
 	for i in data_indices.size():
-		var key = data_indices.keys()[i]
+		var key: Vector2i = data_indices.keys()[i]
 		data_indices_buffer.resize(data_indices_buffer.size() + 24)
 		data_indices_buffer.encode_s64(24*i, key.x)
 		data_indices_buffer.encode_s64(24*i + 8, key.y)
@@ -240,7 +255,10 @@ func _on_write_timer_timeout():
 
 	_current_entity_index_file.close()
 	_current_entity_index_file = FileAccess.open(_current_save_path + "/entities/index.dat", FileAccess.WRITE_READ)
-	_current_entity_index_file.store_64(get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager)).next_entity_id)
+	var entity_manager := get_node(
+		GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager)
+	) as EntityManager
+	_current_entity_index_file.store_64(entity_manager.next_entity_id)
 #endregion
 
 
@@ -261,13 +279,13 @@ func _encode_portal_coords(portal: Vector4i) -> PackedByteArray:
 ## The index file stores each portal and the offset of its detailed record inside
 ## [code]navigation/data.dat[/code]. Each detailed record contains the portal,
 ## its reachable target portals, and the weighted connection steps between them.
-func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary):
+func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary) -> void:
 	var index_data : PackedByteArray = []
 	var data : PackedByteArray = []
 
-	var index_file = _open_file(_current_save_path + "/navigation/index.dat")
+	var index_file: FileAccess = _open_file(_current_save_path + "/navigation/index.dat")
 
-	var data_file = _open_file(_current_save_path + "/navigation/data.dat")
+	var data_file: FileAccess = _open_file(_current_save_path + "/navigation/data.dat")
 
 	data_file.seek_end()
 	index_file.seek_end()
@@ -277,7 +295,8 @@ func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary):
 			continue
 
 		var target_portals: Array = []
-		for target_portal in portal_connections[portal]:
+		var portal_targets: Variant = portal_connections[portal]
+		for target_portal: Variant in portal_targets:
 			if target_portal is Vector4i:
 				target_portals.append(target_portal)
 		if target_portals.is_empty():
@@ -291,19 +310,24 @@ func save_nav_data(portals: Array[Vector4i], portal_connections: Dictionary):
 		# Number of portal connections
 		data.resize(data.size() + 1)
 		data.encode_u8(data.size() - 1, target_portals.size())
-		for target_portal in target_portals:
+		for target_portal: Vector4i in target_portals:
 			data.append_array(_encode_portal_coords(target_portal))
 			# Number of connections
 			data.resize(data.size() + 1)
-			data.encode_u8(data.size() - 1, portal_connections[portal][target_portal].size())
-			for j in portal_connections[portal][target_portal]:
+			var target_map: Dictionary = portal_connections[portal]
+			var steps: Array = target_map[target_portal]
+			data.encode_u8(data.size() - 1, steps.size())
+			for j: Dictionary in steps:
+				var root: Vector2i = j["root"]
+				var step_coords: Vector2i = j["coords"]
+				var weight: float = j["weight"]
 				data.resize(data.size() + 8)
 				# 8 bytes in total, per connection
-				data.encode_u8(data.size() - 8, j["root"].x)
-				data.encode_u8(data.size() - 7, j["root"].y)
-				data.encode_u8(data.size() - 6, j["coords"].x)
-				data.encode_u8(data.size() - 5, j["coords"].y)
-				data.encode_float(data.size() - 4, j["weight"])
+				data.encode_u8(data.size() - 8, root.x)
+				data.encode_u8(data.size() - 7, root.y)
+				data.encode_u8(data.size() - 6, step_coords.x)
+				data.encode_u8(data.size() - 5, step_coords.y)
+				data.encode_float(data.size() - 4, weight)
 
 	GlobalLogger.write_to_logs(self, "Saved nav data, closing files...")
 	data_file.store_buffer(data)
@@ -321,11 +345,11 @@ func _ready() -> void:
 	write_timer.connect("timeout", _on_write_timer_timeout)
 
 ## Caches the live pathfinder once the world scene has been initialized.
-func world_init():
+func world_init() -> void:
 	pathfinder = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
 
 ## Ensures the current game state is saved before the application exits.
-func _notification(what):
+func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save()
 		get_tree().quit()
@@ -344,10 +368,11 @@ func _open_file(path : String) -> FileAccess:
 ##
 ## Dirty chunks are queued, flushed immediately, and followed by navigation data
 ## persistence when the current scene is [code]GameRoot[/code].
-func save():
+func save() -> void:
 	if get_tree().current_scene.name == "GameRoot":
-		for i in GlobalRef.chunks.keys():
-			if GlobalRef.get_chunk(i) and GlobalRef.get_chunk(i).dirty:
+		for i: Vector2i in GlobalRef.chunks:
+			var chunk := GlobalRef.get_chunk(i) as Chunk
+			if chunk != null and chunk.dirty:
 				save_chunk(i)
 		_on_write_timer_timeout()
 		save_nav_data(pathfinder.portals, pathfinder.portal_connections)

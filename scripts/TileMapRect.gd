@@ -14,8 +14,8 @@ func _init(start: Vector4i, end: Vector4i) -> void:
 
 
 func get_tile_area() -> int:
-	var width = abs(start.x - end.x) * CHUNK_SIZE + abs(start.z - end.z + 1)
-	var height = abs(start.y - end.y) * CHUNK_SIZE + abs(start.w - end.w + 1)
+	var width: int = absi(start.x - end.x) * CHUNK_SIZE + absi(start.z - end.z + 1)
+	var height: int = absi(start.y - end.y) * CHUNK_SIZE + absi(start.w - end.w + 1)
 	return width * height
 
 
@@ -27,8 +27,8 @@ func normalize() -> TileMapRect:
 	var start_world_x := start.x * CHUNK_SIZE + start.z
 	var end_world_x := end.x * CHUNK_SIZE + end.z
 	if start_world_x > end_world_x:
-		var temp_x = start.x
-		var temp_z = start.z
+		var temp_x: int = start.x
+		var temp_z: int = start.z
 		start.x = end.x
 		start.z = end.z
 		end.x = temp_x
@@ -37,8 +37,8 @@ func normalize() -> TileMapRect:
 	var start_world_y := start.y * CHUNK_SIZE + start.w
 	var end_world_y := end.y * CHUNK_SIZE + end.w
 	if start_world_y > end_world_y:
-		var temp_y = start.y
-		var temp_w = start.w
+		var temp_y: int = start.y
+		var temp_w: int = start.w
 		start.y = end.y
 		start.w = end.w
 		end.y = temp_y

@@ -19,16 +19,43 @@ enum TileNeighbors {
 
 
 #region vars
-@onready var _multimesh_manager: Node = $multimesh_manager
+@onready var _multimesh_manager: SelectionMultimesh = $multimesh_manager
 
 var _current_item: BuildableData
-var _filled_array: Array = []
+var _filled_array: Array[Vector4i] = []
 
 @export var _default_selection_texture: Texture2D
 #endregion
 
 
-signal objects_built(object_id: int, coord_array: Array, queued: bool)
+signal objects_built(object_id: int, coord_array: Array[Vector4i], queued: bool)
+
+
+class TileFilterResult:
+	extends RefCounted
+	var valid: Array[Vector4i] = []
+	var invalid: Array[Vector4i] = []
+	var empty: Array[Vector4i] = []
+
+
+class PreviewPoint:
+	extends RefCounted
+	var coords: Vector4i
+	var mask: int
+
+	func _init(point_coords: Vector4i, neighbor_mask: int) -> void:
+		coords = point_coords
+		mask = neighbor_mask
+
+
+class PreviewRect:
+	extends RefCounted
+	var coords: Vector4i
+	var rect: Rect2
+
+	func _init(point_coords: Vector4i, texture_rect: Rect2) -> void:
+		coords = point_coords
+		rect = texture_rect
 
 
 #region lifecycle
@@ -42,17 +69,17 @@ func _ready() -> void:
 
 #region tile filtering
 ## Runs the full validation pipeline for a batch of selected tiles.
-func filter_tiles(tiles: Array, built_object: BuildableData) -> Dictionary:
-	var result: Dictionary = {"valid": [], "invalid": []}
+func filter_tiles(tiles: Array[Vector4i], built_object: BuildableData) -> TileFilterResult:
+	var result := TileFilterResult.new()
 
-	var walls_filtered: Dictionary = filter_walls(tiles, built_object)
+	var walls_filtered := filter_walls(tiles, built_object)
 	result.invalid.append_array(walls_filtered.invalid)
 
-	var terrain_filtered: Dictionary = filter_terrain(walls_filtered.valid, built_object)
+	var terrain_filtered := filter_terrain(walls_filtered.valid, built_object)
 	result.invalid.append_array(terrain_filtered.invalid)
 	result.valid.append_array(terrain_filtered.valid)
 
-	var ground_filtered: Dictionary = filter_ground(terrain_filtered.empty, built_object)
+	var ground_filtered := filter_ground(terrain_filtered.empty, built_object)
 	result.invalid.append_array(ground_filtered.invalid)
 	result.valid.append_array(ground_filtered.valid)
 
@@ -60,35 +87,33 @@ func filter_tiles(tiles: Array, built_object: BuildableData) -> Dictionary:
 
 
 ## Filters out tiles whose wall layer does not match the buildable requirements.
-func filter_walls(tiles: Array, built_object: BuildableData) -> Dictionary:
+func filter_walls(tiles: Array[Vector4i], built_object: BuildableData) -> TileFilterResult:
+	var result := TileFilterResult.new()
 	if built_object.valid_walls_id.has(0):
-		return {"valid": tiles, "invalid": []}
+		result.valid.assign(tiles)
+		return result
 
-	var result: Dictionary = {"valid": [], "invalid": []}
-
-	for tile_coord in tiles:
-		var chunk_pos: Vector4i = tile_coord
-		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
+	for chunk_pos: Vector4i in tiles:
+		var chunk := GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y)) as Chunk
 		var cell: int = chunk.get_cell(
 			GlobalRef.tilemap_layers_enum.walls,
 			Vector2i(chunk_pos.z, chunk_pos.w)
 		)
 
 		if built_object.valid_walls_id.has(cell):
-			result.valid.append(tile_coord)
+			result.valid.append(chunk_pos)
 		else:
-			result.invalid.append(tile_coord)
+			result.invalid.append(chunk_pos)
 
 	return result
 
 
 ## Splits selected tiles by whether their terrain is valid, invalid, or empty.
-func filter_terrain(tiles: Array, built_object: BuildableData) -> Dictionary:
-	var result: Dictionary = {"valid": [], "invalid": [], "empty": []}
+func filter_terrain(tiles: Array[Vector4i], built_object: BuildableData) -> TileFilterResult:
+	var result := TileFilterResult.new()
 
-	for tile_coord in tiles:
-		var chunk_pos: Vector4i = tile_coord
-		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
+	for chunk_pos: Vector4i in tiles:
+		var chunk := GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y)) as Chunk
 		var cell: int = chunk.get_cell(
 			GlobalRef.tilemap_layers_enum.terrain,
 			Vector2i(chunk_pos.z, chunk_pos.w)
@@ -96,31 +121,30 @@ func filter_terrain(tiles: Array, built_object: BuildableData) -> Dictionary:
 
 		if built_object.valid_terrain_id.has(cell):
 			if cell == -1:
-				result.empty.append(tile_coord)
+				result.empty.append(chunk_pos)
 			else:
-				result.valid.append(tile_coord)
+				result.valid.append(chunk_pos)
 		else:
-			result.invalid.append(tile_coord)
+			result.invalid.append(chunk_pos)
 
 	return result
 
 
 ## Filters tiles against the buildable's allowed ground layer ids.
-func filter_ground(tiles: Array, built_object: BuildableData) -> Dictionary:
-	var result: Dictionary = {"valid": [], "invalid": []}
+func filter_ground(tiles: Array[Vector4i], built_object: BuildableData) -> TileFilterResult:
+	var result := TileFilterResult.new()
 
-	for tile_coord in tiles:
-		var chunk_pos: Vector4i = tile_coord
-		var chunk = GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y))
+	for chunk_pos: Vector4i in tiles:
+		var chunk := GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y)) as Chunk
 		var cell: int = chunk.get_cell(
 			GlobalRef.tilemap_layers_enum.ground,
 			Vector2i(chunk_pos.z, chunk_pos.w)
 		)
 
 		if built_object.valid_ground_id.has(cell):
-			result.valid.append(tile_coord)
+			result.valid.append(chunk_pos)
 		else:
-			result.invalid.append(tile_coord)
+			result.invalid.append(chunk_pos)
 
 	return result
 
@@ -133,8 +157,8 @@ func filter_ground(tiles: Array, built_object: BuildableData) -> Dictionary:
 ## Returns every tile in the preview selection together with the neighbor mask used for autotiling.
 func _get_rect_border_points_and_neighbors(
 	selection_rect: TileMapRect, is_filled: bool = false
-) -> Array:
-	var points := []
+) -> Array[PreviewPoint]:
+	var points: Array[PreviewPoint] = []
 	selection_rect = selection_rect.normalize()
 	var chunk_min := Vector2i(selection_rect.start.x, selection_rect.start.y)
 	var chunk_max := Vector2i(selection_rect.end.x, selection_rect.end.y)
@@ -149,7 +173,7 @@ func _get_rect_border_points_and_neighbors(
 	var max_yy := 0
 
 	if width == 1 and height == 1:
-		return [{"coords": selection_rect.start, "mask": TileNeighbors.CENTER}]
+		return [PreviewPoint.new(selection_rect.start, TileNeighbors.CENTER)]
 
 	if height == 1:
 		min_xx = tile_min.x
@@ -165,7 +189,7 @@ func _get_rect_border_points_and_neighbors(
 					mask |= TileNeighbors.LEFT
 				if x > min_xx or c_x > chunk_min.x:
 					mask |= TileNeighbors.RIGHT
-				points.append({"coords": Vector4i(c_x, chunk_min.y, x, tile_min.y), "mask": mask})
+				points.append(PreviewPoint.new(Vector4i(c_x, chunk_min.y, x, tile_min.y), mask))
 
 		return points
 
@@ -183,7 +207,7 @@ func _get_rect_border_points_and_neighbors(
 					mask |= TileNeighbors.BOTTOM
 				if y > min_yy or c_y > chunk_min.y:
 					mask |= TileNeighbors.TOP
-				points.append({"coords": Vector4i(chunk_min.x, c_y, tile_min.x, y), "mask": mask})
+				points.append(PreviewPoint.new(Vector4i(chunk_min.x, c_y, tile_min.x, y), mask))
 		return points
 
 	if height == 2 or width == 2 or is_filled:
@@ -228,7 +252,7 @@ func _get_rect_border_points_and_neighbors(
 								| TileNeighbors.TOP
 								| TileNeighbors.TOP_RIGHT
 							)
-						points.append({"coords": Vector4i(c_x, c_y, x, y), "mask": mask})
+						points.append(PreviewPoint.new(Vector4i(c_x, c_y, x, y), mask))
 		return points
 
 	min_xx = tile_min.x
@@ -246,21 +270,15 @@ func _get_rect_border_points_and_neighbors(
 				mask |= TileNeighbors.RIGHT
 
 			if (x == max_xx and c_x == chunk_max.x) or (x == min_xx and c_x == chunk_min.x):
-				points.append(
-					{
-						"coords": Vector4i(c_x, chunk_min.y, x, tile_min.y),
-						"mask": mask | TileNeighbors.BOTTOM,
-					}
-				)
-				points.append(
-					{
-						"coords": Vector4i(c_x, chunk_max.y, x, tile_max.y),
-						"mask": mask | TileNeighbors.TOP,
-					}
-				)
+				points.append(PreviewPoint.new(
+					Vector4i(c_x, chunk_min.y, x, tile_min.y), mask | TileNeighbors.BOTTOM
+				))
+				points.append(PreviewPoint.new(
+					Vector4i(c_x, chunk_max.y, x, tile_max.y), mask | TileNeighbors.TOP
+				))
 			else:
-				points.append({"coords": Vector4i(c_x, chunk_min.y, x, tile_min.y), "mask": mask})
-				points.append({"coords": Vector4i(c_x, chunk_max.y, x, tile_max.y), "mask": mask})
+				points.append(PreviewPoint.new(Vector4i(c_x, chunk_min.y, x, tile_min.y), mask))
+				points.append(PreviewPoint.new(Vector4i(c_x, chunk_max.y, x, tile_max.y), mask))
 
 	min_yy = tile_min.y
 	max_yy = CHUNK_SIZE - 1
@@ -278,8 +296,8 @@ func _get_rect_border_points_and_neighbors(
 			if y > min_yy or c_y != chunk_min.y:
 				mask |= TileNeighbors.TOP
 
-			points.append({"coords": Vector4i(chunk_min.x, c_y, tile_min.x, y), "mask": mask})
-			points.append({"coords": Vector4i(chunk_max.x, c_y, tile_max.x, y), "mask": mask})
+			points.append(PreviewPoint.new(Vector4i(chunk_min.x, c_y, tile_min.x, y), mask))
+			points.append(PreviewPoint.new(Vector4i(chunk_max.x, c_y, tile_max.x, y), mask))
 
 	return points
 
@@ -289,13 +307,15 @@ func _get_rect_border_points_and_neighbors(
 
 ## Converts neighbor masks into texture rect assignments for autotile preview rendering.
 func _neighbor_array_to_map_rect_array(
-	neighbor_array: Array, texture_data: BuildableTextureData
-) -> Array:
-	var output := []
+	neighbor_array: Array[PreviewPoint], texture_data: BuildableTextureData
+) -> Array[PreviewRect]:
+	var output: Array[PreviewRect] = []
 	assert(texture_data, "There must be a texture data here!")
 
-	for pair in neighbor_array:
-		output.append({"coords": pair.coords, "rect": texture_data.get_terrain_tile_rect(pair.mask)})
+	for pair: PreviewPoint in neighbor_array:
+		output.append(PreviewRect.new(
+			pair.coords, texture_data.get_terrain_tile_rect(pair.mask)
+		))
 
 	return output
 
@@ -313,22 +333,22 @@ func _on_input_handler_region_selected(_rect: TileMapRect) -> void:
 ## Refreshes the preview meshes whenever the current selection changes.
 func _on_input_handler_region_updated(rect: TileMapRect) -> void:
 	if _current_item and _current_item.texture_params.can_autotile:
-		var neighbors = _get_rect_border_points_and_neighbors(rect, _current_item.selection_filled)
-		var rects = _neighbor_array_to_map_rect_array(neighbors, _current_item.texture_params)
-		var rect_map = {}
+		var neighbors := _get_rect_border_points_and_neighbors(rect, _current_item.selection_filled)
+		var rects := _neighbor_array_to_map_rect_array(neighbors, _current_item.texture_params)
+		var rect_map: Dictionary[Vector4i, Rect2] = {}
 
-		for pair in rects:
+		for pair: PreviewRect in rects:
 			rect_map[pair.coords] = pair.rect
 
 		_filled_array = rect_map.keys()
-		var filtered_coords_dict: Dictionary = filter_tiles(_filled_array, _current_item)
+		var filtered_coords := filter_tiles(_filled_array, _current_item)
 
-		var filtered_valid_world_rect_dict = {}
-		for coord in filtered_coords_dict.valid:
+		var filtered_valid_world_rect_dict: Dictionary[Vector2i, Rect2] = {}
+		for coord: Vector4i in filtered_coords.valid:
 			filtered_valid_world_rect_dict[GridUtils.chunk_coord_to_world_coord(coord)] = rect_map[coord]
 
-		var filtered_invalid_world_rect_dict = {}
-		for coord in filtered_coords_dict.invalid:
+		var filtered_invalid_world_rect_dict: Dictionary[Vector2i, Rect2] = {}
+		for coord: Vector4i in filtered_coords.invalid:
 			filtered_invalid_world_rect_dict[GridUtils.chunk_coord_to_world_coord(coord)] = rect_map[coord]
 
 		_multimesh_manager.create_mesh_instances(
@@ -341,7 +361,7 @@ func _on_ui_manager_building_selected(id: int) -> void:
 	_current_item = BuildableDB.get_tile(id)
 	GlobalLogger.write_to_logs(self, "Selected building with id: %d" % id)
 
-	var tex = (
+	var tex: Texture2D = (
 		_current_item.texture_params.texture
 		if _current_item.texture_params
 		else _default_selection_texture
@@ -355,15 +375,16 @@ func _on_ui_manager_building_selected(id: int) -> void:
 
 #region api
 ## Places all validated tiles for the given buildable and emits the placement signal.
-func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void:
+func fill_array(tiles: Array[Vector4i], built_object: BuildableData, queued: bool) -> void:
 	GlobalLogger.write_to_logs(
 		self,
 		"Filling array with tile id: %d, on layer: %d. Coords: %s. Queued: %s"
 		% [built_object.id, built_object.layer, str(tiles), str(queued)]
 	)
 
-	for coord in tiles:
-		GlobalRef.get_chunk(Vector2i(coord.x, coord.y)).set_cell(
+	for coord: Vector4i in tiles:
+		var chunk := GlobalRef.get_chunk(Vector2i(coord.x, coord.y)) as Chunk
+		chunk.set_cell(
 			built_object.id,
 			Vector2i(coord.z, coord.w),
 			built_object.queued_layer if queued else built_object.layer
@@ -371,14 +392,15 @@ func fill_array(tiles: Array, built_object: BuildableData, queued: bool) -> void
 
 	objects_built.emit(built_object.id, tiles, queued)
 
-func erase_tiles(tiles: Array, layer: GlobalRef.tilemap_layers_enum):
+func erase_tiles(tiles: Array[Vector4i], layer: GlobalRef.tilemap_layers_enum) -> void:
 	GlobalLogger.write_to_logs(
 		self,
 		"Erasing array on layer: %d. Coords: %s."
 		% [layer, str(tiles)]
 	)
 
-	for coord in tiles:
-		GlobalRef.get_chunk(Vector2i(coord.x, coord.y)).erase_cell(Vector2i(coord.z, coord.w), layer)
+	for coord: Vector4i in tiles:
+		var chunk := GlobalRef.get_chunk(Vector2i(coord.x, coord.y)) as Chunk
+		chunk.erase_cell(Vector2i(coord.z, coord.w), layer)
 
 #endregion

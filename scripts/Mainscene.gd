@@ -1,6 +1,6 @@
 extends Node2D
-var saved_scene = PackedScene.new()
-var dir_access = DirAccess.open("res://")
+var saved_scene := PackedScene.new()
+var dir_access: DirAccess = DirAccess.open("res://")
 
 
 func _ready() -> void:

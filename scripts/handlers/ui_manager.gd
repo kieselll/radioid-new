@@ -1,5 +1,6 @@
 @icon("res://textures/editor_icons/stack.svg")
 extends Node2D
+class_name UIManager
 
 @export var buttons: Array[BaseButton]
 @export var lists: Array[ItemList]
@@ -10,7 +11,7 @@ var list_id_map: Dictionary = {
 	&"furniture_selection_list": [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 }
 
-var button_hover
+var button_hover: bool = false
 
 signal building_selected(id: int)
 
@@ -27,18 +28,20 @@ func _ready() -> void:
 
 func _on_listen_button_toggled(toggled_on: bool, button: BaseButton) -> void:
 	if button.get_meta_list().has(&"linked_list"):
-		button.get_node(button.get_meta(&"linked_list")).set_visible(toggled_on)
+		var linked_path: NodePath = button.get_meta(&"linked_list")
+		var linked_control := button.get_node(linked_path) as Control
+		linked_control.set_visible(toggled_on)
 		GlobalLogger.write_to_logs(
 			button,
-			"Toggled visibility of %s" % button.get_node(button.get_meta(&"linked_list")).name
+			"Toggled visibility of %s" % linked_control.name
 		)
 
 
-func _on_list_item_selected(item_id: int, list_name: StringName):
+func _on_list_item_selected(item_id: int, list_name: StringName) -> void:
 	building_selected.emit(list_id_map[list_name][item_id])
 
 
-func _on_ui_entered_exited(entered: bool):
+func _on_ui_entered_exited(entered: bool) -> void:
 	if entered:
 		button_hover = true
 	else:

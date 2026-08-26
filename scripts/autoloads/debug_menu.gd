@@ -2,13 +2,13 @@ extends CanvasLayer
 # This is some nasty code because it won't be related to any other systems
 # I could make this better, but I'd rather spend that time elsewhere
 
-@onready var _fps_counter = $Control/HBoxContainer/Panel/fps_counter
-@onready var _draw_calls = $Control/HBoxContainer/Panel4/draw_calls
-@onready var _memory = $Control/HBoxContainer/Panel5/memory
-@onready var _tile_info = $Control/HBoxContainer/Panel2/tile_info
+@onready var _fps_counter: Label = $Control/HBoxContainer/Panel/fps_counter
+@onready var _draw_calls: Label = $Control/HBoxContainer/Panel4/draw_calls
+@onready var _memory: Label = $Control/HBoxContainer/Panel5/memory
+@onready var _tile_info: Label = $Control/HBoxContainer/Panel2/tile_info
 
-var _tick_timer = Timer.new()
-var _recent_frames = []
+var _tick_timer := Timer.new()
+var _recent_frames: Array[int] = []
 
 
 func _ready() -> void:
@@ -20,8 +20,8 @@ func _tick() -> void:
 	_recent_frames.append(floor(Engine.get_frames_per_second()))
 	if _recent_frames.size() > 10:
 		_recent_frames.pop_front()
-	var average_frames = 0
-	for i in _recent_frames:
+	var average_frames: int = 0
+	for i: int in _recent_frames:
 		average_frames += i
 	average_frames /= _recent_frames.size()
 	_fps_counter.text = (

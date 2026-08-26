@@ -34,38 +34,41 @@ class BuildingJob:
 
 
 ## Pending jobs waiting to be auctioned or completed.
-var jobs: Array = []
+var jobs: Array[Job] = []
 ## Temporary bid table used while choosing a pawn for the current job.
-var auction = {}
+var auction: Dictionary[float, BaseEntity] = {}
 
 # CRITICAL NEED TO ADD JOB TYPES
 
 
 ## Converts queued build placements into [code]BuildingJob[/code] entries.
-func _on_building_agent_objects_built(object_id: int, coord_array: Array, queued: bool) -> void:
+func _on_building_agent_objects_built(
+	object_id: int, coord_array: Array[Vector4i], queued: bool
+) -> void:
 	if queued:
 		GlobalLogger.write_to_logs(self, "Adding built objects to jobs...")
-		for coord in coord_array:
+		for coord: Vector4i in coord_array:
 			jobs.append(BuildingJob.new(coord, object_id, 5))
 			_on_jobs_updated(jobs[-1])
 
 
 ## Starts an auction for [param job] and assigns it to the best bidder.
-func start_job_auction(job: Job):
-	var _queued_action: DecisionMaker.QueuedAction = _job_class_to_queued_action(job)
-	var _location = job.location
-	for path in GlobalRef.get_pawns():
-		var pawn = get_node(path)
-		var _dec_maker: DecisionMaker = pawn.decision_maker
+func start_job_auction(job: Job) -> void:
+	var queued_action: DecisionMaker.QueuedAction = _job_class_to_queued_action(job)
+	for path: String in GlobalRef.get_pawns():
+		var pawn := get_node(path) as BaseEntity
+		var decision_maker: DecisionMaker = pawn.decision_maker
 		partake_in_auction(
 			pawn,
-			_dec_maker.calculate_action_priority_modifier(
-				_queued_action.action_type, _queued_action.priority, job.location
+			decision_maker.calculate_action_priority_modifier(
+				queued_action.action_type, queued_action.priority, job.location
 			)
 		)
-	GlobalLogger.write_to_logs(self, "Auction won by %s" % auction[auction.keys().max()].name)
-	auction[auction.keys().max()].decision_maker.add_action_to_queue(
-		_queued_action.action_type, auction.keys().max(), _queued_action.args
+	var best_bid: float = auction.keys().max()
+	var winner: BaseEntity = auction[best_bid]
+	GlobalLogger.write_to_logs(self, "Auction won by %s" % winner.name)
+	winner.decision_maker.add_action_to_queue(
+		queued_action.action_type, best_bid, queued_action.args
 	)
 	auction.clear()
 	job.reserved = true
@@ -74,22 +77,23 @@ func start_job_auction(job: Job):
 ## Converts a job record into the queued action that should fulfill it.
 func _job_class_to_queued_action(job: Job) -> DecisionMaker.QueuedAction:
 	if job is BuildingJob:
+		var building_job := job as BuildingJob
 		return DecisionMaker.QueuedAction.new(
 			ActionMachine.action_types.build,
-			job.priority,
-			{"target": job.location, &"id": job.building_id}
+			building_job.priority,
+			{"target": building_job.location, &"id": building_job.building_id}
 		)
 	return null
 
 
 ## Registers a pawn's bid for the active auction round.
-func partake_in_auction(pawn: Node, bet: float):
+func partake_in_auction(pawn: BaseEntity, bet: float) -> void:
 	auction[bet] = pawn
 
 
 ## Handles job creation by logging it and immediately starting an auction.
-func _on_jobs_updated(with_what) -> void:
-	var type
+func _on_jobs_updated(with_what: Job) -> void:
+	var type: String = "UnknownJob"
 	if with_what is BuildingJob:
 		type = "BuildingJob"
 	GlobalLogger.write_to_logs(self, "Started auction for %s at %s" % [type, with_what.location])

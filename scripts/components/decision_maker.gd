@@ -121,7 +121,9 @@ func setup(parent : BaseEntity, generate_actions: bool) -> void:
 ##
 ## [param priority] is the base priority used for queue ordering before the
 ## action is re-scored by [method calculate_action_priority_modifier].
-func add_action_to_queue(action_type: ActionMachine.action_types, priority: int, action_args: Dictionary = {}) -> void:
+func add_action_to_queue(
+	action_type: ActionMachine.action_types, priority: float, action_args: Dictionary = {}
+) -> void:
 	GlobalLogger.write_to_logs(
 		_parent, "Added %s to queue with base priority: %f" % [action_type, priority]
 	)

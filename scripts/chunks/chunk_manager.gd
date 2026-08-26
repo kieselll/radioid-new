@@ -4,7 +4,7 @@ class_name ChunkManager
 
 #region Private Vars
 
-var chunks: Dictionary[Vector2i, Node]
+var chunks: Dictionary[Vector2i, Chunk]
 var chunk_cam_coords: Vector4i = Vector4i.ZERO
 var load_queue: Array[Vector2i]
 var unload_queue: Array[Vector2i]
@@ -63,9 +63,9 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if not unload_queue.is_empty():
-		var unload_coords = unload_queue.pop_back()
+		var unload_coords: Vector2i = unload_queue.pop_back()
 		if chunks.has(unload_coords):
-			var chunk: Node = chunks[unload_coords]
+			var chunk: Chunk = chunks[unload_coords]
 			if is_instance_valid(chunk):
 				if chunk.dirty:
 					GlobalSaver.save_chunk(unload_coords)
@@ -74,14 +74,14 @@ func _process(_delta: float) -> void:
 			chunks.erase(unload_coords)
 
 	if not load_queue.is_empty():
-		var loaded_chunk = GlobalSaver.read_chunk(load_queue[-1])
+		var loaded_chunk: Variant = GlobalSaver.read_chunk(load_queue[-1])
 		if not loaded_chunk:
 			instantiate_chunk(generate_new_chunk(load_queue[-1], world_seed), load_queue[-1])
-		else:
-			instantiate_chunk(decompress_chunk(loaded_chunk), load_queue[-1])
+		elif loaded_chunk is Array:
+			instantiate_chunk(decompress_chunk(loaded_chunk as Array), load_queue[-1])
 		var entities : Dictionary = GlobalSaver.read_chunk_entities(load_queue[-1])
 		var entity_manager : EntityManager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager))
-		for entity in entities.values():
+		for entity: Dictionary in entities.values():
 			entity_manager.deserialize_entity(entity)
 		load_queue.remove_at(-1)
 		return
@@ -106,7 +106,7 @@ func _physics_process(_delta: float) -> void:
 		# Rebuild rather than append: an old queued chunk may have become visible
 		# again before its unload job ran.
 		unload_queue.clear()
-		for i in chunks.keys():
+		for i: Vector2i in chunks:
 			@warning_ignore("integer_division")
 			if not (
 				Rect2i(
@@ -156,7 +156,7 @@ func _queue_missing_visible_chunks() -> bool:
 #region Chunk Data
 
 func generate_new_layer(
-	coords: Vector2i, layer: GlobalRef.tilemap_layers_enum, _seed: int
+	_coords: Vector2i, layer: GlobalRef.tilemap_layers_enum, _seed: int
 ) -> Array:  # CRITICAL WIP
 	var tile_array: Array = []
 	tile_array.resize(CHUNK_SIZE)
@@ -171,45 +171,54 @@ func generate_new_layer(
 
 
 func decompress_chunk(compressed_chunk: Array) -> ChunkData:
-	var chunk = ChunkData.new()
-	chunk.ground_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.ground])
-	chunk.terrain_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.terrain])
-	chunk.wall_layer = decompress_layer(compressed_chunk[GlobalRef.tilemap_layers_enum.walls])
+	var chunk := ChunkData.new()
+	var ground_data: Array = compressed_chunk[GlobalRef.tilemap_layers_enum.ground]
+	var terrain_data: Array = compressed_chunk[GlobalRef.tilemap_layers_enum.terrain]
+	var wall_data: Array = compressed_chunk[GlobalRef.tilemap_layers_enum.walls]
+	chunk.ground_layer = decompress_layer(ground_data)
+	chunk.terrain_layer = decompress_layer(terrain_data)
+	chunk.wall_layer = decompress_layer(wall_data)
+	var terrain_queued_data: Array = compressed_chunk[GlobalRef.tilemap_layers_enum.terrain_queued]
 	chunk.terrain_queued_layer = decompress_layer(
-		compressed_chunk[GlobalRef.tilemap_layers_enum.terrain_queued]
+		terrain_queued_data
 	)
+	var wall_queued_data: Array = compressed_chunk[GlobalRef.tilemap_layers_enum.walls_queued]
 	chunk.wall_queued_layer = decompress_layer(
-		compressed_chunk[GlobalRef.tilemap_layers_enum.walls_queued]
+		wall_queued_data
 	)
+	var terrain_delete_data: Array = compressed_chunk[GlobalRef.tilemap_layers_enum.terrain_queued_d]
 	chunk.terrain_queued_d_layer = decompress_layer(
-		compressed_chunk[GlobalRef.tilemap_layers_enum.terrain_queued_d]
+		terrain_delete_data
 	)
+	var wall_delete_data: Array = compressed_chunk[GlobalRef.tilemap_layers_enum.walls_queued_d]
 	chunk.wall_queued_d_layer = decompress_layer(
-		compressed_chunk[GlobalRef.tilemap_layers_enum.walls_queued_d]
+		wall_delete_data
 	)
 	return chunk
 
 
 func decompress_layer(compressed_layer: Array) -> Array:
-	var result = []
+	var result: Array = []
 	result.resize(CHUNK_SIZE)
-	for x in CHUNK_SIZE:
-		result[x] = []
-		result[x].resize(CHUNK_SIZE)
+	for x: int in CHUNK_SIZE:
+		var row: Array[int] = []
+		row.resize(CHUNK_SIZE)
+		result[x] = row
 	var intermediate_result: Array = []
-	for i in compressed_layer:
+	for i: Vector2i in compressed_layer:
 		var array_insert: Array = []
 		array_insert.resize(i.y)
 		array_insert.fill(i.x)
 		intermediate_result.append_array(array_insert)
-	for i in intermediate_result.size():
+	for i: int in intermediate_result.size():
 		@warning_ignore("integer_division")
-		result[i / CHUNK_SIZE][i % CHUNK_SIZE] = intermediate_result[i]
+		var row: Array = result[i / CHUNK_SIZE]
+		row[i % CHUNK_SIZE] = intermediate_result[i]
 	return result
 
 
 func generate_new_chunk(coords: Vector2i, _seed: int) -> ChunkData:
-	var chunk = ChunkData.new()
+	var chunk := ChunkData.new()
 
 	chunk.ground_layer = generate_new_layer(coords, GlobalRef.tilemap_layers_enum.ground, _seed)
 	# All other layers are currently empty for a fresh chunk. Chunk initializes
@@ -220,9 +229,8 @@ func generate_new_chunk(coords: Vector2i, _seed: int) -> ChunkData:
 
 
 func instantiate_chunk(new_chunk: ChunkData, coords: Vector2i) -> void:
-	var chunk_node: Node2D
-
-	chunk_node = chunk_scene.instantiate()
+	var chunk_node := chunk_scene.instantiate() as Chunk
+	assert(chunk_node != null, "Chunk scene must instantiate a Chunk.")
 
 	add_child(chunk_node)
 	chunks[coords] = chunk_node

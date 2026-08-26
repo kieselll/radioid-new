@@ -12,8 +12,6 @@ extends BaseAction
 #region constants
 
 ## Action-machine identifier for this action implementation.
-const action_type =ActionMachine.action_types.wander
-
 ## Resumable phases of the wander action.
 enum steps {
 	wander
@@ -29,8 +27,6 @@ var _move_state: BaseState
 var _pathfinder: GlobalPathfinder
 var _random_pos: Vector4i = Vector4i.ZERO
 var _parent: ActionMachine
-var current_step : steps = steps.wander
-var current_args: Dictionary
 var owner: BaseEntity
 
 #endregion
@@ -45,6 +41,8 @@ func setup(action_machine : ActionMachine) -> void:
 	_state_machine = _parent.state_machine
 	_move_state = _state_machine.get_state(StateMachine.state_types.move_state)
 	_pathfinder = owner.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
+	action_type = ActionMachine.action_types.wander
+	current_step = steps.wander
 
 #endregion
 
@@ -65,7 +63,7 @@ func start(args: Dictionary = {}) -> void:
 ##
 ## This wrapper is intentionally redundant so all actions expose the same
 ## deserialization-friendly API.
-func start_from_step(args: Dictionary = {"partial": true}, step : steps = steps.wander) -> void:
+func start_from_step(args: Dictionary = {"partial": true}, step: int = steps.wander) -> void:
 	current_step = step
 	start(args)
 

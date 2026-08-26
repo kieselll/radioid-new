@@ -1,4 +1,5 @@
 extends PanelContainer
+class_name SaveCard
 
 @onready var save_image: TextureRect = $VBoxContainer/Texture
 @onready var save_name_label: RichTextLabel = $VBoxContainer/SaveName

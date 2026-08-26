@@ -869,7 +869,8 @@ func _apply_pending_tile_solidity(chunk_coords: Vector2i) -> void:
 	var astar: AStarGrid2D = astargrids[chunk_coords]
 	var queued_changes: Dictionary = pending_tile_solidity[chunk_coords]
 	for local_coords: Vector2i in queued_changes:
-		astar.set_point_solid(local_coords, queued_changes[local_coords])
+		var solid: bool = queued_changes[local_coords]
+		astar.set_point_solid(local_coords, solid)
 	pending_tile_solidity.erase(chunk_coords)
 
 

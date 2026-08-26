@@ -2,9 +2,9 @@ extends RefCounted
 class_name AstarPortal2D
 
 var open_list: BinaryHeap = BinaryHeap.new()
-var closed_list: Dictionary = {}  # portal_id -> Portal
-var open_g_scores: Dictionary = {}  # portal_id -> best known g currently/openly discovered
-var current_node
+var closed_list: Dictionary[Vector4i, Portal] = {}  # portal_id -> Portal
+var open_g_scores: Dictionary[Vector4i, float] = {}  # portal_id -> best known g
+var current_node: Portal
 var pathfinder: GlobalPathfinder
 var path_goal: Vector2i
 
@@ -12,22 +12,28 @@ var path_goal: Vector2i
 class Portal:
 	extends Resource
 
-	var id
+	var id: Vector4i
 	var g_value: float
 	var h_value: float
 	var f_value: float
 	var coords: Vector2i
-	var parent
+	var parent: Variant
 
 	@warning_ignore_start("shadowed_variable")
 
-	func _init(id, coords: Vector2i, g_value: float, path_goal: Vector2i, parent = "") -> void:
+	func _init(
+		id: Vector4i,
+		coords: Vector2i,
+		g_value: float,
+		path_goal: Vector2i,
+		parent: Variant = null
+	) -> void:
 		self.id = id
 		self.coords = coords
 		self.g_value = g_value
 
-		var dx = abs(path_goal.x - coords.x)
-		var dy = abs(path_goal.y - coords.y)
+		var dx: int = absi(path_goal.x - coords.x)
+		var dy: int = absi(path_goal.y - coords.y)
 
 		# Rough-node movement treats each tile step as cost 1, including diagonals.
 		# It's precise enough for rough path calculations
@@ -43,7 +49,7 @@ func _init(pathfinder: GlobalPathfinder) -> void:
 	self.pathfinder = pathfinder
 
 
-func get_path(start, end) -> Array:
+func get_path(start: Vector4i, end: Vector4i) -> Array[Vector4i]:
 	open_list.clear()
 	closed_list.clear()
 	open_g_scores.clear()
@@ -51,13 +57,13 @@ func get_path(start, end) -> Array:
 	if start == end:
 		return [start]
 
-	var start_portal = pathfinder.get_portal(start)
-	var end_portal = pathfinder.get_portal(end)
+	var start_portal: Vector4i = pathfinder.get_portal(start)
+	var end_portal: Vector4i = pathfinder.get_portal(end)
 
 	path_goal = pathfinder.calculate_global_tile_coords(end_portal)
 
 	var start_node := Portal.new(
-		start, pathfinder.calculate_global_tile_coords(start_portal), 0.0, path_goal, ""
+		start, pathfinder.calculate_global_tile_coords(start_portal), 0.0, path_goal
 	)
 
 	_push_open(start_node)
@@ -92,8 +98,8 @@ func get_path(start, end) -> Array:
 
 
 func _discover_nodes(parent: Portal) -> void:
-	for connection in pathfinder.get_portal_connections(parent.id):
-		var neighbor_id = connection[0]
+	for connection: Array in pathfinder.get_portal_connections(parent.id):
+		var neighbor_id: Vector4i = connection[0]
 		var move_cost: float = connection[1]
 		var new_g := parent.g_value + move_cost
 
@@ -103,7 +109,7 @@ func _discover_nodes(parent: Portal) -> void:
 
 		# If better than previous open route (or never seen), add/update
 		if not open_g_scores.has(neighbor_id) or new_g < open_g_scores[neighbor_id]:
-			var portal = pathfinder.get_portal(neighbor_id)
+			var portal: Vector4i = pathfinder.get_portal(neighbor_id)
 			var node := Portal.new(
 				neighbor_id,
 				pathfinder.calculate_global_tile_coords(portal),
@@ -120,12 +126,12 @@ func _discover_nodes(parent: Portal) -> void:
 				closed_list.erase(neighbor_id)
 
 
-func _reconstruct_path(start, end) -> Array:
+func _reconstruct_path(start: Vector4i, end: Vector4i) -> Array[Vector4i]:
 	if not closed_list.has(end):
 		return []
 
-	var path: Array = []
-	var node_id = end
+	var path: Array[Vector4i] = []
+	var node_id: Vector4i = end
 
 	while true:
 		path.append(node_id)
