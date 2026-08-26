@@ -197,6 +197,7 @@ class ItemPile:
 ## Maps each position within the chunk to the items stored at that position.
 var items: Dictionary[Vector2i, ItemPile] = {}
 
+@onready var _renderer: ChunkRenderer = $"../ChunkRenderer"
 #endregion
 
 #region signals
@@ -215,8 +216,10 @@ func add_item(id: int, position: Vector2i, count: int, data: Dictionary[String, 
 	if not items.has(position):
 		items[position] = ItemPile.new(position, id)
 		item_pile_added.emit(position)
+		_renderer.render_item_pile(id, position, count)
+	else:
+		item_pile_count_changed.emit(position)
 	items[position].add_items(ItemGroup.new(id, data, count))
-	item_pile_count_changed.emit(position)
 
 func get_item_pile(position: Vector2i) -> ItemPile:
 	assert(Rect2i(0,0,16,16).has_point(position))

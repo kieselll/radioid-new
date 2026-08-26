@@ -17,9 +17,10 @@ script = ExtResource("1_qt7hk")
 script = ExtResource("5_renderer")
 base_material = SubResource("ShaderMaterial_01iku")
 
-[node name="ItemManager" type="Node" parent="." unique_id=1375079382]
-script = ExtResource("3_01iku")
-
 [node name="Node2D" type="Node2D" parent="." unique_id=518136136]
 z_index = 20
 script = ExtResource("4_unaa7")
+
+[node name="ItemManager" type="Node" parent="." unique_id=1170423105]
+script = ExtResource("3_01iku")
+metadata/_custom_type_script = "uid://ktddc6n8yeqq"
