@@ -14,6 +14,7 @@ class_name ChunkRenderer
 
 ## Tile multimeshes keyed by tile ID and layer.
 var _tile_multimesh_instances: Dictionary[Vector2i, MultiMeshInstance2D] = {}
+var _item_multimesh_instances: Dictionary[int, MultiMeshInstance2D] = {}
 
 ## Neighbor offsets ordered to match the autotile bitmask layout.
 const OFFSETS: Array[Vector2i] = [
@@ -59,6 +60,42 @@ func render_cell(
 	_set_tile_region(layer, coords)
 
 
+## Builds initial chunk visuals in two passes. Transforms are uploaded first,
+## then each occupied tile's autotile region is calculated exactly once.
+func rebuild_from_cells() -> void:
+	for instance: MultiMeshInstance2D in _tile_multimesh_instances.values():
+		instance.queue_free()
+	_tile_multimesh_instances.clear()
+
+	for layer: GlobalRef.tilemap_layers_enum in LAYER_COLORS:
+		for x: int in Chunk.CHUNK_SIZE:
+			for y: int in Chunk.CHUNK_SIZE:
+				var id := chunk.get_cell(layer, Vector2i(x, y))
+				if id == -1:
+					continue
+				_set_tile_transform(id, layer, Vector2i(x, y))
+
+	for layer: GlobalRef.tilemap_layers_enum in LAYER_COLORS:
+		for x: int in Chunk.CHUNK_SIZE:
+			for y: int in Chunk.CHUNK_SIZE:
+				var coords := Vector2i(x, y)
+				if chunk.get_cell(layer, coords) != -1:
+					_set_single_tile_region(layer, coords)
+
+	_refresh_adjacent_chunk_borders()
+
+
+func _set_tile_transform(
+	id: int, layer: GlobalRef.tilemap_layers_enum, coords: Vector2i
+) -> void:
+	var multimesh_key := Vector2i(id, layer)
+	if not _tile_multimesh_instances.has(multimesh_key):
+		_create_tile_multimesh(id, layer)
+	var instance: MultiMeshInstance2D = _tile_multimesh_instances[multimesh_key]
+	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
+	instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, 32 * coords))
+
+
 ## Hides a tile instance and refreshes the remaining neighboring visuals.
 func erase_cell(
 	id: int,
@@ -74,6 +111,47 @@ func erase_cell(
 
 	_refresh_neighbor_regions(layer, coords)
 
+func render_item_pile(
+	id: int,
+	coords: Vector2i,
+	_count: int
+) -> void:
+	if not _item_multimesh_instances.has(id):
+		_create_item_multimesh(id)
+
+	var instance: MultiMeshInstance2D = _item_multimesh_instances[id]
+
+	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
+	instance.multimesh.set_instance_transform_2d(
+		index,
+		Transform2D(PI, 32 * coords) * Transform2D.FLIP_X,
+	)
+	instance.multimesh.set_instance_custom_data(
+		index,
+		Color(0, 0, 1, 1)
+	)
+
+# CRITICAL REPLACE THAT WITH A TEXTURE ID ONCE ITEM ATLASES ARE IMPLEMENTED
+func _create_item_multimesh(id: int) -> void:
+	assert(base_material != null, "ChunkRenderer requires a base material.")
+	var instance := MultiMeshInstance2D.new()
+	instance.texture = ItemDB.get_item(id).texture_params.texture
+	instance.z_index = 1
+
+	instance.multimesh = MultiMesh.new()
+	instance.multimesh.use_custom_data = true
+	instance.multimesh.instance_count = Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE
+
+	var _material: ShaderMaterial = base_material.duplicate_deep(Resource.DEEP_DUPLICATE_ALL)
+	_material.set_shader_parameter("selection_color", Color.WHITE)
+	instance.material = _material
+
+	var mesh := QuadMesh.new()
+	mesh.size = Vector2i(32, 32)
+	instance.multimesh.mesh = mesh
+
+	_item_multimesh_instances[id] = instance
+	add_child(instance)
 
 ## Creates the tile multimesh for the indicated tile ID and layer.
 func _create_tile_multimesh(id: int, layer: GlobalRef.tilemap_layers_enum) -> void:
