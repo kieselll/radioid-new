@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://bbxxq8l1c7xsc" path="res://scenes/Chunk.tscn" id="15_05nbr"]
 [ext_resource type="Script" uid="uid://dejto6cqy4y8l" path="res://scripts/handlers/entity_manager.gd" id="15_pr1ej"]
 [ext_resource type="Theme" uid="uid://qb0c3yxrvyka" path="res://resources/theme.tres" id="15_q8j3a"]
+[ext_resource type="Script" uid="uid://ctlxyodi6cpng" path="res://scripts/handlers/item_registry.gd" id="16_8ool0"]
 [ext_resource type="FontFile" uid="uid://b04bqkfo63yn" path="res://resources/Gilroy-Bold.ttf" id="16_ms3bu"]
 [ext_resource type="Texture2D" uid="uid://crsyyhl4u220q" path="res://textures/items/Selection (1).png" id="17_7ixpq"]
 [ext_resource type="Texture2D" uid="uid://2u77gluj2s8h" path="res://textures/items/Selection (16).png" id="18_bk1p3"]
