@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ctfh13uxsygl0"
-path="res://.godot/imported/reset_key.png-0fbf493b18b6317bbbb121423778740e.ctex"
+path="res://.godot/imported/reset_key.png-c0f15fc4fa56b32e5f3d8fbea97044ca.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/ui/assets/textures/reset_key.png"
-dest_files=["res://.godot/imported/reset_key.png-0fbf493b18b6317bbbb121423778740e.ctex"]
+dest_files=["res://.godot/imported/reset_key.png-c0f15fc4fa56b32e5f3d8fbea97044ca.ctex"]
 
 [params]
 

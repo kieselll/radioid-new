@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://l8vmih37mqos"
-path="res://.godot/imported/Hair_2_2.png-75eaffdac5ffc0ad15e5cd9e6bf13b8c.ctex"
+path="res://.godot/imported/Hair_2_2.png-91f526993236ea641ba61a5678f61be5.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/entities/assets/characters/hair_variants/Hair_2_2.png"
-dest_files=["res://.godot/imported/Hair_2_2.png-75eaffdac5ffc0ad15e5cd9e6bf13b8c.ctex"]
+dest_files=["res://.godot/imported/Hair_2_2.png-91f526993236ea641ba61a5678f61be5.ctex"]
 
 [params]
 

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://kvcuew07cxnn"
-path="res://.godot/imported/skills.svg-d19d8f53210fba879cea2144de15ea69.ctex"
+path="res://.godot/imported/skills.svg-08b773e07b2838509eacd09384013397.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://shared/editor_icons/skills.svg"
-dest_files=["res://.godot/imported/skills.svg-d19d8f53210fba879cea2144de15ea69.ctex"]
+dest_files=["res://.godot/imported/skills.svg-08b773e07b2838509eacd09384013397.ctex"]
 
 [params]
 

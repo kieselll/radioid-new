@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wrt1gg1o4653"
-path="res://.godot/imported/boot-prints.svg-f7f50ad585cc8394015a8f01a152fe8e.ctex"
+path="res://.godot/imported/boot-prints.svg-b20ffd0a5a686b1a71a32faef2df57d5.ctex"
 metadata={
 "has_editor_variant": true,
 "vram_texture": false
@@ -12,7 +12,7 @@ metadata={
 [deps]
 
 source_file="res://shared/editor_icons/boot-prints.svg"
-dest_files=["res://.godot/imported/boot-prints.svg-f7f50ad585cc8394015a8f01a152fe8e.ctex"]
+dest_files=["res://.godot/imported/boot-prints.svg-b20ffd0a5a686b1a71a32faef2df57d5.ctex"]
 
 [params]
 

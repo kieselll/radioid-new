@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dj6q63kpybpl8"
-path="res://.godot/imported/man_SE.png-7b89e6361be8cd7274c13f51ca2bfc93.ctex"
+path="res://.godot/imported/man_SE.png-bdc9255ad763c4fd31bf9c0cfa5ca5d1.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/entities/assets/directional/man_SE.png"
-dest_files=["res://.godot/imported/man_SE.png-7b89e6361be8cd7274c13f51ca2bfc93.ctex"]
+dest_files=["res://.godot/imported/man_SE.png-bdc9255ad763c4fd31bf9c0cfa5ca5d1.ctex"]
 
 [params]
 

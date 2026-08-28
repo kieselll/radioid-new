@@ -3,12 +3,12 @@
 importer="font_data_dynamic"
 type="FontFile"
 uid="uid://b04bqkfo63yn"
-path="res://.godot/imported/Gilroy-Bold.ttf-fdc1cbbc268c83e20c8dd3f1f29bcff2.fontdata"
+path="res://.godot/imported/Gilroy-Bold.ttf-b6b38afd4f49c68082a6388eae09ca27.fontdata"
 
 [deps]
 
 source_file="res://features/ui/theme/Gilroy-Bold.ttf"
-dest_files=["res://.godot/imported/Gilroy-Bold.ttf-fdc1cbbc268c83e20c8dd3f1f29bcff2.fontdata"]
+dest_files=["res://.godot/imported/Gilroy-Bold.ttf-b6b38afd4f49c68082a6388eae09ca27.fontdata"]
 
 [params]
 

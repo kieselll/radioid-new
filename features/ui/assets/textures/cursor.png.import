@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bktayurpgafe5"
-path="res://.godot/imported/cursor.png-220e435a583e5269c70004b67c812a61.ctex"
+path="res://.godot/imported/cursor.png-c6e350cd6c0c995d5b8fcbc7f20528c6.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/ui/assets/textures/cursor.png"
-dest_files=["res://.godot/imported/cursor.png-220e435a583e5269c70004b67c812a61.ctex"]
+dest_files=["res://.godot/imported/cursor.png-c6e350cd6c0c995d5b8fcbc7f20528c6.ctex"]
 
 [params]
 

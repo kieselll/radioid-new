@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cr111a6l4fwqs"
-path="res://.godot/imported/BaseState.svg-8132636704065d3741cdd4802bc1bee0.ctex"
+path="res://.godot/imported/BaseState.svg-8ea19277b3c126486b88234febda4664.ctex"
 metadata={
 "has_editor_variant": true,
 "vram_texture": false
@@ -12,7 +12,7 @@ metadata={
 [deps]
 
 source_file="res://shared/editor_icons/BaseState.svg"
-dest_files=["res://.godot/imported/BaseState.svg-8132636704065d3741cdd4802bc1bee0.ctex"]
+dest_files=["res://.godot/imported/BaseState.svg-8ea19277b3c126486b88234febda4664.ctex"]
 
 [params]
 

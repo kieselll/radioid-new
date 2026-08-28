@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://r8r7vv5ewjsk"
-path="res://.godot/imported/jigsaw-piece.svg-00f91f6551254c8ac21d200e3c68860a.ctex"
+path="res://.godot/imported/jigsaw-piece.svg-651b30aa34dda025b310808f9b91ae0a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://shared/editor_icons/jigsaw-piece.svg"
-dest_files=["res://.godot/imported/jigsaw-piece.svg-00f91f6551254c8ac21d200e3c68860a.ctex"]
+dest_files=["res://.godot/imported/jigsaw-piece.svg-651b30aa34dda025b310808f9b91ae0a.ctex"]
 
 [params]
 

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cgxl7k6n1jry5"
-path="res://.godot/imported/wheelbarrow.svg-fb6d7ec139ed451e7439cacbaf1114c7.ctex"
+path="res://.godot/imported/wheelbarrow.svg-feefb3a2ad56670598a21a26c069d406.ctex"
 metadata={
 "has_editor_variant": true,
 "vram_texture": false
@@ -12,7 +12,7 @@ metadata={
 [deps]
 
 source_file="res://shared/editor_icons/wheelbarrow.svg"
-dest_files=["res://.godot/imported/wheelbarrow.svg-fb6d7ec139ed451e7439cacbaf1114c7.ctex"]
+dest_files=["res://.godot/imported/wheelbarrow.svg-feefb3a2ad56670598a21a26c069d406.ctex"]
 
 [params]
 

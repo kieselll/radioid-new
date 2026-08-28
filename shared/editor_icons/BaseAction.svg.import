@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dl1edpat38d7a"
-path="res://.godot/imported/BaseAction.svg-6780d52a3abd588adbbf1cd1544ea40b.ctex"
+path="res://.godot/imported/BaseAction.svg-ace2d1e6caf4d47a654dfff0394164be.ctex"
 metadata={
 "has_editor_variant": true,
 "vram_texture": false
@@ -12,7 +12,7 @@ metadata={
 [deps]
 
 source_file="res://shared/editor_icons/BaseAction.svg"
-dest_files=["res://.godot/imported/BaseAction.svg-6780d52a3abd588adbbf1cd1544ea40b.ctex"]
+dest_files=["res://.godot/imported/BaseAction.svg-ace2d1e6caf4d47a654dfff0394164be.ctex"]
 
 [params]
 

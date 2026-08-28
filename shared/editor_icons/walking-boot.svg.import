@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dpqe2mae3xghi"
-path="res://.godot/imported/walking-boot.svg-10230fdf236cf99c9ed4be03f2f6e174.ctex"
+path="res://.godot/imported/walking-boot.svg-96eb9ba3765471ce226da28920a29587.ctex"
 metadata={
 "has_editor_variant": true,
 "vram_texture": false
@@ -12,7 +12,7 @@ metadata={
 [deps]
 
 source_file="res://shared/editor_icons/walking-boot.svg"
-dest_files=["res://.godot/imported/walking-boot.svg-10230fdf236cf99c9ed4be03f2f6e174.ctex"]
+dest_files=["res://.godot/imported/walking-boot.svg-96eb9ba3765471ce226da28920a29587.ctex"]
 
 [params]
 

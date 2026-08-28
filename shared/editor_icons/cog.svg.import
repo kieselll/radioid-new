@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dpxeujjmd1v8s"
-path="res://.godot/imported/cog.svg-e796c925bffa8bdf931e1d719e08d3fd.ctex"
+path="res://.godot/imported/cog.svg-07434f3152977bf5a97b48b45edf3ab3.ctex"
 metadata={
 "has_editor_variant": true,
 "vram_texture": false
@@ -12,7 +12,7 @@ metadata={
 [deps]
 
 source_file="res://shared/editor_icons/cog.svg"
-dest_files=["res://.godot/imported/cog.svg-e796c925bffa8bdf931e1d719e08d3fd.ctex"]
+dest_files=["res://.godot/imported/cog.svg-07434f3152977bf5a97b48b45edf3ab3.ctex"]
 
 [params]
 

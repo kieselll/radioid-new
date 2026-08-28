@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ohg2nd2o0pjb"
-path="res://.godot/imported/door_L.png-61712e70156eb5edd8147440c929c115.ctex"
+path="res://.godot/imported/door_L.png-56a2baeabc0eef5a229ecf8a2afc6bce.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/building/assets/tilesets/door_L.png"
-dest_files=["res://.godot/imported/door_L.png-61712e70156eb5edd8147440c929c115.ctex"]
+dest_files=["res://.godot/imported/door_L.png-56a2baeabc0eef5a229ecf8a2afc6bce.ctex"]
 
 [params]
 

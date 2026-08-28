@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://s56fjf731h5l"
-path="res://.godot/imported/selection_tile.png-06531232ec032326a76dfc316c00f860.ctex"
+path="res://.godot/imported/selection_tile.png-393cbfe8779cbe03496fbe01d944cca5.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/building/assets/tilesets/selection_tile.png"
-dest_files=["res://.godot/imported/selection_tile.png-06531232ec032326a76dfc316c00f860.ctex"]
+dest_files=["res://.godot/imported/selection_tile.png-393cbfe8779cbe03496fbe01d944cca5.ctex"]
 
 [params]
 

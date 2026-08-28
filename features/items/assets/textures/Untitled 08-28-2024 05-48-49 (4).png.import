@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cfnbq4rgajl2t"
-path="res://.godot/imported/Untitled 08-28-2024 05-48-49 (4).png-d491c7ab33aa040f128fcceca470feb9.ctex"
+path="res://.godot/imported/Untitled 08-28-2024 05-48-49 (4).png-bc62c7cb23263c06a8cb4e41f2d434d1.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/items/assets/textures/Untitled 08-28-2024 05-48-49 (4).png"
-dest_files=["res://.godot/imported/Untitled 08-28-2024 05-48-49 (4).png-d491c7ab33aa040f128fcceca470feb9.ctex"]
+dest_files=["res://.godot/imported/Untitled 08-28-2024 05-48-49 (4).png-bc62c7cb23263c06a8cb4e41f2d434d1.ctex"]
 
 [params]
 

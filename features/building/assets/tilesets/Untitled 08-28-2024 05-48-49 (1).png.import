@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbnfc3sr4y5ie"
-path="res://.godot/imported/Untitled 08-28-2024 05-48-49 (1).png-5868782cb918a45991214fa937002346.ctex"
+path="res://.godot/imported/Untitled 08-28-2024 05-48-49 (1).png-9ed064a55d5e337859698e41b0526c60.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/building/assets/tilesets/Untitled 08-28-2024 05-48-49 (1).png"
-dest_files=["res://.godot/imported/Untitled 08-28-2024 05-48-49 (1).png-5868782cb918a45991214fa937002346.ctex"]
+dest_files=["res://.godot/imported/Untitled 08-28-2024 05-48-49 (1).png-9ed064a55d5e337859698e41b0526c60.ctex"]
 
 [params]
 

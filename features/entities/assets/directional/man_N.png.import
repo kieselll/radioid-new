@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c66qqq1y45j6b"
-path="res://.godot/imported/man_N.png-baf794f4e4ba1e9b52eee60e22f2e78b.ctex"
+path="res://.godot/imported/man_N.png-fa0f567843cbe9b8c03b4ba96a0bdcf4.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://features/entities/assets/directional/man_N.png"
-dest_files=["res://.godot/imported/man_N.png-baf794f4e4ba1e9b52eee60e22f2e78b.ctex"]
+dest_files=["res://.godot/imported/man_N.png-fa0f567843cbe9b8c03b4ba96a0bdcf4.ctex"]
 
 [params]
 

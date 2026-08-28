@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://di4vqog1kgusq"
-path="res://.godot/imported/button_hover.wav-2c53acb42d04ea511d80eae4036568f1.sample"
+path="res://.godot/imported/button_hover.wav-c618effac830a1af7f82dde8b4679bf1.sample"
 
 [deps]
 
 source_file="res://features/ui/assets/audio/UI/button_hover.wav"
-dest_files=["res://.godot/imported/button_hover.wav-2c53acb42d04ea511d80eae4036568f1.sample"]
+dest_files=["res://.godot/imported/button_hover.wav-c618effac830a1af7f82dde8b4679bf1.sample"]
 
 [params]
 
