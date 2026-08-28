@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BuildableData" load_steps=2 format=3 uid="uid://erimoka2j4te"]
+
+[ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = 7
+display_name = "Plastic chair"
+layer = 2
+passable = true
+build_time = 12.0
+max_health = 25
+queued_layer = 4
+metadata/_custom_type_script = "uid://cnq8sq58jipws"

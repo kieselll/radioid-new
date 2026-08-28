@@ -16,7 +16,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="idkrim"
 config/version="0.0.1 pre-alpha"
-run/main_scene="res://scenes/menu.tscn"
+run/main_scene="res://features/ui/menus/menu.tscn"
 config/auto_accept_quit=false
 config/features=PackedStringArray("4.7", "Mobile")
 boot_splash/bg_color=Color(0.0901961, 0.0901961, 0.0901961, 1)
@@ -27,14 +27,14 @@ config/icon="uid://bfygxhwvhxnb6"
 
 [autoload]
 
-GlobalSaver="*res://scripts/autoloads/Saver.gd"
-GlobalLogger="*res://scripts/autoloads/logger.gd"
-GlobalRef="*res://scripts/autoloads/ReferenceDB.gd"
-GlobalCfg="*res://scripts/autoloads/ConfigDB.gd"
-SceneTransition="*res://scenes/autoloads/scene_transition.tscn"
-BuildableDB="*res://scripts/autoloads/BuildableDB.gd"
-DebugMenu="*res://scenes/autoloads/debug_menu.tscn"
-InputHandler="*res://scripts/autoloads/input_handler.gd"
+GlobalSaver="*res://core/autoloads/saver.gd"
+GlobalLogger="*res://core/autoloads/logger.gd"
+GlobalRef="*res://core/autoloads/reference_db.gd"
+GlobalCfg="*res://core/autoloads/config_db.gd"
+SceneTransition="*res://core/scene_transition/scene_transition.tscn"
+BuildableDB="*res://features/building/buildable_db.gd"
+DebugMenu="*res://core/debug/debug_menu.tscn"
+InputHandler="*res://core/autoloads/input_handler.gd"
 GridUtils="*uid://gbt8dd5ngoow"
 DiscordRPCLoader="*uid://capasr2uu86k"
 ItemDB="*uid://cb8kwnauk62ow"
@@ -63,18 +63,17 @@ enabled=PackedStringArray("res://addons/discord-rpc-gd/plugin.cfg")
 [file_customization]
 
 folder_colors={
-"res://resources/": "orange",
-"res://scenes/": "blue",
-"res://scripts/": "green",
-"res://shaders/": "purple",
-"res://sounds/": "pink",
-"res://textures/": "red"
+"res://addons/": "gray",
+"res://content/": "orange",
+"res://core/": "green",
+"res://features/": "blue",
+"res://shared/": "purple"
 }
 
 [gui]
 
-theme/custom="res://resources/theme.tres"
-theme/custom_font="res://resources/Gilroy-Bold.ttf"
+theme/custom="res://features/ui/theme/theme.tres"
+theme/custom_font="res://features/ui/theme/Gilroy-Bold.ttf"
 
 [input]
 
@@ -143,7 +142,7 @@ pointing/emulate_mouse_from_touch=false
 [internationalization]
 
 locale/translation_remaps={}
-locale/translations=PackedStringArray("res://translations/Radioid Translation.en.translation", "res://translations/Radioid Translation.ru.translation")
+locale/translations=PackedStringArray("res://content/localization/Radioid Translation.en.translation", "res://content/localization/Radioid Translation.ru.translation")
 locale/test="ru"
 
 [rendering]

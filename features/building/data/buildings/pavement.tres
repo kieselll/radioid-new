@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BuildableData" load_steps=4 format=3 uid="uid://cetfyn1qhkjck"]
+
+[ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = 5
+display_name = "Pavement"
+layer = 1
+passable = true
+build_time = 5.0
+queued_layer = 3
+metadata/_custom_type_script = "uid://cnq8sq58jipws"

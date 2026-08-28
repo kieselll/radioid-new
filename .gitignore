@@ -5,9 +5,12 @@
 
 # Godot-specific ignores
 .import/
+*.import.tmp
 export.cfg
 export_credentials.cfg
 *.tmp
+*~RF*.TMP
+project.godot~*
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -18,3 +21,12 @@ data_*/
 mono_crash.*.json
 
 *.dll
+
+# Recovery/decompiler output and operating-system metadata
+.autoconverted/
+gdre_export.log
+desktop.ini
+
+# Runtime output
+logs/
+builds/

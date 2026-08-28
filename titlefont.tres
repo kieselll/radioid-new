@@ -1,6 +1,0 @@
-[gd_resource type="FontVariation" load_steps=2 format=4 uid="uid://cswaniwqhxsha"]
-
-[ext_resource type="FontFile" uid="uid://blb332t4r0fb3" path="res://quantum.ttf" id="1"]
-
-[resource]
-base_font = ExtResource("1")

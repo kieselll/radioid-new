@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BuildableData" load_steps=2 format=3 uid="uid://db5ynut3g4h5a"]
+
+[ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="2"]
+
+[resource]
+script = ExtResource("2")
+id = 2
+display_name = "Small Door"
+layer = 2
+passable = true
+build_time = 7.5
+max_health = 75
+queued_layer = 4
+metadata/_custom_type_script = "uid://cnq8sq58jipws"

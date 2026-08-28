@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BuildableData" load_steps=2 format=3 uid="uid://by5mbpa3bocdf"]
+
+[ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="2"]
+
+[resource]
+script = ExtResource("2")
+id = 3
+display_name = "Large Door"
+layer = 2
+passable = true
+build_time = 9.0
+max_health = 160
+queued_layer = 4
+metadata/_custom_type_script = "uid://cnq8sq58jipws"

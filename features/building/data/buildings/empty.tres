@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="BuildableData" format=3 uid="uid://b46xg2xttbc0"]
+
+[ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="1_ko1n8"]
+[ext_resource type="Script" uid="uid://5wn15k8plabq" path="res://features/building/data/buildable_texture_data.gd" id="2_2miam"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_lf5c4"]
+size = Vector2(32, 32)
+
+[sub_resource type="Resource" id="Resource_cmpru"]
+script = ExtResource("2_2miam")
+texture = SubResource("PlaceholderTexture2D_lf5c4")
+cell_size = Vector2i(32, 32)
+metadata/_custom_type_script = "uid://5wn15k8plabq"
+
+[resource]
+script = ExtResource("1_ko1n8")
+id = -1
+display_name = "empty"
+passable = true
+selection_filled = true
+texture_params = SubResource("Resource_cmpru")
+metadata/_custom_type_script = "uid://cnq8sq58jipws"

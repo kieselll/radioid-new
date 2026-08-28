@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://boo7t1tktnecb"]
+
+[ext_resource type="Script" uid="uid://c42kgupx3pfng" path="res://features/ui/menus/save_loader_ui.gd" id="1_i57nb"]
+[ext_resource type="Shader" uid="uid://dq77r7w65bws0" path="res://shared/shaders/stars.gdshader" id="2_l8jtl"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_mbqv2"]
+noise_type = 0
+frequency = 0.0766
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_uhr5j"]
+noise = SubResource("FastNoiseLite_mbqv2")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pqyoe"]
+shader = ExtResource("2_l8jtl")
+shader_parameter/resolution = Vector2(150, 90)
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_uhr5j")
+shader_parameter/density = 25.0
+shader_parameter/time_offset = 0.0
+
+[node name="SaveLoader" type="Control" unique_id=1329440840 node_paths=PackedStringArray("background")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_i57nb")
+background = NodePath("ColorRect")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=491717419]
+z_index = -1
+material = SubResource("ShaderMaterial_pqyoe")
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -27.229134
+offset_top = -25.92
+offset_right = 27.233276
+offset_bottom = 25.919983
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="back_button" type="Button" parent="." unique_id=1309220396]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = -57.0
+offset_right = 107.0
+offset_bottom = -30.0
+grow_vertical = 0
+text = "Back"
+
+[connection signal="pressed" from="back_button" to="." method="_on_back_button_pressed"]
