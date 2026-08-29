@@ -359,6 +359,7 @@ func _notification(what: int) -> void:
 #region helpers
 ## Opens a file for both reading and writing, creating it first if needed.
 func _open_file(path : String) -> FileAccess:
+	if not DirAccess.dir_exists_absolute(path.get_base_dir()): DirAccess.make_dir_absolute(path.get_base_dir())
 	return FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE_READ)
 #endregion
 
