@@ -1,5 +1,5 @@
 class_name BaseInventory
-extends Node
+extends Resource
 
 #region vars
 
@@ -10,7 +10,6 @@ var current_volume: float = 0 # In litres
 var current_mass: float = 0 # in kilograms
 var free_volume: float # In litres
 var free_mass: float # in kilograms
-var total_count: int = 0
 
 var _data_map: Dictionary[String, Dictionary] = {}
 var _items: Dictionary[int, ItemPileAlias] = {}
@@ -33,7 +32,12 @@ class ItemPileAlias:
 
 #region lifecycle
 
-func _ready() -> void:
+func _init(max_mass: float = 0.0, max_volume: float = 0.0) -> void:
+	mass_limit = max_mass
+	volume_limit = max_volume
+
+
+func initialize() -> void:
 	free_mass = mass_limit - current_mass
 	free_volume = volume_limit - current_volume
 
@@ -53,7 +57,9 @@ func add_items(item_pile: ItemManager.ItemPile) -> void:
 	current_volume += added_volume
 	free_mass -= added_mass
 	free_volume -= added_volume
-	var similar_pile_idx: int = _items.values().find_custom(func(searched_item_pile: ItemPileAlias) -> bool: return item_pile.id == searched_item_pile.pile.id)
+	var similar_pile_idx: int = _items.values().find_custom(
+		func(searched_item_pile: ItemPileAlias) -> bool: return item_pile.id == searched_item_pile.pile.id
+		)
 	if similar_pile_idx != -1:
 		var similar_pile: ItemPileAlias = _items.values()[similar_pile_idx]
 		for item_group: ItemManager.ItemGroup in item_pile.items.values():
@@ -69,13 +75,23 @@ func add_items(item_pile: ItemManager.ItemPile) -> void:
 	_index_item_pile(item_pile, variant_id)
 
 func get_items(item_id: int) -> ItemManager.ItemPile:
-	var item_pile: ItemManager.ItemPile = _items.values()[_items.values().find_custom(func(pile: ItemManager.ItemPile) -> bool: return pile.id == item_id)].pile
+	var item_pile: ItemManager.ItemPile = _items.values()[
+		_items.values().find_custom(func(pile: ItemPileAlias) -> bool: return pile.pile.id == item_id)
+		].pile
 	return item_pile
 
 func take_items(item_id: int, count: int = -1) -> Array[ItemManager.ItemGroup]:
-	var item_pile: ItemManager.ItemPile = _items.values()[_items.values().find_custom(func(pile: ItemManager.ItemPile) -> bool: return pile.id == item_id)].pile
+	var item_pile: ItemManager.ItemPile = _items.values()[
+		_items.values().find_custom(func(pile: ItemPileAlias) -> bool: return pile.pile.id == item_id)
+		].pile
+
 	if count == -1:
+		current_mass -= ItemDB.get_item(item_id).mass * item_pile.total_count
+		current_volume -= ItemDB.get_item(item_id).volume * item_pile.total_count
 		return item_pile.take_items(item_pile.total_count)
+
+	current_mass -= ItemDB.get_item(item_id).mass * count
+	current_volume -= ItemDB.get_item(item_id).volume * count
 	return item_pile.take_items(count)
 
 #endregion
