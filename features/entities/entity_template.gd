@@ -27,6 +27,8 @@ class_name EntityTemplate
 @export var uses_building_component: bool = false
 ## If [code]true[/code], [EntityManager] adds an [AbilityManager].
 @export var uses_ability_manager: bool = false
+## If [code]true[/code], [EntityManager] adds the [BaseInventory] you construct.
+@export var inventory: BaseInventory = null
 
 ## High-level actions exposed through the entity's [ActionMachine].
 @export var actions: Array[ActionMachine.action_types] = []
