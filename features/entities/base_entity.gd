@@ -45,12 +45,12 @@ var movement_component: MovementComponent
 var state_machine: StateMachine
 var ability_manager: AbilityManager
 var decision_maker: DecisionMaker
+var inventory: BaseInventory
 var _components: Array[BaseComponent] = []
 
 #endregion
 
 #region Lifecycle
-
 func initialize(template: EntityTemplate, autogenerate: bool, components: Dictionary = {}) -> void:
 	_apply_template_data(template)
 	template_id = template.id
@@ -61,6 +61,7 @@ func initialize(template: EntityTemplate, autogenerate: bool, components: Dictio
 	action_machine = components.get("action_machine")
 	ability_manager = components.get("ability_manager")
 	decision_maker = components.get("decision_maker")
+	inventory = components.get("inventory")
 	_components.clear()
 
 	if movement_component:
