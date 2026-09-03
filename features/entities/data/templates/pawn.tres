@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cahlu61clrrs" path="res://features/entities/entity_template.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://b46j0js042i4q" path="res://features/entities/pawn.tscn" id="2"]
 [ext_resource type="Script" uid="uid://ittuqmbt1lhk" path="res://features/entities/data/entity_data.gd" id="3"]
+[ext_resource type="Script" uid="uid://dhbgiroqmukc4" path="res://features/items/base_inventory.gd" id="3_0t8uf"]
 [ext_resource type="Script" uid="uid://d0jsieodb28b8" path="res://features/entities/data/personality_profile.gd" id="4"]
 [ext_resource type="Script" uid="uid://dnx4h7b2m0a3l" path="res://features/entities/data/behavior_data.gd" id="5"]
 
@@ -13,6 +14,12 @@ script = ExtResource("5")
 script = ExtResource("3")
 display_name = &"Чюпеп"
 faction = 1
+
+[sub_resource type="Resource" id="Resource_0t8uf"]
+script = ExtResource("3_0t8uf")
+volume_limit = 8.0
+mass_limit = 15.0
+metadata/_custom_type_script = "uid://dhbgiroqmukc4"
 
 [sub_resource type="Resource" id="2"]
 script = ExtResource("4")
@@ -30,5 +37,6 @@ personality_profile = SubResource("2")
 behavior_data = SubResource("3")
 uses_building_component = true
 uses_ability_manager = true
+inventory = SubResource("Resource_0t8uf")
 actions = Array[int]([0, 1])
 states = Array[int]([1, 2])
