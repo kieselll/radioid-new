@@ -195,7 +195,7 @@ class ItemPile:
 #region vars
 
 ## Maps each position within the chunk to the items stored at that position.
-var items: Dictionary[Vector2i, ItemPile] = {}
+var items: Dictionary[Vector2i, Array] = {}
 
 @onready var _renderer: ChunkRenderer = $"../ChunkRenderer"
 #endregion
@@ -214,17 +214,18 @@ func add_item(id: int, position: Vector2i, count: int, data: Dictionary[String, 
 	assert(Rect2i(0,0,16,16).has_point(position))
 	assert(count > 0)
 	if not items.has(position):
-		items[position] = ItemPile.new(position, id)
+		items[position] = [ItemPile.new(position, id)]
 		item_pile_added.emit(position)
 		_renderer.render_item_pile(id, position, count)
 	else:
 		item_pile_count_changed.emit(position)
-	items[position].add_items(ItemGroup.new(id, data, count))
+	var pile: ItemPile = items[position][0]
+	pile.add_items(ItemGroup.new(id, data, count))
 
 func get_item_pile(position: Vector2i) -> ItemPile:
 	assert(Rect2i(0,0,16,16).has_point(position))
 	assert(items.has(position))
-	return items[position]
+	return items[position][0]
 
 ## Returns every pile in this chunk that stores [param id].
 func get_item_piles_by_id(id: int) -> Array[ItemPile]:
@@ -245,8 +246,9 @@ func get_item_pile_matching(position: Vector2i, id: int) -> ItemPile:
 func take_items(position: Vector2i, count: int) -> Array[ItemGroup]:
 	var return_items: Array[ItemGroup] = []
 	if items.has(position):
-		return_items = items[position].take_items(count)
-		if items[position].total_count == 0:
+		var pile: ItemPile = items[position][0]
+		return_items = pile.take_items(count)
+		if items[position][0].total_count == 0:
 			items.erase(position)
 			item_pile_deleted.emit(position)
 	return return_items
@@ -254,13 +256,14 @@ func take_items(position: Vector2i, count: int) -> Array[ItemGroup]:
 func take_items_specific(position: Vector2i, count: int, data: Dictionary[String, Variant]) -> Array[ItemGroup]:
 	var return_items: Array[ItemGroup] = []
 	if items.has(position):
-		return_items = items[position].take_specific_items(data, count)
-		if items[position].total_count == 0:
+		var pile: ItemPile = items[position][0]
+		return_items = pile.take_specific_items(data, count)
+		if items[position][0].total_count == 0:
 			items.erase(position)
 			item_pile_deleted.emit(position)
 	return return_items
 
-func get_all_items() -> Dictionary[Vector2i, ItemPile]:
+func get_all_items() -> Dictionary[Vector2i, Array]:
 	return items
 
 ## Returns groups at [param position], optionally filtered by their variant data.
