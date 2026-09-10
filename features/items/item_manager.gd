@@ -57,7 +57,7 @@ class ItemPile:
 	## The total number of individual items stored across all groups.
 	var total_count: int = 0
 	## Maps data field names and values to the IDs of matching item variants.
-	var data_map: Dictionary[String, Dictionary]
+	var data_map: Dictionary[String, Dictionary] = {}
 	## The intra-chunk position of the item pile
 	var position: Vector2i
 
@@ -80,10 +80,10 @@ class ItemPile:
 		for param_name: String in item.data:
 			var param_value: Variant = item.data[param_name]
 			if not data_map.has(param_name): data_map[param_name] = {}
-			if not data_map[param_name].has(param_value): data_map[param_name][param_value] = [variant_id]
-			else:
-				var id_array: Array[int] = data_map[param_name][param_value]
-				id_array.append(variant_id)
+			var id_array: Array[int] = []
+			id_array.assign(data_map[param_name].get(param_value, []))
+			id_array.append(variant_id)
+			data_map[param_name][param_value] = id_array
 
 	## Deletes the indicated [param variant_id] from the [member data_map], for example, when an item group was deleted
 	func unindex_item(item: BaseItem, variant_id: int) -> void:
@@ -91,10 +91,13 @@ class ItemPile:
 			var param_value: Variant = item.data[param_name]
 			if not data_map.has(param_name): continue
 			if not data_map[param_name].has(param_value): continue
-			var id_array: Array[int] = data_map[param_name][param_value]
+			var id_array: Array[int] = []
+			id_array.assign(data_map[param_name][param_value])
 			id_array.erase(variant_id)
 			if id_array.is_empty():
 				data_map[param_name].erase(param_value)
+			else:
+				data_map[param_name][param_value] = id_array
 			if data_map[param_name].is_empty():
 				data_map.erase(param_name)
 #endregion
@@ -116,20 +119,28 @@ class ItemPile:
 					all_results.append(variant_id)
 			return all_results
 
-		var results: Array[Array] = []
 		var result: Array[int] = []
+		var first_parameter := true
 		for param_name: String in data:
 			var param_value: Variant = data[param_name]
 			var param_values_dict: Dictionary = data_map.get(param_name, {})
-			results.append(param_values_dict.get(param_value, []))
-		result = results.reduce(
-		func(accumulator: Array, current_array: Array) -> Array:
-			return accumulator.filter(func(item: int) -> bool: return current_array.has(item))
-	)
+			var matching_ids: Array[int] = []
+			matching_ids.assign(param_values_dict.get(param_value, []))
+			if first_parameter:
+				result.assign(matching_ids)
+				first_parameter = false
+			else:
+				var intersection: Array[int] = []
+				for variant_id: int in result:
+					if matching_ids.has(variant_id):
+						intersection.append(variant_id)
+				result = intersection
 		if exclusive:
-			result = result.filter(
-				func(element: int) -> bool: return items[element].data == data
-			)
+			var exact_results: Array[int] = []
+			for variant_id: int in result:
+				if items[variant_id].data == data:
+					exact_results.append(variant_id)
+			result = exact_results
 		return result
 
 	## Removes exactly [param count] items and returns them grouped by variant.
@@ -159,17 +170,26 @@ class ItemPile:
 	## Removes and returns one item whose data exactly equals [param data], or null if absent.
 	func take_specific_items(data: Dictionary[String, Variant], count: int) -> Array[ItemGroup]:
 		assert(count > 0, "The number of items to take must be greater than zero.")
-		assert(count <= total_count, "Cannot take more items than the pile contains.")
-		total_count -= count
-		var id_array: Array[int] = find_item(data)
+		var id_array: Array[int] = find_item(data, true)
+		var matching_count := 0
+		for variant_id: int in id_array:
+			matching_count += items[variant_id].count
+		assert(count <= matching_count, "Cannot take more matching items than the pile contains.")
+
+		var remaining := count
 		var return_items: Array[ItemGroup] = []
-		for item_id in id_array.size():
-			var item_group: ItemGroup = items[item_id]
-			return_items.append(item_group.take_items(count))
+		for variant_id: int in id_array:
+			var item_group: ItemGroup = items[variant_id]
+			var amount := mini(remaining, item_group.count)
+			return_items.append(item_group.take_items(amount))
+			total_count -= amount
+			remaining -= amount
 			if item_group.count == 0:
-				unindex_item(item_group, item_id)
-				items.erase(item_group)
-				vacant_ids.append(item_group)
+				unindex_item(item_group, variant_id)
+				items.erase(variant_id)
+				vacant_ids.append(variant_id)
+			if remaining == 0:
+				break
 		return return_items
 
 	## Adds an item group, merging it with an existing exact data match when possible.
@@ -194,7 +214,10 @@ class ItemPile:
 
 #region vars
 
-## Maps each position within the chunk to the items stored at that position.
+## Maps each position within the chunk to its type-specific item piles.
+##
+## Godot does not support nested typed collections, so the dictionary value is
+## declared as [Array]. Every stored array contains only [ItemPile] instances.
 var items: Dictionary[Vector2i, Array] = {}
 
 @onready var _renderer: ChunkRenderer = $"../ChunkRenderer"
@@ -202,9 +225,9 @@ var items: Dictionary[Vector2i, Array] = {}
 
 #region signals
 
-signal item_pile_added(position: Vector2i)
-signal item_pile_count_changed(position: Vector2i)
-signal item_pile_deleted(position: Vector2i)
+signal item_pile_added(position: Vector2i, id: int)
+signal item_pile_count_changed(position: Vector2i, id: int)
+signal item_pile_deleted(position: Vector2i, id: int)
 
 #endregion
 
@@ -213,54 +236,78 @@ signal item_pile_deleted(position: Vector2i)
 func add_item(id: int, position: Vector2i, count: int, data: Dictionary[String, Variant]) -> void:
 	assert(Rect2i(0,0,16,16).has_point(position))
 	assert(count > 0)
-	if not items.has(position):
-		items[position] = [ItemPile.new(position, id)]
-		item_pile_added.emit(position)
+	var piles := get_item_piles(position)
+	var pile := _find_pile(piles, id)
+	if pile == null:
+		pile = ItemPile.new(position, id)
+		piles.append(pile)
+		items[position] = piles
+		item_pile_added.emit(position, id)
 		_renderer.render_item_pile(id, position, count)
 	else:
-		item_pile_count_changed.emit(position)
-	var pile: ItemPile = items[position][0]
+		item_pile_count_changed.emit(position, id)
 	pile.add_items(ItemGroup.new(id, data, count))
 
+
+## Compatibility alias for callers that explicitly place a drop on an occupied
+## tile. [method add_item] now supports that behavior directly.
+func add_item_forced(id: int, position: Vector2i, count: int, data: Dictionary[String, Variant]) -> void:
+	add_item(id, position, count, data)
+
+
+## Returns the first pile at [param position]. Prefer [method get_item_piles] or
+## [method get_item_pile_matching] when a tile can contain multiple item types.
 func get_item_pile(position: Vector2i) -> ItemPile:
 	assert(Rect2i(0,0,16,16).has_point(position))
 	assert(items.has(position))
 	return items[position][0]
 
+
+## Returns all type-specific piles at [param position].
+func get_item_piles(position: Vector2i) -> Array[ItemPile]:
+	assert(Rect2i(0,0,16,16).has_point(position))
+	var result: Array[ItemPile] = []
+	result.assign(items.get(position, []))
+	return result
+
+
 ## Returns every pile in this chunk that stores [param id].
 func get_item_piles_by_id(id: int) -> Array[ItemPile]:
 	var result: Array[ItemPile] = []
-	for pile: ItemPile in items.values():
-		if pile.id == id:
-			result.append(pile)
+	for stored_piles: Array in items.values():
+		for pile: ItemPile in stored_piles:
+			if pile.id == id:
+				result.append(pile)
 	return result
 
 ## Returns the pile at [param position] when it stores [param id], or null otherwise.
 func get_item_pile_matching(position: Vector2i, id: int) -> ItemPile:
 	assert(Rect2i(0,0,16,16).has_point(position))
-	var pile: ItemPile = items.get(position)
-	if pile != null and pile.id == id:
-		return pile
-	return null
+	return _find_pile(get_item_piles(position), id)
 
-func take_items(position: Vector2i, count: int) -> Array[ItemGroup]:
+
+func take_items(position: Vector2i, id: int, count: int) -> Array[ItemGroup]:
 	var return_items: Array[ItemGroup] = []
-	if items.has(position):
-		var pile: ItemPile = items[position][0]
-		return_items = pile.take_items(count)
-		if items[position][0].total_count == 0:
-			items.erase(position)
-			item_pile_deleted.emit(position)
+	var pile := get_item_pile_matching(position, id)
+	if pile == null:
+		return return_items
+	return_items = pile.take_items(count)
+	_remove_empty_pile(position, pile)
 	return return_items
 
-func take_items_specific(position: Vector2i, count: int, data: Dictionary[String, Variant]) -> Array[ItemGroup]:
+
+func take_items_specific(
+	position: Vector2i,
+	id: int,
+	count: int,
+	data: Dictionary[String, Variant]
+) -> Array[ItemGroup]:
 	var return_items: Array[ItemGroup] = []
-	if items.has(position):
-		var pile: ItemPile = items[position][0]
-		return_items = pile.take_specific_items(data, count)
-		if items[position][0].total_count == 0:
-			items.erase(position)
-			item_pile_deleted.emit(position)
+	var pile := get_item_pile_matching(position, id)
+	if pile == null:
+		return return_items
+	return_items = pile.take_specific_items(data, count)
+	_remove_empty_pile(position, pile)
 	return return_items
 
 func get_all_items() -> Dictionary[Vector2i, Array]:
@@ -275,11 +322,9 @@ func get_items_by_position(
 ) -> Array[ItemGroup]:
 	assert(Rect2i(0,0,16,16).has_point(position))
 	var result: Array[ItemGroup] = []
-	var pile: ItemPile = items.get(position)
-	if pile == null:
-		return result
-	for variant_id: int in pile.find_item(data, exclusive):
-		result.append(pile.items[variant_id])
+	for pile: ItemPile in get_item_piles(position):
+		for variant_id: int in pile.find_item(data, exclusive):
+			result.append(pile.items[variant_id])
 	return result
 
 ## Returns groups with [param id], optionally filtered by their variant data.
@@ -290,11 +335,37 @@ func get_items_by_id(
 	exclusive: bool = false
 ) -> Array[ItemGroup]:
 	var result: Array[ItemGroup] = []
-	for pile: ItemPile in items.values():
-		if not pile.id == id: continue
-		var ids: Array[int] = pile.find_item(data, exclusive)
-		for _id: int in ids:
-			result.append(pile.items[_id])
+	for stored_piles: Array in items.values():
+		for pile: ItemPile in stored_piles:
+			if pile.id != id:
+				continue
+			var ids: Array[int] = pile.find_item(data, exclusive)
+			for variant_id: int in ids:
+				result.append(pile.items[variant_id])
 	return result
+
+#endregion
+
+#region private helpers
+
+func _find_pile(piles: Array[ItemPile], id: int) -> ItemPile:
+	for pile: ItemPile in piles:
+		if pile.id == id:
+			return pile
+	return null
+
+
+func _remove_empty_pile(position: Vector2i, pile: ItemPile) -> void:
+	if pile.total_count > 0:
+		item_pile_count_changed.emit(position, pile.id)
+		return
+	var piles := get_item_piles(position)
+	piles.erase(pile)
+	if piles.is_empty():
+		items.erase(position)
+	else:
+		items[position] = piles
+	_renderer.erase_item_pile(pile.id, position)
+	item_pile_deleted.emit(position, pile.id)
 
 #endregion
