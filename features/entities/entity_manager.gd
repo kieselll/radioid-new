@@ -126,6 +126,11 @@ func _build_components(template: EntityTemplate) -> Dictionary:
 	if template.behavior_data and not template.actions.is_empty():
 		components["decision_maker"] = DecisionMaker.new()
 
+	if template.inventory:
+		var inventory := template.inventory.duplicate(true) as BaseInventory
+		inventory.initialize()
+		components["inventory"] = inventory
+
 	return components
 
 func serialize_entity(entity_id : int) -> Dictionary:
