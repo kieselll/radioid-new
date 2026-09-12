@@ -131,6 +131,18 @@ func render_item_pile(
 		Color(0, 0, 1, 1)
 	)
 
+
+## Hides the visual for one item type at [param coords]. Other item types at
+## the same position remain untouched because each type owns a multimesh.
+func erase_item_pile(id: int, coords: Vector2i) -> void:
+	if not _item_multimesh_instances.has(id):
+		return
+	var instance: MultiMeshInstance2D = _item_multimesh_instances[id]
+	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
+	instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2.ZERO))
+	instance.multimesh.set_instance_custom_data(index, Color(0.0, 0.0, 0.0, 0.0))
+
+
 # CRITICAL REPLACE THAT WITH A TEXTURE ID ONCE ITEM ATLASES ARE IMPLEMENTED
 func _create_item_multimesh(id: int) -> void:
 	assert(base_material != null, "ChunkRenderer requires a base material.")
