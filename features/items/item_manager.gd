@@ -233,9 +233,9 @@ signal item_pile_deleted(position: Vector2i, id: int)
 
 #region API
 
-func add_item(id: int, position: Vector2i, count: int, data: Dictionary[String, Variant]) -> void:
-	assert(Rect2i(0,0,16,16).has_point(position))
-	assert(count > 0)
+func add_item(id: int, position: Vector2i, count: int, data: Dictionary[String, Variant], forced: bool = false) -> void:
+	assert(Rect2i(0,0,16,16).has_point(position), "Coordinates out of chunk bounds")
+	assert(count > 0, "Cannod add negatively sized or empty pile")
 	var piles := get_item_piles(position)
 	var pile := _find_pile(piles, id)
 	if pile == null:
@@ -245,14 +245,9 @@ func add_item(id: int, position: Vector2i, count: int, data: Dictionary[String, 
 		item_pile_added.emit(position, id)
 		_renderer.render_item_pile(id, position, count)
 	else:
+		assert(id == pile.id or forced, "Cannot add different ID items in 1 pile unless forced!")
 		item_pile_count_changed.emit(position, id)
 	pile.add_items(ItemGroup.new(id, data, count))
-
-
-## Compatibility alias for callers that explicitly place a drop on an occupied
-## tile. [method add_item] now supports that behavior directly.
-func add_item_forced(id: int, position: Vector2i, count: int, data: Dictionary[String, Variant]) -> void:
-	add_item(id, position, count, data)
 
 
 ## Returns the first pile at [param position]. Prefer [method get_item_piles] or
