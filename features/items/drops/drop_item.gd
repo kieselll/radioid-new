@@ -1,6 +1,8 @@
 extends Resource
 class_name DropItem
 
+
+@export_range(0.0, 100.0, 0.1) var weight: float
 ## id == -1 is an alias for empty entry, as a backup
 @export_subgroup("Non-Empty")
 @export_custom(PROPERTY_HINT_GROUP_ENABLE, "") var non_empty: bool
