@@ -235,7 +235,7 @@ signal item_pile_deleted(position: Vector2i, id: int)
 
 func add_item(id: int, position: Vector2i, count: int, data: Dictionary[String, Variant], forced: bool = false) -> void:
 	assert(Rect2i(0,0,16,16).has_point(position), "Coordinates out of chunk bounds")
-	assert(count > 0, "Cannod add negatively sized or empty pile")
+	assert(count > 0, "Cannot add negatively sized or empty pile")
 	var piles := get_item_piles(position)
 	var pile := _find_pile(piles, id)
 	if pile == null:
