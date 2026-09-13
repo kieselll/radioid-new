@@ -26,7 +26,7 @@ class IntDataItem:
 	extends DataItem
 
 	func get_random_value() -> int:
-		return floor(curve.sample(randf()))
+		return floori(curve.sample(randf()))
 
 class FloatDataItem:
 	extends DataItem
@@ -39,7 +39,7 @@ class ValueDataItem:
 	var value_map: Dictionary[int, Variant]
 
 	func get_random_value() -> Variant:
-		return value_map[floor(curve.sample(randf()))]
+		return value_map.get(floori(curve.sample(randf())), value_map[0])
 
 #endregion
 
@@ -48,7 +48,7 @@ class ValueDataItem:
 func get_items() -> Array[ItemManager.BaseItem]:
 	if id == -1 or not non_empty:
 		return []
-	var amount: int = floor(amount_curve.sample(randf()))
+	var amount: int = floori(amount_curve.sample(randf()))
 	var result: Array[ItemManager.BaseItem] = []
 	for item_idx in amount:
 		var local_data: Dictionary[String, Variant] = {}
