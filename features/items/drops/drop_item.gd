@@ -18,7 +18,7 @@ class_name DropItem
 	## For example, a basic linear curve makes the chance of all values equal.[br]
 	## An exponential curve makes higher values rarer. [br][br]
 	## For a randomly selected x [float] value between 0 and 1, the [Curve] maps it to a y value, which is the result.
-	var curve: Curve
+	@export var curve: Curve
 
 	@abstract func get_random_value() -> Variant
 
