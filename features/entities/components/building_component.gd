@@ -33,10 +33,10 @@ func build(coords: Vector4i, id: int, time: float = 5) -> void:
 	var chunk: Chunk = GlobalRef.get_chunk(Vector2i(coords.x, coords.y))
 	@warning_ignore("unsafe_method_access")
 	_parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent)).fill_array(
-		[coords], _data, false
+		[coords] as Array[Vector4i], _data, false
 	)
 	@warning_ignore("unsafe_method_access")
-	_parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent)).erase_tiles([coords], _data.queued_layer)
+	_parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent)).erase_tiles([coords] as Array[Vector4i], _data.queued_layer)
 	# Both operations above are queued on Chunk and applied during its next
 	# _process(). Do not finish the action until tile data and A* solidity agree.
 	await chunk.cells_updated
