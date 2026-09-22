@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bl3bxb2n1wk4q" path="res://features/building/data/buildable_flammable_data.gd" id="1"]
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="2"]
 [ext_resource type="Script" uid="uid://5wn15k8plabq" path="res://features/building/data/buildable_texture_data.gd" id="3_7flye"]
+[ext_resource type="Texture2D" uid="uid://crsyyhl4u220q" path="res://features/items/assets/textures/Selection (1).png" id="3_tcufo"]
 [ext_resource type="Texture2D" uid="uid://drf0leohlmueu" path="res://features/building/assets/tilesets/walls.png" id="4_yhoc2"]
 
 [sub_resource type="Resource" id="Resource_ay3bn"]
@@ -23,6 +24,7 @@ metadata/_custom_type_script = "uid://bl3bxb2n1wk4q"
 script = ExtResource("3_7flye")
 can_autotile = true
 texture = ExtResource("4_yhoc2")
+icon = ExtResource("3_tcufo")
 cell_size = Vector2i(32, 32)
 metadata/_custom_type_script = "uid://5wn15k8plabq"
 
@@ -30,6 +32,7 @@ metadata/_custom_type_script = "uid://5wn15k8plabq"
 script = ExtResource("2")
 id = 1
 display_name = "Wood wall"
+category = "walls"
 layer = 2
 build_time = 6.0
 max_health = 100
