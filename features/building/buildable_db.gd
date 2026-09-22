@@ -8,7 +8,7 @@ class_name BuildableDataBase
 ## stores each resource by its numeric ID for fast lookup by gameplay systems.
 
 ## Loaded buildables keyed by [member BuildableData.id].
-var objects: Dictionary = {}
+var objects: Dictionary[int, BuildableData] = {}
 
 
 ## Loads every buildable resource from the buildings directory into [member objects].
