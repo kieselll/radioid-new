@@ -17,9 +17,8 @@
 [ext_resource type="Theme" uid="uid://qb0c3yxrvyka" path="res://features/ui/theme/theme.tres" id="15_q8j3a"]
 [ext_resource type="Script" uid="uid://ctlxyodi6cpng" path="res://features/items/item_registry.gd" id="16_8ool0"]
 [ext_resource type="FontFile" uid="uid://b04bqkfo63yn" path="res://features/ui/theme/Gilroy-Bold.ttf" id="16_ms3bu"]
-[ext_resource type="Texture2D" uid="uid://crsyyhl4u220q" path="res://features/items/assets/textures/Selection (1).png" id="17_7ixpq"]
-[ext_resource type="Texture2D" uid="uid://2u77gluj2s8h" path="res://features/items/assets/textures/Selection (16).png" id="18_bk1p3"]
 [ext_resource type="Script" uid="uid://b7majc4rbi85c" path="res://features/ui/hud/building_list_manager.gd" id="18_iyb3l"]
+[ext_resource type="Texture2D" uid="uid://k2rga0ka0j8s" path="res://features/ui/assets/textures/Untitled 08-08-2024 07-18-10.png" id="18_jrys8"]
 [ext_resource type="Texture2D" uid="uid://cbljqpu4m0rav" path="res://features/ui/assets/textures/Untitled 08-09-2024 09-33-50.png" id="19_n8ral"]
 [ext_resource type="Texture2D" uid="uid://y30ymj0lbu2e" path="res://features/items/assets/textures/Selection (2).png" id="20_yd4ix"]
 [ext_resource type="Texture2D" uid="uid://p3gx05xw54ah" path="res://features/items/assets/textures/Selection (3).png" id="21_66xif"]
@@ -386,12 +385,21 @@ button_group = SubResource("ButtonGroup_1t032")
 text = "plants"
 metadata/linked_list = NodePath("../../list_rect/plants_selection_list")
 
-[node name="list_rect" type="ColorRect" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer" unique_id=1809696129]
+[node name="list_rect" type="ColorRect" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer" unique_id=1809696129 node_paths=PackedStringArray("list_map")]
 custom_minimum_size = Vector2(350, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 color = Color(1, 1, 1, 0)
 script = ExtResource("18_iyb3l")
+list_map = {
+"floors": NodePath("floor_selection_list"),
+"furniture": NodePath("furniture_selection_list"),
+"plants": NodePath("plants_selection_list"),
+"power": NodePath("power_selection_list"),
+"walls": NodePath("wall_selection_list"),
+"workbenches": NodePath("workbench_selection_list")
+}
+fallback_texture = ExtResource("18_jrys8")
 
 [node name="wall_selection_list" type="ItemList" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect" unique_id=440478854]
 texture_filter = 1
@@ -406,19 +414,10 @@ theme = ExtResource("15_q8j3a")
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nmap")
 allow_search = false
 max_text_lines = 2
-item_count = 4
 max_columns = 5
 same_column_width = true
 icon_mode = 0
 fixed_icon_size = Vector2i(32, 32)
-item_0/text = "Wall"
-item_0/icon = ExtResource("17_7ixpq")
-item_1/text = "Small door"
-item_1/icon = ExtResource("18_bk1p3")
-item_2/text = "Large door"
-item_2/icon = ExtResource("18_bk1p3")
-item_3/text = "Remove"
-item_3/icon = ExtResource("19_n8ral")
 
 [node name="floor_selection_list" type="ItemList" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect" unique_id=1611075687]
 visible = false
