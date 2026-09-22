@@ -11,6 +11,8 @@ extends Resource
 @export var can_autotile: bool
 ## Source texture or atlas used to render the buildable.
 @export var texture: Texture2D
+## Texture displayed in UIs and HUDs
+@export var icon: Texture2D
 @export_category("Terrain specific")
 ## Size of a single atlas cell in pixels.
 @export var cell_size: Vector2i
@@ -79,7 +81,6 @@ enum tile_neigbors {
 	0b111111010: Vector2i(10, 3),
 	0b110110000: Vector2i(11, 3)
 }
-
 
 ## Returns a normalized UV rect for the atlas cell matching [param neighbors_mask].
 ##
