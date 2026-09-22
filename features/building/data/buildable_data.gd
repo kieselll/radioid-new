@@ -20,6 +20,9 @@ extends Resource
 @export var id: int
 ## Human-readable name shown in UI and other player-facing contexts.
 @export var display_name: String
+## UI category the object is grouped in. EX: Walls, Floors, Plants...
+## If not set or invalid, the item will not be displayed in the UI
+@export var category: String
 ## Primary logical layer this object occupies in the chunk cell arrays.
 @export var layer: GlobalRef.tilemap_layers_enum
 ## If [code]true[/code], the object does not block pathfinding on its tile.
