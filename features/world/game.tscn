@@ -10,7 +10,7 @@
 [ext_resource type="Script" uid="uid://bn4gl6qp36s43" path="res://features/world/pathfinding/astargrid_2d.gd" id="10_rm0al"]
 [ext_resource type="Script" uid="uid://bjymq7o5gkojm" path="res://features/jobs/job_manager.gd" id="12_pf7vy"]
 [ext_resource type="Script" uid="uid://or0wot3jhfux" path="res://features/ui/hud/ui_manager.gd" id="13_o8ni1"]
-[ext_resource type="Script" uid="uid://c3cvur4cfyn06" path="res://features/ui/hud/control.gd" id="14_3hbvx"]
+[ext_resource type="Script" uid="uid://c3cvur4cfyn06" path="res://features/ui/hud/clock.gd" id="14_3hbvx"]
 [ext_resource type="Script" uid="uid://ccqmsxdcsc1b6" path="res://features/world/chunks/systems/chunk_manager.gd" id="14_pr1ej"]
 [ext_resource type="PackedScene" uid="uid://bbxxq8l1c7xsc" path="res://features/world/chunks/chunk.tscn" id="15_05nbr"]
 [ext_resource type="Script" uid="uid://dejto6cqy4y8l" path="res://features/entities/entity_manager.gd" id="15_pr1ej"]
@@ -19,6 +19,7 @@
 [ext_resource type="FontFile" uid="uid://b04bqkfo63yn" path="res://features/ui/theme/Gilroy-Bold.ttf" id="16_ms3bu"]
 [ext_resource type="Texture2D" uid="uid://crsyyhl4u220q" path="res://features/items/assets/textures/Selection (1).png" id="17_7ixpq"]
 [ext_resource type="Texture2D" uid="uid://2u77gluj2s8h" path="res://features/items/assets/textures/Selection (16).png" id="18_bk1p3"]
+[ext_resource type="Script" uid="uid://b7majc4rbi85c" path="res://features/ui/hud/building_list_manager.gd" id="18_iyb3l"]
 [ext_resource type="Texture2D" uid="uid://cbljqpu4m0rav" path="res://features/ui/assets/textures/Untitled 08-09-2024 09-33-50.png" id="19_n8ral"]
 [ext_resource type="Texture2D" uid="uid://y30ymj0lbu2e" path="res://features/items/assets/textures/Selection (2).png" id="20_yd4ix"]
 [ext_resource type="Texture2D" uid="uid://p3gx05xw54ah" path="res://features/items/assets/textures/Selection (3).png" id="21_66xif"]
@@ -296,7 +297,6 @@ grow_vertical = 0
 size_flags_horizontal = 0
 size_flags_vertical = 8
 mouse_filter = 1
-script = ExtResource("14_3hbvx")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="Control" unique_id=220324807]
 
@@ -391,6 +391,7 @@ custom_minimum_size = Vector2(350, 200)
 layout_mode = 2
 size_flags_horizontal = 3
 color = Color(1, 1, 1, 0)
+script = ExtResource("18_iyb3l")
 
 [node name="wall_selection_list" type="ItemList" parent="Control/CanvasLayer/selection_buttons_rect/HBoxContainer/list_rect" unique_id=440478854]
 texture_filter = 1
@@ -584,6 +585,7 @@ offset_top = 5.0
 offset_right = 66.0
 offset_bottom = 81.0
 grow_horizontal = 2
+script = ExtResource("14_3hbvx")
 
 [node name="Sprite2D" type="Sprite2D" parent="Control/CanvasLayer/clock" unique_id=2133646827]
 position = Vector2(38, 38)
