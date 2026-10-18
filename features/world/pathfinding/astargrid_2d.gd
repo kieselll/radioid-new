@@ -165,6 +165,9 @@ func _on_chunk_manager_chunk_generated(coords: Vector2i) -> void:
 				GlobalRef.tilemap_layers_enum.terrain,
 				GlobalRef.tilemap_layers_enum.walls
 			]:
+				if not BuildableDB.get_tile(current_chunk.get_cell(layer, Vector2i(x, y))):
+					# We just pass unregistered tiles ¯\_(ツ)_/¯
+					break
 				if not BuildableDB.get_tile(current_chunk.get_cell(layer, Vector2i(x, y))).passable:
 					result = false
 					# If at least one tile isn't walkable, we automatically mark it as solid
