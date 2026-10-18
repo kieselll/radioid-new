@@ -4,7 +4,12 @@ extends ColorRect
 @export var fallback_texture: Texture2D
 
 func _ready() -> void:
-	for id: int in BuildableDB.objects:
+	for list: ItemList in list_map.values():
+		list.clear()
+
+	var ids: Array = BuildableDB.objects.keys()
+	ids.sort()
+	for id: int in ids:
 		var data: BuildableData = BuildableDB.get_tile(id)
 		if list_map.has(data.category):
 			var list: ItemList = list_map[data.category]
@@ -13,4 +18,5 @@ func _ready() -> void:
 				texture = fallback_texture
 			else:
 				texture = data.texture_params.icon
-			list.add_item(data.display_name, texture)
+			var item_index := list.add_item(data.display_name, texture)
+			list.set_item_metadata(item_index, data.id)

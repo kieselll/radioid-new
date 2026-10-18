@@ -5,11 +5,7 @@ class_name UIManager
 @export var buttons: Array[BaseButton]
 @export var lists: Array[ItemList]
 @export var rects: Array[Control]
-var list_id_map: Dictionary = {
-	&"wall_selection_list": [1, 2, 3, -1],
-	&"floor_selection_list": [5, -2],
-	&"furniture_selection_list": [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-}
+var list_by_name: Dictionary[StringName, ItemList] = {}
 
 var button_hover: bool = false
 
@@ -20,6 +16,7 @@ func _ready() -> void:
 	for button in buttons:
 		button.toggled.connect(_on_listen_button_toggled.bind(button))
 	for list in lists:
+		list_by_name[list.name] = list
 		list.item_selected.connect(_on_list_item_selected.bind(StringName(list.name)))
 	for rect in rects:
 		rect.mouse_entered.connect(_on_ui_entered_exited.bind(true))
@@ -37,8 +34,13 @@ func _on_listen_button_toggled(toggled_on: bool, button: BaseButton) -> void:
 		)
 
 
-func _on_list_item_selected(item_id: int, list_name: StringName) -> void:
-	building_selected.emit(list_id_map[list_name][item_id])
+func _on_list_item_selected(item_index: int, list_name: StringName) -> void:
+	var list := list_by_name[list_name]
+	var buildable_id: Variant = list.get_item_metadata(item_index)
+	if buildable_id is not int:
+		push_warning("Selected build menu item has no buildable ID: %s" % list_name)
+		return
+	building_selected.emit(buildable_id)
 
 
 func _on_ui_entered_exited(entered: bool) -> void:
