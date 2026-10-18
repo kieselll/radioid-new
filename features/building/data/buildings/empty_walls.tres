@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="BuildableData" format=3 uid="uid://b46xg2xttbc0"]
+
+[ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="1_ujr38"]
+[ext_resource type="Texture2D" uid="uid://cbljqpu4m0rav" path="res://features/ui/assets/textures/Untitled 08-09-2024 09-33-50.png" id="2_5gwqf"]
+[ext_resource type="Script" uid="uid://5wn15k8plabq" path="res://features/building/data/buildable_texture_data.gd" id="3_4qm44"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_lf5c4"]
+size = Vector2(32, 32)
+
+[sub_resource type="Resource" id="Resource_cmpru"]
+script = ExtResource("3_4qm44")
+texture = SubResource("PlaceholderTexture2D_lf5c4")
+icon = ExtResource("2_5gwqf")
+cell_size = Vector2i(32, 32)
+metadata/_custom_type_script = "uid://5wn15k8plabq"
+
+[resource]
+script = ExtResource("1_ujr38")
+id = -2
+display_name = "Demolish"
+category = "walls"
+layer = 2
+passable = true
+selection_filled = true
+texture_params = SubResource("Resource_cmpru")
+metadata/_custom_type_script = "uid://cnq8sq58jipws"

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuildableData" load_steps=5 format=3 uid="uid://cgouqk3erk1fs"]
+[gd_resource type="Resource" script_class="BuildableData" format=3 uid="uid://cgouqk3erk1fs"]
 
 [ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="1"]
 [ext_resource type="Script" uid="uid://5wn15k8plabq" path="res://features/building/data/buildable_texture_data.gd" id="2_uh4iq"]
@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="Resource_6dp28"]
 script = ExtResource("2_uh4iq")
 texture = ExtResource("3_2wnse")
+icon = ExtResource("3_2wnse")
 cell_size = Vector2i(32, 32)
 metadata/_custom_type_script = "uid://5wn15k8plabq"
 

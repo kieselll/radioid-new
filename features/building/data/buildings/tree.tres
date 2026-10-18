@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="BuildableData" format=3 uid="uid://dh30rwpa7h041"]
+
+[ext_resource type="Script" uid="uid://cnq8sq58jipws" path="res://features/building/data/buildable_data.gd" id="1_awy4a"]
+[ext_resource type="Script" uid="uid://dbq7a73uonwmr" path="res://features/items/drops/item_pool.gd" id="1_rxnul"]
+[ext_resource type="Script" uid="uid://1damifq2rxfh" path="res://features/items/drops/drop_item.gd" id="2_k5p7w"]
+[ext_resource type="Script" uid="uid://dychwsqquxkvs" path="res://features/items/drops/drop_data.gd" id="3_xnm2g"]
+
+[sub_resource type="Curve" id="Curve_k5p7w"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="GDScript" id="GDScript_rxnul"]
+
+[sub_resource type="Resource" id="Resource_rxnul"]
+script = ExtResource("2_k5p7w")
+weight = 1.0
+non_empty = true
+amount_curve = SubResource("Curve_k5p7w")
+metadata/_custom_type_script = "uid://1damifq2rxfh"
+
+[sub_resource type="Resource" id="Resource_0yw56"]
+script = ExtResource("1_rxnul")
+items = Array[ExtResource("2_k5p7w")]([SubResource("Resource_rxnul")])
+rolls = 1
+metadata/_custom_type_script = "uid://dbq7a73uonwmr"
+
+[sub_resource type="Resource" id="Resource_iw7xt"]
+script = ExtResource("3_xnm2g")
+pools = Array[ExtResource("1_rxnul")]([SubResource("Resource_0yw56")])
+metadata/_custom_type_script = "uid://dychwsqquxkvs"
+
+[resource]
+script = ExtResource("1_awy4a")
+id = 8
+display_name = "tree"
+category = "walls"
+layer = 2
+queued_layer = 4
+valid_terrain_id = Array[int]([-1])
+valid_walls_id = Array[int]([-1])
+drop_params = SubResource("Resource_iw7xt")
+metadata/_custom_type_script = "uid://cnq8sq58jipws"
