@@ -69,6 +69,10 @@ extends Resource
 @export var interaction_params: BuildableInteractionData
 ## Texture and autotiling settings for rendering this buildable.
 @export var texture_params: BuildableTextureData
+## Inventory settings for storing items
+@export var inventory_params: BaseInventory
+## Data to store drop tables
+@export var drop_params: DropData
 
 
 ## Returns whether external systems are allowed to ignite this object.
