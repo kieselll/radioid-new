@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://dbq7a73uonwmr" path="res://features/items/drops/item_pool.gd" id="1_rxnul"]
 [ext_resource type="Script" uid="uid://1damifq2rxfh" path="res://features/items/drops/drop_item.gd" id="2_k5p7w"]
 [ext_resource type="Script" uid="uid://dychwsqquxkvs" path="res://features/items/drops/drop_data.gd" id="3_xnm2g"]
+[ext_resource type="Script" uid="uid://5wn15k8plabq" path="res://features/building/data/buildable_texture_data.gd" id="5_k5p7w"]
 
 [sub_resource type="Curve" id="Curve_k5p7w"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
@@ -29,6 +30,19 @@ script = ExtResource("3_xnm2g")
 pools = Array[ExtResource("1_rxnul")]([SubResource("Resource_0yw56")])
 metadata/_custom_type_script = "uid://dychwsqquxkvs"
 
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xnm2g"]
+size = Vector2(32, 32)
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_khdjy"]
+size = Vector2(32, 32)
+
+[sub_resource type="Resource" id="Resource_uhqls"]
+script = ExtResource("5_k5p7w")
+texture = SubResource("PlaceholderTexture2D_khdjy")
+icon = SubResource("PlaceholderTexture2D_xnm2g")
+cell_size = Vector2i(32, 32)
+metadata/_custom_type_script = "uid://5wn15k8plabq"
+
 [resource]
 script = ExtResource("1_awy4a")
 id = 8
@@ -38,5 +52,6 @@ layer = 2
 queued_layer = 4
 valid_terrain_id = Array[int]([-1])
 valid_walls_id = Array[int]([-1])
+texture_params = SubResource("Resource_uhqls")
 drop_params = SubResource("Resource_iw7xt")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"
