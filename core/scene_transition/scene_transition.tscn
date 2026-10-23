@@ -417,6 +417,7 @@ outline_size = 3
 outline_color = Color(0.22162035, 0.17012078, 0, 1)
 
 [node name="SceneTransition" type="CanvasLayer" unique_id=1466670245]
+process_mode = 3
 script = ExtResource("1_rujfs")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1379160989]
