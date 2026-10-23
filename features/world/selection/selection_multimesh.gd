@@ -1,23 +1,7 @@
 extends Node
 class_name SelectionMultimesh
 
-#				 /$$$$$$$              /$$                           /$$
-#				| $$__  $$            |__/                          | $$
-#				| $$  \ $$   /$$$$$$   /$$  /$$    /$$   /$$$$$$   /$$$$$$     /$$$$$$
-#				| $$$$$$$/  /$$__  $$ | $$ |  $$  /$$/  |____  $$ |_  $$_/    /$$__  $$
-#				| $$____/  | $$  \__/ | $$  \  $$/$$/    /$$$$$$$   | $$     | $$$$$$$$
-#				| $$       | $$       | $$   \  $$$/    /$$__  $$   | $$ /$$ | $$_____/
-#				| $$       | $$       | $$    \  $/    |  $$$$$$$   |  $$$$/ |  $$$$$$$
-#				|__/       |__/       |__/     \_/      \_______/    \___/    \_______/
-#
-#
-#
-#				 /$$    /$$   /$$$$$$    /$$$$$$    /$$$$$$$
-#				|  $$  /$$/  |____  $$  /$$__  $$  /$$_____/
-#				 \  $$/$$/    /$$$$$$$ | $$  \__/ |  $$$$$$
-#				  \  $$$/    /$$__  $$ | $$        \____  $$
-#				   \  $/    |  $$$$$$$ | $$        /$$$$$$$/
-#				    \_/      \_______/ |__/       |_______/
+#region vars
 
 @onready var valid_multimesh_inst: MultiMeshInstance2D = $valid_selection_multimesh
 @onready var invalid_multimesh_inst: MultiMeshInstance2D = $invalid_selection_multimesh
@@ -25,32 +9,14 @@ class_name SelectionMultimesh
 @onready var valid_multimesh: MultiMesh = valid_multimesh_inst.multimesh
 @onready var invalid_multimesh: MultiMesh = invalid_multimesh_inst.multimesh
 
-#				 /$$$$$$$              /$$        /$$  /$$
-#				| $$__  $$            | $$       | $$ |__/
-#				| $$  \ $$  /$$   /$$ | $$$$$$$  | $$  /$$   /$$$$$$$
-#				| $$$$$$$/ | $$  | $$ | $$__  $$ | $$ | $$  /$$_____/
-#				| $$____/  | $$  | $$ | $$  \ $$ | $$ | $$ | $$
-#				| $$       | $$  | $$ | $$  | $$ | $$ | $$ | $$
-#				| $$       |  $$$$$$/ | $$$$$$$/ | $$ | $$ |  $$$$$$$
-#				|__/        \______/  |_______/  |__/ |__/  \_______/
-#
-#
-#
-#				  /$$$$$$   /$$$$$$$   /$$$$$$
-#				 /$$__  $$ | $$__  $$ |_  $$_/
-#				| $$  \ $$ | $$  \ $$   | $$
-#				| $$$$$$$$ | $$$$$$$/   | $$
-#				| $$__  $$ | $$____/    | $$
-#				| $$  | $$ | $$         | $$
-#				| $$  | $$ | $$        /$$$$$$
-#				|__/  |__/ |__/       |______/
-
-
 ## Assigns texture used for both valid & invalid previews.
 func set_multimesh_texture(texture: Texture2D) -> void:
 	valid_multimesh_inst.texture = texture
 	invalid_multimesh_inst.texture = texture
 
+#endregion
+
+#region API
 
 ## Creates both valid and invalid multimesh tile instances.
 ## rects = {valid = {coord : rect, ...}, invalid = {coord : rect, ...}}
@@ -93,3 +59,5 @@ func create_mesh_instances(rects: Dictionary) -> void:
 func erase_mesh_instances() -> void:
 	valid_multimesh.instance_count = 0
 	invalid_multimesh.instance_count = 0
+
+#endregion
