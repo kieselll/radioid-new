@@ -183,7 +183,6 @@ func _handle_mouse_motion() -> void:
 			var rect := (
 				TileMapRect
 				. new(GridUtils.world_coord_to_chunk_coord(Vector2i(_click_1)), mouse_map)
-				. normalize()
 			)
 			region_updated.emit(rect)
 

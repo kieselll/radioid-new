@@ -23,6 +23,7 @@ enum TileNeighbors {
 
 var _current_item: BuildableData
 var _filled_array: Array[Vector4i] = []
+var _filtered_array: Array[Vector4i] = []
 
 @export var _default_selection_texture: Texture2D
 #endregion
@@ -327,13 +328,13 @@ func _neighbor_array_to_map_rect_array(
 func _on_input_handler_region_selected(_rect: TileMapRect) -> void:
 	_multimesh_manager.erase_mesh_instances()
 	if _current_item:
-		fill_array(filter_tiles(_filled_array, _current_item).valid, _current_item, true)
+		fill_array(_filtered_array, _current_item, true)
 
 
 ## Refreshes the preview meshes whenever the current selection changes.
 func _on_input_handler_region_updated(rect: TileMapRect) -> void:
 	if _current_item and _current_item.texture_params.can_autotile:
-		var neighbors := _get_rect_border_points_and_neighbors(rect, _current_item.selection_filled)
+		var neighbors := _get_rect_border_points_and_neighbors(rect.normalize(), _current_item.selection_filled)
 		var rects := _neighbor_array_to_map_rect_array(neighbors, _current_item.texture_params)
 		var rect_map: Dictionary[Vector4i, Rect2] = {}
 
@@ -342,6 +343,7 @@ func _on_input_handler_region_updated(rect: TileMapRect) -> void:
 
 		_filled_array = rect_map.keys()
 		var filtered_coords := filter_tiles(_filled_array, _current_item)
+		_filtered_array = filtered_coords.valid
 
 		var filtered_valid_world_rect_dict: Dictionary[Vector2i, Rect2] = {}
 		for coord: Vector4i in filtered_coords.valid:
@@ -353,6 +355,14 @@ func _on_input_handler_region_updated(rect: TileMapRect) -> void:
 
 		_multimesh_manager.create_mesh_instances(
 			{"valid": filtered_valid_world_rect_dict, "invalid": filtered_invalid_world_rect_dict}
+		)
+	elif _current_item:
+		var filtered_coord := filter_tiles([rect.end], _current_item)
+		var valid_coords := {GridUtils.chunk_coord_to_world_coord(filtered_coord.valid[0]): Rect2i(0,0,1,1)} if not filtered_coord.valid.is_empty() else {}
+		_filtered_array = filtered_coord.valid
+		var invalid_coords := {GridUtils.chunk_coord_to_world_coord(filtered_coord.invalid[0]): Rect2i(0,0,1,1)} if not filtered_coord.invalid.is_empty() else {}
+		_multimesh_manager.create_mesh_instances(
+			{"valid": valid_coords, "invalid": invalid_coords}
 		)
 
 
