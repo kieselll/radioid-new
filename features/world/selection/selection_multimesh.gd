@@ -34,7 +34,7 @@ func create_mesh_instances(rects: Dictionary) -> void:
 		var rect: Rect2 = valid_rects[coord]
 
 		valid_multimesh.set_instance_transform_2d(
-			id, Transform2D(PI, Vector2(coord + Vector2i(16, 16)))
+			id, Transform2D(PI, Vector2(coord + Vector2i(16, 16))) * Transform2D.FLIP_X
 		)
 
 		valid_multimesh.set_instance_custom_data(
@@ -47,7 +47,7 @@ func create_mesh_instances(rects: Dictionary) -> void:
 		var rect: Rect2 = invalid_rects[coord]
 
 		invalid_multimesh.set_instance_transform_2d(
-			id, Transform2D(PI, Vector2(coord + Vector2i(16, 16)))
+			id, Transform2D(PI, Vector2(coord + Vector2i(16, 16))) * Transform2D.FLIP_X
 		)
 
 		invalid_multimesh.set_instance_custom_data(
