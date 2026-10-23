@@ -55,7 +55,7 @@ func render_cell(
 	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
 	instance.multimesh.set_instance_transform_2d(
 		index,
-		Transform2D(PI, 32 * coords),
+		Transform2D(PI, 32 * coords) * Transform2D.FLIP_X,
 	)
 	_set_tile_region(layer, coords)
 
@@ -93,7 +93,7 @@ func _set_tile_transform(
 		_create_tile_multimesh(id, layer)
 	var instance: MultiMeshInstance2D = _tile_multimesh_instances[multimesh_key]
 	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
-	instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, 32 * coords))
+	instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, 32 * coords) * Transform2D.FLIP_X)
 
 
 ## Hides a tile instance and refreshes the remaining neighboring visuals.
@@ -106,7 +106,7 @@ func erase_cell(
 	if _tile_multimesh_instances.has(multimesh_key):
 		var instance: MultiMeshInstance2D = _tile_multimesh_instances[multimesh_key]
 		var index := coords.y * Chunk.CHUNK_SIZE + coords.x
-		instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2.ZERO))
+		instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2.ZERO) * Transform2D.FLIP_X)
 		instance.multimesh.set_instance_custom_data(index, Color(0.0, 0.0, 0.0, 0.0))
 
 	_refresh_neighbor_regions(layer, coords)
@@ -139,7 +139,7 @@ func erase_item_pile(id: int, coords: Vector2i) -> void:
 		return
 	var instance: MultiMeshInstance2D = _item_multimesh_instances[id]
 	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
-	instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2.ZERO))
+	instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, Vector2.ZERO) * Transform2D.FLIP_X)
 	instance.multimesh.set_instance_custom_data(index, Color(0.0, 0.0, 0.0, 0.0))
 
 
