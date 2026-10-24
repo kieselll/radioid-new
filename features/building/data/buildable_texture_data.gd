@@ -11,6 +11,8 @@ extends Resource
 @export var can_autotile: bool
 ## Source texture or atlas used to render the buildable.
 @export var texture: Texture2D
+## The amount in pixels by which the texture should be offset from its center
+@export var offset: Vector2i
 ## Texture displayed in UIs and HUDs
 @export var icon: Texture2D
 @export_category("Terrain specific")
