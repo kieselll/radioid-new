@@ -45,7 +45,7 @@ var auction: Dictionary[float, BaseEntity] = {}
 func _on_building_agent_objects_built(
 	object_id: int, coord_array: Array[Vector4i], queued: bool
 ) -> void:
-	if queued:
+	if queued and BuildableDB.get_tile(object_id).creates_job:
 		GlobalLogger.write_to_logs(self, "Adding built objects to jobs...")
 		for coord: Vector4i in coord_array:
 			jobs.append(BuildingJob.new(coord, object_id, 5))
