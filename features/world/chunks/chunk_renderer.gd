@@ -59,6 +59,8 @@ func render_cell(
 	)
 	if BuildableDB.get_tile(id).texture_params.can_autotile:
 		_set_tile_region(layer, coords)
+	else:
+		_set_single_tile_region(layer, coords)
 
 
 ## Builds initial chunk visuals in two passes. Transforms are uploaded first,
