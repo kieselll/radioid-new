@@ -404,19 +404,22 @@ func fill_array(tiles: Array[Vector4i], built_object: BuildableData, queued: boo
 
 	objects_built.emit(built_object.id, tiles, queued)
 
+## Plain tile erasing, mainly used to delete tiles without a trace
 func erase_tiles(tiles: Array[Vector4i], layer: GlobalRef.tilemap_layers_enum) -> void:
 	GlobalLogger.write_to_logs(
 		self,
 		"Erasing array on layer: %d. Coords: %s."
 		% [layer, str(tiles)]
 	)
+	for coord: Vector4i in tiles:
+		var chunk := GlobalRef.get_chunk(Vector2i(coord.x, coord.y)) as Chunk
+		chunk.erase_cell(Vector2i(coord.z, coord.w), layer)
 
+## Tile demolishing. Currently used for dropping items
+func demolish_tiles(tiles: Array[Vector4i], layer: GlobalRef.tilemap_layers_enum) -> void:
 	for coord: Vector4i in tiles:
 		var chunk := GlobalRef.get_chunk(Vector2i(coord.x, coord.y)) as Chunk
 		var inv: DropData = BuildableDB.get_tile(chunk.get_cell(layer, Vector2i(coord.z, coord.w))).drop_params
 		if inv:
 			inv.drop(coord)
-		chunk.erase_cell(Vector2i(coord.z, coord.w), layer)
-
-
 #endregion
