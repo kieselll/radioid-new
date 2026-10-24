@@ -10,7 +10,7 @@
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
-[sub_resource type="GDScript" id="GDScript_rxnul"]
+[sub_resource type="GDScript" id="GDScript_k5p7w"]
 
 [sub_resource type="Resource" id="Resource_rxnul"]
 script = ExtResource("2_k5p7w")
@@ -33,14 +33,15 @@ metadata/_custom_type_script = "uid://dychwsqquxkvs"
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xnm2g"]
 size = Vector2(32, 32)
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_khdjy"]
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_uhqls"]
 size = Vector2(32, 32)
 
 [sub_resource type="Resource" id="Resource_uhqls"]
 script = ExtResource("5_k5p7w")
-texture = SubResource("PlaceholderTexture2D_khdjy")
+texture = SubResource("PlaceholderTexture2D_uhqls")
 icon = SubResource("PlaceholderTexture2D_xnm2g")
 cell_size = Vector2i(32, 32)
+autotile_layout = Dictionary[int, Vector2i]({})
 metadata/_custom_type_script = "uid://5wn15k8plabq"
 
 [resource]
@@ -49,7 +50,9 @@ id = 8
 display_name = "tree"
 category = "walls"
 layer = 2
-queued_layer = 4
+creates_job = false
+queued_layer = 2
+valid_ground_id = Array[int]([4, -1])
 valid_terrain_id = Array[int]([-1])
 valid_walls_id = Array[int]([-1])
 texture_params = SubResource("Resource_uhqls")

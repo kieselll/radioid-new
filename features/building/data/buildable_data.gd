@@ -31,6 +31,8 @@ extends Resource
 @export var selection_filled: bool
 
 @export_subgroup("Optional")
+## Determines if a build job should be auctioned for this tile
+@export var creates_job: bool = true
 ## Base construction time in seconds before pawn skill modifiers are applied.
 @export var build_time: float = 0
 ## Maximum health for the placed object.
