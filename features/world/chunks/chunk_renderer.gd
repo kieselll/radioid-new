@@ -96,7 +96,12 @@ func _set_tile_transform(
 		_create_tile_multimesh(id, layer)
 	var instance: MultiMeshInstance2D = _tile_multimesh_instances[multimesh_key]
 	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
-	instance.multimesh.set_instance_transform_2d(index, Transform2D(PI, 32 * coords) * Transform2D.FLIP_X)
+	instance.multimesh.set_instance_transform_2d(
+		index,
+		Transform2D(
+			PI, 32 * coords + BuildableDB.get_tile(id).texture_params.offset
+		) * Transform2D.FLIP_X,
+	)
 
 
 ## Hides a tile instance and refreshes the remaining neighboring visuals.
