@@ -4,13 +4,15 @@
 [ext_resource type="Script" uid="uid://dbq7a73uonwmr" path="res://features/items/drops/item_pool.gd" id="1_rxnul"]
 [ext_resource type="Script" uid="uid://1damifq2rxfh" path="res://features/items/drops/drop_item.gd" id="2_k5p7w"]
 [ext_resource type="Script" uid="uid://dychwsqquxkvs" path="res://features/items/drops/drop_data.gd" id="3_xnm2g"]
+[ext_resource type="Texture2D" uid="uid://c4gbxly1x53vt" path="res://features/items/assets/textures/log.png" id="5_a7gce"]
 [ext_resource type="Script" uid="uid://5wn15k8plabq" path="res://features/building/data/buildable_texture_data.gd" id="5_k5p7w"]
+[ext_resource type="Texture2D" uid="uid://d23v76jabar48" path="res://features/building/assets/tilesets/tree.png" id="7_0r2vh"]
 
 [sub_resource type="Curve" id="Curve_k5p7w"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
-[sub_resource type="GDScript" id="GDScript_k5p7w"]
+[sub_resource type="GDScript" id="GDScript_ig0iu"]
 
 [sub_resource type="Resource" id="Resource_rxnul"]
 script = ExtResource("2_k5p7w")
@@ -30,17 +32,12 @@ script = ExtResource("3_xnm2g")
 pools = Array[ExtResource("1_rxnul")]([SubResource("Resource_0yw56")])
 metadata/_custom_type_script = "uid://dychwsqquxkvs"
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xnm2g"]
-size = Vector2(32, 32)
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_uhqls"]
-size = Vector2(32, 32)
-
-[sub_resource type="Resource" id="Resource_uhqls"]
+[sub_resource type="Resource" id="Resource_84ubu"]
 script = ExtResource("5_k5p7w")
-texture = SubResource("PlaceholderTexture2D_uhqls")
-icon = SubResource("PlaceholderTexture2D_xnm2g")
-cell_size = Vector2i(32, 32)
+texture = ExtResource("7_0r2vh")
+offset = Vector2i(0, -20)
+icon = ExtResource("5_a7gce")
+cell_size = Vector2i(32, 64)
 autotile_layout = Dictionary[int, Vector2i]({})
 metadata/_custom_type_script = "uid://5wn15k8plabq"
 
@@ -55,6 +52,6 @@ queued_layer = 2
 valid_ground_id = Array[int]([4, -1])
 valid_terrain_id = Array[int]([-1])
 valid_walls_id = Array[int]([-1])
-texture_params = SubResource("Resource_uhqls")
+texture_params = SubResource("Resource_84ubu")
 drop_params = SubResource("Resource_iw7xt")
 metadata/_custom_type_script = "uid://cnq8sq58jipws"
