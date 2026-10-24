@@ -411,6 +411,10 @@ func erase_tiles(tiles: Array[Vector4i], layer: GlobalRef.tilemap_layers_enum) -
 
 	for coord: Vector4i in tiles:
 		var chunk := GlobalRef.get_chunk(Vector2i(coord.x, coord.y)) as Chunk
+		var inv: DropData = BuildableDB.get_tile(chunk.get_cell(layer, Vector2i(coord.z, coord.w))).drop_params
+		if inv:
+			inv.drop(coord)
 		chunk.erase_cell(Vector2i(coord.z, coord.w), layer)
+
 
 #endregion
