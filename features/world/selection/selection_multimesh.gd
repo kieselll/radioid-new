@@ -20,7 +20,7 @@ func set_multimesh_texture(texture: Texture2D) -> void:
 
 ## Creates both valid and invalid multimesh tile instances.
 ## rects = {valid = {coord : rect, ...}, invalid = {coord : rect, ...}}
-func create_mesh_instances(rects: Dictionary) -> void:
+func create_mesh_instances(rects: Dictionary, offset: Vector2i) -> void:
 	var valid_rects: Dictionary = rects["valid"]
 	var invalid_rects: Dictionary = rects["invalid"]
 	# --- Set instance counts ---
@@ -34,7 +34,7 @@ func create_mesh_instances(rects: Dictionary) -> void:
 		var rect: Rect2 = valid_rects[coord]
 
 		valid_multimesh.set_instance_transform_2d(
-			id, Transform2D(PI, Vector2(coord + Vector2i(16, 16))) * Transform2D.FLIP_X
+			id, Transform2D(PI, Vector2(coord + Vector2i(16, 16) + offset)) * Transform2D.FLIP_X
 		)
 
 		valid_multimesh.set_instance_custom_data(
@@ -47,7 +47,7 @@ func create_mesh_instances(rects: Dictionary) -> void:
 		var rect: Rect2 = invalid_rects[coord]
 
 		invalid_multimesh.set_instance_transform_2d(
-			id, Transform2D(PI, Vector2(coord + Vector2i(16, 16))) * Transform2D.FLIP_X
+			id, Transform2D(PI, Vector2(coord + Vector2i(16, 16) + offset)) * Transform2D.FLIP_X
 		)
 
 		invalid_multimesh.set_instance_custom_data(

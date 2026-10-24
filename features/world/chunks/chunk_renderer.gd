@@ -55,7 +55,7 @@ func render_cell(
 	var index := coords.y * Chunk.CHUNK_SIZE + coords.x
 	instance.multimesh.set_instance_transform_2d(
 		index,
-		Transform2D(PI, 32 * coords) * Transform2D.FLIP_X,
+		Transform2D(PI, 32 * coords + BuildableDB.get_tile(id).texture_params.offset) * Transform2D.FLIP_X,
 	)
 	if BuildableDB.get_tile(id).texture_params.can_autotile:
 		_set_tile_region(layer, coords)

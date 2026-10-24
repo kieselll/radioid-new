@@ -354,7 +354,8 @@ func _on_input_handler_region_updated(rect: TileMapRect) -> void:
 			filtered_invalid_world_rect_dict[GridUtils.chunk_coord_to_world_coord(coord)] = rect_map[coord]
 
 		_multimesh_manager.create_mesh_instances(
-			{"valid": filtered_valid_world_rect_dict, "invalid": filtered_invalid_world_rect_dict}
+			{"valid": filtered_valid_world_rect_dict, "invalid": filtered_invalid_world_rect_dict},
+			_current_item.texture_params.offset
 		)
 	elif _current_item:
 		var filtered_coord := filter_tiles([rect.end], _current_item)
@@ -362,7 +363,8 @@ func _on_input_handler_region_updated(rect: TileMapRect) -> void:
 		_filtered_array = filtered_coord.valid
 		var invalid_coords := {GridUtils.chunk_coord_to_world_coord(filtered_coord.invalid[0]): Rect2i(0,0,1,1)} if not filtered_coord.invalid.is_empty() else {}
 		_multimesh_manager.create_mesh_instances(
-			{"valid": valid_coords, "invalid": invalid_coords}
+			{"valid": valid_coords, "invalid": invalid_coords},
+			_current_item.texture_params.offset
 		)
 
 
