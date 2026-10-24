@@ -62,18 +62,18 @@ func _animate_button(button: Button, button_scale: Vector2, color: Color) -> voi
 	tween.parallel().tween_property(button.get_theme_stylebox("normal"), "bg_color", color, 0.3)
 
 
-func _modulate_body(body: RigidBody2D, color: Color):
+func _modulate_body(body: RigidBody2D, color: Color) -> void:
 	var tween = create_tween().set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(body, "modulate", color, 0.3)
 
 
-func _on_new_game_pressed():
+func _on_new_game_pressed() -> void:
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	get_tree().change_scene_to_file("res://features/ui/menus/worldmaking.tscn")
 
 
-func _on_quit_pressed():
+func _on_quit_pressed() -> void:
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	GlobalLogger.write_to_logs(self, "Quitting. Goodbye!")
@@ -81,19 +81,19 @@ func _on_quit_pressed():
 	get_tree().quit()
 
 
-func _on_options_pressed():
+func _on_options_pressed() -> void:
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	get_tree().change_scene_to_file("res://features/ui/menus/options.tscn")
 
 
-func _on_load_game_pressed():
+func _on_load_game_pressed() -> void:
 	SceneTransition.start_trans()
 	await SceneTransition.done
 	get_tree().change_scene_to_file("res://features/ui/menus/save_loader.tscn")
 
 
-func _process_button_anims_and_sounds(button: Button, entered: bool):
+func _process_button_anims_and_sounds(button: Button, entered: bool) -> void:
 	if entered:
 		_animate_button(button, Vector2(1.1, 1.1), button_color_array[menu_buttons.find(button)])
 		audiostream.stream = button_hover_sound
