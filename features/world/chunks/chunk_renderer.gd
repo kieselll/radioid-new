@@ -57,7 +57,8 @@ func render_cell(
 		index,
 		Transform2D(PI, 32 * coords) * Transform2D.FLIP_X,
 	)
-	_set_tile_region(layer, coords)
+	if BuildableDB.get_tile(id).texture_params.can_autotile:
+		_set_tile_region(layer, coords)
 
 
 ## Builds initial chunk visuals in two passes. Transforms are uploaded first,
