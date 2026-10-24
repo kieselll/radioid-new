@@ -9,14 +9,14 @@ class_name SelectionMultimesh
 @onready var valid_multimesh: MultiMesh = valid_multimesh_inst.multimesh
 @onready var invalid_multimesh: MultiMesh = invalid_multimesh_inst.multimesh
 
+#endregion
+
+#region API
+
 ## Assigns texture used for both valid & invalid previews.
 func set_multimesh_texture(texture: Texture2D) -> void:
 	valid_multimesh_inst.texture = texture
 	invalid_multimesh_inst.texture = texture
-
-#endregion
-
-#region API
 
 ## Creates both valid and invalid multimesh tile instances.
 ## rects = {valid = {coord : rect, ...}, invalid = {coord : rect, ...}}
