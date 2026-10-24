@@ -18,6 +18,12 @@ func set_multimesh_texture(texture: Texture2D) -> void:
 	valid_multimesh_inst.texture = texture
 	invalid_multimesh_inst.texture = texture
 
+func set_multimesh_tile_size(size: Vector2i) -> void:
+	var mesh: QuadMesh = valid_multimesh.mesh
+	mesh.size = size
+	mesh = invalid_multimesh.mesh
+	mesh.size = size
+
 ## Creates both valid and invalid multimesh tile instances.
 ## rects = {valid = {coord : rect, ...}, invalid = {coord : rect, ...}}
 func create_mesh_instances(rects: Dictionary, offset: Vector2i) -> void:

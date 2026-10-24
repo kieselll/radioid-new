@@ -380,6 +380,7 @@ func _on_ui_manager_building_selected(id: int) -> void:
 	)
 
 	_multimesh_manager.set_multimesh_texture(tex)
+	_multimesh_manager.set_multimesh_tile_size(_current_item.texture_params.cell_size)
 
 
 #endregion
