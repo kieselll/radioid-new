@@ -8,6 +8,7 @@ var _current_step: int = 0
 var _target_position: Vector2i
 var _direction: Vector2
 var _local_position: Vector4i
+var _previous_position: Vector4i
 
 var _parent: BaseEntity
 var _astar: GlobalPathfinder
@@ -24,6 +25,7 @@ var _astar: GlobalPathfinder
 
 #region signals
 
+signal chunk_changed(previous_chunk: Vector2i, current_chunk: Vector2i)
 signal arrived_at_destination
 
 #endregion
@@ -34,6 +36,8 @@ func setup(parent : CharacterBody2D) -> void:
 	tick_type = tick_types.physics
 	_parent = parent
 	_astar = parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.pathfinder))
+	_local_position = GridUtils.world_coord_to_chunk_coord(_parent.position)
+	_previous_position = _local_position
 
 #endregion
 
@@ -41,6 +45,13 @@ func setup(parent : CharacterBody2D) -> void:
 
 func tick(delta: float) -> void:
 	_local_position = GridUtils.world_coord_to_chunk_coord(_parent.position)
+
+	if _previous_position.x != _local_position.x or _previous_position.y != _local_position.y:
+		chunk_changed.emit(
+			Vector2i(_previous_position.x, _previous_position.y),
+			Vector2i(_local_position.x, _local_position.y)
+		)
+	_previous_position = _local_position
 
 	if _path.is_empty() or _current_step >= _path.size():
 		_parent.velocity = Vector2.ZERO

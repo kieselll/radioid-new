@@ -83,6 +83,7 @@ func spawn_entity(entity_type: types, autogenerate: bool, spawn_coord: Vector4i 
 	entity_node.entity_type = entity_type
 	add_child(entity_node)
 	entity_node.initialize(template, autogenerate, _build_components(template))
+	entity_node.movement_component.chunk_changed.connect(update_entity_chunk.bind(entity_id))
 	GlobalRef.register_pawn(entity_node)
 	var spawned_entity := Entity.new(entity_id, entity_type, entity_node)
 	entities_by_id[entity_id] = spawned_entity
@@ -152,12 +153,13 @@ func serialize_chunk(chunk_coords : Vector2i) -> Dictionary:
 			result[entity_instance.id] = entity_instance.node.serialize()
 	return result
 
-func update_entity_chunk(entity_id: int, old_chunk_coords: Vector2i, new_chunk_coords: Vector2i) -> void:
+func update_entity_chunk(old_chunk_coords: Vector2i, new_chunk_coords: Vector2i, entity_id: int) -> void:
 	if entities_by_chunk.has(old_chunk_coords):
 		var index: int = entities_by_chunk[old_chunk_coords].find_custom(func(element: Entity) -> bool: return element.id == entity_id)
 		if index != -1:
 			if not entities_by_chunk.has(new_chunk_coords):
 				entities_by_chunk[new_chunk_coords] = []
+			entities_by_chunk[new_chunk_coords].append(entities_by_chunk[old_chunk_coords].pop_at(index))
 
 
 #endregion
