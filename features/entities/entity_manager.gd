@@ -54,6 +54,7 @@ class Entity:
 
 var entity_templates : Dictionary[types, EntityTemplate] = {}
 var entities_by_id : Dictionary[int, Entity] = {}
+## Stores an [Array] of [member EntityManager.Entity], keyed by their chunk coord, a [Vector2i]
 var entities_by_chunk : Dictionary[Vector2i, Array] = {}
 var next_entity_id: int = 1
 
