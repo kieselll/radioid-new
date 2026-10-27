@@ -31,12 +31,14 @@ func build(coords: Vector4i, id: int, time: float = 5) -> void:
 	progressbar_tween.tween_property(progressbar, "value", 100, time)
 	await progressbar_tween.finished
 	var chunk: Chunk = GlobalRef.get_chunk(Vector2i(coords.x, coords.y))
-	@warning_ignore("unsafe_method_access")
-	_parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent)).fill_array(
-		[coords] as Array[Vector4i], _data, false
-	)
-	@warning_ignore("unsafe_method_access")
-	_parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent)).erase_tiles([coords] as Array[Vector4i], _data.queued_layer)
+	var building_agent: BuildingAgent = _parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent))
+	if not id == -1:
+		building_agent.fill_array(
+			[coords] as Array[Vector4i], _data, false
+		)
+		building_agent.erase_tiles([coords] as Array[Vector4i], _data.queued_layer)
+	else:
+		building_agent.demolish_tiles([coords] as Array[Vector4i], _data.layer)
 	# Both operations above are queued on Chunk and applied during its next
 	# _process(). Do not finish the action until tile data and A* solidity agree.
 	await chunk.cells_updated
