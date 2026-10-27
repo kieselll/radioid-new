@@ -159,17 +159,54 @@ func save_chunk(coords: Vector2i) -> void:
 	if chunk == null:
 		return
 	_chunks_to_save.append({"coords": coords, "data": var_to_bytes(chunk.get_cells_rle())})
-	var entity_manager : EntityManager = get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager))
-	if entity_manager.serialize_chunk(coords).is_empty() and\
-	not FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json"): return
-	elif FileAccess.file_exists(_current_save_path + "/entities/" + str(coords) + ".json") and\
-	entity_manager.serialize_chunk(coords).is_empty():
-		DirAccess.remove_absolute(_current_save_path + "/entities/" + str(coords) + ".json")
-	else:
-		var _entity_file_access: FileAccess = FileAccess.open(
-			_current_save_path + "/entities/" + str(coords) + ".json", FileAccess.WRITE
-		)
-		_entity_file_access.store_string(JSON.stringify(entity_manager.serialize_chunk(coords)))
+	_save_chunk_entities(coords)
+
+
+## Writes or removes the entity for one chunk independently of tile data.
+func _save_chunk_entities(coords: Vector2i) -> void:
+	var entity_manager := get_node(
+		GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager)
+	) as EntityManager
+	var entity_path := _current_save_path + "/entities/" + str(coords) + ".json"
+	var entities := entity_manager.serialize_chunk(coords)
+	if entities.is_empty():
+		if FileAccess.file_exists(entity_path):
+			DirAccess.remove_absolute(entity_path)
+		return
+
+	var entity_file := FileAccess.open(entity_path, FileAccess.WRITE)
+	if entity_file == null:
+		push_error("Failed to open entity file %s: %s" % [
+			entity_path, error_string(FileAccess.get_open_error())
+		])
+		return
+	entity_file.store_string(JSON.stringify(entities))
+	entity_file.close()
+
+
+## Refreshes current and previously saved entities, including chunks with no tile edits.
+func _save_all_entity_chunks() -> void:
+	var entity_manager := get_node(
+		GlobalRef.get_handler(GlobalRef.handlers_enum.entity_manager)
+	) as EntityManager
+	var coords_to_save: Array[Vector2i] = []
+	for coords: Vector2i in entity_manager.entities_by_chunk:
+		coords_to_save.append(coords)
+
+	var entities_dir := DirAccess.open(_current_save_path + "/entities")
+	if entities_dir:
+		for filename: String in entities_dir.get_files():
+			if not filename.ends_with(".json"):
+				continue
+			var coord_parts := filename.trim_suffix(".json").trim_prefix("(").trim_suffix(")").split(",")
+			if coord_parts.size() != 2:
+				continue
+			var sidecar_coords := Vector2i(int(coord_parts[0]), int(coord_parts[1]))
+			if not coords_to_save.has(sidecar_coords):
+				coords_to_save.append(sidecar_coords)
+
+	for coords: Vector2i in coords_to_save:
+		_save_chunk_entities(coords)
 
 ## Returns the decoded RLE cell payload for the chunk at [param coords].
 ##
@@ -375,6 +412,7 @@ func save() -> void:
 			var chunk := GlobalRef.get_chunk(i) as Chunk
 			if chunk != null and chunk.dirty:
 				save_chunk(i)
+		_save_all_entity_chunks()
 		_on_write_timer_timeout()
 		save_nav_data(pathfinder.portals, pathfinder.portal_connections)
 	GlobalLogger.write_to_logs(self, "Saved everything, quitting")
