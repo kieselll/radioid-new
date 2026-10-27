@@ -1,5 +1,6 @@
 @icon("res://shared/editor_icons/house.svg")
 extends Node2D
+class_name BuildingAgent
 ## Handles building preview validation and tile placement for selected regions.
 
 const CHUNK_SIZE = 16
@@ -90,9 +91,6 @@ func filter_tiles(tiles: Array[Vector4i], built_object: BuildableData) -> TileFi
 ## Filters out tiles whose wall layer does not match the buildable requirements.
 func filter_walls(tiles: Array[Vector4i], built_object: BuildableData) -> TileFilterResult:
 	var result := TileFilterResult.new()
-	if built_object.valid_walls_id.has(0):
-		result.valid.assign(tiles)
-		return result
 
 	for chunk_pos: Vector4i in tiles:
 		var chunk := GlobalRef.get_chunk(Vector2i(chunk_pos.x, chunk_pos.y)) as Chunk
@@ -101,7 +99,7 @@ func filter_walls(tiles: Array[Vector4i], built_object: BuildableData) -> TileFi
 			Vector2i(chunk_pos.z, chunk_pos.w)
 		)
 
-		if built_object.valid_walls_id.has(cell):
+		if built_object.valid_walls_id.has(cell) or built_object.valid_walls_id.is_empty():
 			result.valid.append(chunk_pos)
 		else:
 			result.invalid.append(chunk_pos)
@@ -120,7 +118,9 @@ func filter_terrain(tiles: Array[Vector4i], built_object: BuildableData) -> Tile
 			Vector2i(chunk_pos.z, chunk_pos.w)
 		)
 
-		if built_object.valid_terrain_id.has(cell):
+		if built_object.valid_terrain_id.is_empty():
+			result.valid.append(chunk_pos)
+		elif built_object.valid_terrain_id.has(cell):
 			if cell == -1:
 				result.empty.append(chunk_pos)
 			else:
@@ -142,7 +142,9 @@ func filter_ground(tiles: Array[Vector4i], built_object: BuildableData) -> TileF
 			Vector2i(chunk_pos.z, chunk_pos.w)
 		)
 
-		if built_object.valid_ground_id.has(cell):
+		if built_object.valid_ground_id.is_empty():
+			result.valid.append(chunk_pos)
+		elif built_object.valid_ground_id.has(cell):
 			result.valid.append(chunk_pos)
 		else:
 			result.invalid.append(chunk_pos)
