@@ -16,6 +16,13 @@ func _ready() -> void:
 	_logs_folder = DirAccess.open(game_dir_path + "/logs")
 	_log_file_path = game_dir_path + "/logs/" + str(Time.get_unix_time_from_system()) + ".log"
 	_log_file = FileAccess.open(_log_file_path, FileAccess.WRITE)
+	_log_file = FileAccess.open(_log_file_path, FileAccess.WRITE)
+	if _log_file == null:
+		push_error(
+				"Cannot open log at %s: %s" %
+				[_log_file_path, error_string(FileAccess.get_open_error())]
+		)
+		return
 	var files: PackedStringArray = _logs_folder.get_files()
 	if files.size() > 10:
 		var oldest_log: String = files[0]
@@ -35,6 +42,9 @@ func open_log_file() -> void:
 
 
 func write_to_logs(sender: Node, log_string: String) -> void:
+	if _log_file == null or not _log_file.is_open():
+		push_error("Logger handle is unavailable: " + _log_file_path)
+		return
 	_log_file.store_line(
 		(
 			Time.get_time_string_from_system()
