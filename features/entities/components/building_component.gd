@@ -32,13 +32,14 @@ func build(coords: Vector4i, id: int, time: float = 5) -> void:
 	await progressbar_tween.finished
 	var chunk: Chunk = GlobalRef.get_chunk(Vector2i(coords.x, coords.y))
 	var building_agent: BuildingAgent = _parent.get_node(GlobalRef.get_handler(GlobalRef.handlers_enum.building_agent))
-	if not id == -1:
+	if not id == -2:
 		building_agent.fill_array(
 			[coords] as Array[Vector4i], _data, false
 		)
 		building_agent.erase_tiles([coords] as Array[Vector4i], _data.queued_layer)
 	else:
 		building_agent.demolish_tiles([coords] as Array[Vector4i], _data.layer)
+		building_agent.erase_tiles([coords] as Array[Vector4i], _data.queued_layer)
 	# Both operations above are queued on Chunk and applied during its next
 	# _process(). Do not finish the action until tile data and A* solidity agree.
 	await chunk.cells_updated
