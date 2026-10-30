@@ -48,7 +48,9 @@ class ValueDataItem:
 func get_items() -> Array[ItemManager.BaseItem]:
 	if id == -1 or not non_empty:
 		return []
-	var amount: int = floori(amount_curve.sample(randf()))
+	# Curve interpolation can return 0.99999976 even for a constant 1 curve.
+	# Remove floating-point noise before flooring so guaranteed drops stay guaranteed.
+	var amount: int = floori(snappedf(amount_curve.sample(randf()), 0.000001))
 	var result: Array[ItemManager.BaseItem] = []
 	for item_idx in amount:
 		var local_data: Dictionary[String, Variant] = {}
