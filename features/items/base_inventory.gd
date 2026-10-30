@@ -3,13 +3,13 @@ extends Resource
 
 #region vars
 
-@export var volume_limit: float # In litres
-@export var mass_limit: float # in kilograms
+@export var volume_limit: float # In mililitres
+@export var mass_limit: float # in grams
 
-var current_volume: float = 0 # In litres
-var current_mass: float = 0 # in kilograms
-var free_volume: float # In litres
-var free_mass: float # in kilograms
+var current_volume: float = 0 # In mililitres
+var current_mass: float = 0 # in grams
+var free_volume: float # In mililitres
+var free_mass: float # in grams
 
 var _data_map: Dictionary[String, Dictionary] = {}
 var _items: Dictionary[int, ItemPileAlias] = {}
@@ -83,8 +83,8 @@ func initialize() -> void:
 #region API
 
 func add_items(item_pile: ItemManager.ItemPile) -> void:
-	var added_mass: float = 0 # in kilograms
-	var added_volume: float = 0 # in litres
+	var added_mass: float = 0 # in grams
+	var added_volume: float = 0 # in mililitres
 	for item_group: ItemManager.ItemGroup in item_pile.items.values():
 		added_mass += ItemDB.get_item(item_group.id).mass * item_group.count
 		added_volume += ItemDB.get_item(item_group.id).volume * item_group.count
@@ -125,10 +125,14 @@ func take_items(item_id: int, count: int = -1) -> Array[ItemManager.ItemGroup]:
 	if count == -1:
 		current_mass -= ItemDB.get_item(item_id).mass * item_pile.total_count
 		current_volume -= ItemDB.get_item(item_id).volume * item_pile.total_count
+		free_mass = mass_limit
+		free_volume = volume_limit
 		return item_pile.take_items(item_pile.total_count)
 
 	current_mass -= ItemDB.get_item(item_id).mass * count
 	current_volume -= ItemDB.get_item(item_id).volume * count
+	free_mass = mass_limit - current_mass
+	free_volume = volume_limit - current_volume
 	return item_pile.take_items(count)
 
 func serialize() -> String:
