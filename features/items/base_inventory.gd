@@ -28,6 +28,43 @@ class ItemPileAlias:
 		pile = _pile
 		local_id = _local_id
 
+	func serialize() -> Dictionary:
+		var groups: Array[Dictionary] = []
+		for group_id: int in pile.items:
+			var group: ItemManager.ItemGroup = pile.items[group_id]
+			groups.append({
+				"group_id": group_id,
+				"id": group.id,
+				"data": group.data,
+				"count": group.count,
+			})
+		return {
+			"local_id": local_id,
+			"pile_id": pile.id,
+			"position": var_to_str(pile.position),
+			"vacant_ids": pile.vacant_ids,
+			"groups": groups,
+		}
+
+	static func deserialize(data: Dictionary) -> ItemPileAlias:
+		@warning_ignore_start("unsafe_call_argument")
+		var pile_position: Vector2i = str_to_var(data.get("position", "Vector2i(0, 0)"))
+		var this_pile := ItemManager.ItemPile.new(pile_position, int(data["pile_id"]))
+		this_pile.vacant_ids.assign(data.get("vacant_ids", []))
+		@warning_ignore_restore("unsafe_call_argument")
+		for group_data: Dictionary in data.get("groups", []):
+			@warning_ignore("unsafe_call_argument")
+			var group_id := int(group_data["group_id"])
+			@warning_ignore("unsafe_call_argument")
+			var group := ItemManager.ItemGroup.new(
+				int(group_data["id"]), group_data.get("data", {}), int(group_data["count"])
+			)
+			this_pile.items[group_id] = group
+			this_pile.total_count += group.count
+			this_pile.index_item(group, group_id)
+		@warning_ignore("unsafe_call_argument")
+		return ItemPileAlias.new(this_pile, int(data["local_id"]))
+
 #endregion
 
 #region lifecycle
@@ -93,6 +130,38 @@ func take_items(item_id: int, count: int = -1) -> Array[ItemManager.ItemGroup]:
 	current_mass -= ItemDB.get_item(item_id).mass * count
 	current_volume -= ItemDB.get_item(item_id).volume * count
 	return item_pile.take_items(count)
+
+func serialize() -> String:
+	var serialized_items: Array[Dictionary] = []
+	for local_id: int in _items:
+		serialized_items.append(_items[local_id].serialize())
+	return JSON.stringify({
+		"volume_limit": volume_limit,
+		"mass_limit": mass_limit,
+		"items": serialized_items,
+		"free_ids": _free_ids,
+	})
+
+func deserialize(data: Dictionary) -> void:
+	@warning_ignore_start("unsafe_call_argument")
+	volume_limit = float(data.get("volume_limit", 0.0))
+	mass_limit = float(data.get("mass_limit", 0.0))
+	_free_ids.assign(data.get("free_ids", []))
+	@warning_ignore_restore("unsafe_call_argument")
+	_items.clear()
+	_data_map.clear()
+	current_mass = 0.0
+	current_volume = 0.0
+
+	for item_data: Dictionary in data.get("items", []):
+		var item_alias := ItemPileAlias.deserialize(item_data)
+		_items[item_alias.local_id] = item_alias
+		_index_item_pile(item_alias.pile, item_alias.local_id)
+		for group: ItemManager.ItemGroup in item_alias.pile.items.values():
+			var item_def: ItemData = ItemDB.get_item(group.id)
+			current_mass += item_def.mass * group.count
+			current_volume += item_def.volume * group.count
+	initialize()
 
 #endregion
 

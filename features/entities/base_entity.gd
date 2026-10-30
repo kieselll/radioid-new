@@ -180,7 +180,8 @@ func serialize() -> Dictionary:
 		"position" : var_to_str(GridUtils.world_coord_to_chunk_coord(position)),
 		"current_health" : current_health,
 		"current_action" : action_machine.serialize(),
-		"decision_maker" : decision_maker.serialize()
+		"decision_maker" : decision_maker.serialize(),
+		"inventory" : inventory.serialize()
 	}
 	return result
 
