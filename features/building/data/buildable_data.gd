@@ -12,6 +12,12 @@ extends Resource
 ## Instances are expected to live in [code]res://features/building/data/buildings/[/code] so
 ## that the [code]BuildableDB[/code] singleton can discover them automatically.
 
+enum SelectionTypes {
+	SINGLE,
+	HOLLOW,
+	FILLED
+}
+
 @export_subgroup("Base")
 ## Unique numeric identifier for this buildable.
 ##
@@ -27,8 +33,11 @@ extends Resource
 @export var layer: GlobalRef.tilemap_layers_enum
 ## If [code]true[/code], the object does not block pathfinding on its tile.
 @export var passable: bool
-## If [code]true[/code], area placement fills the full rectangle instead of only its border.
-@export var selection_filled: bool
+## Determines how dragging selects cells for placement.
+## Single means dragging does nothing and a single object will be placed.
+## Hollow means a rectangle's outline will be drawn.
+## Filled means a filled rectangle will be drawn.
+@export var selection_type: SelectionTypes
 
 @export_subgroup("Optional")
 ## Determines if a build job should be auctioned for this tile

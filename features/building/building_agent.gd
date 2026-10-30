@@ -335,8 +335,8 @@ func _on_input_handler_region_selected(_rect: TileMapRect) -> void:
 
 ## Refreshes the preview meshes whenever the current selection changes.
 func _on_input_handler_region_updated(rect: TileMapRect) -> void:
-	if _current_item and _current_item.texture_params.can_autotile:
-		var neighbors := _get_rect_border_points_and_neighbors(rect.normalize(), _current_item.selection_filled)
+	if _current_item and _current_item.selection_type != BuildableData.SelectionTypes.SINGLE:
+		var neighbors := _get_rect_border_points_and_neighbors(rect.normalize(), _current_item.selection_type == BuildableData.SelectionTypes.FILLED)
 		var rects := _neighbor_array_to_map_rect_array(neighbors, _current_item.texture_params)
 		var rect_map: Dictionary[Vector4i, Rect2] = {}
 
