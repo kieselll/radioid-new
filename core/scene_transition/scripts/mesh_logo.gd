@@ -16,3 +16,6 @@ func _ready() -> void:
 	immediate_mesh.surface_end()
 	await get_tree().process_frame
 	position = get_window().size / 2
+
+func _process(_delta: float) -> void:
+	position = get_window().size / 2
