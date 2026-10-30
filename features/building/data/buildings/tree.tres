@@ -9,7 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://d23v76jabar48" path="res://features/building/assets/tilesets/tree.png" id="7_0r2vh"]
 
 [sub_resource type="Curve" id="Curve_k5p7w"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 1, Vector2(1, 1), 0.0, 0.0, 1, 0]
 point_count = 2
 
 [sub_resource type="GDScript" id="GDScript_a7gce"]

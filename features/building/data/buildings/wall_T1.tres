@@ -34,6 +34,7 @@ id = 1
 display_name = "Wood wall"
 category = "walls"
 layer = 2
+selection_type = 1
 build_time = 6.0
 max_health = 100
 queued_layer = 4
