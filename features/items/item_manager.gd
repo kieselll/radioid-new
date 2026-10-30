@@ -149,10 +149,10 @@ class ItemPile:
 		assert(count <= total_count, "Cannot take more items than the pile contains.")
 
 		var local_count: int = count
-		var result: Array[ItemGroup]
+		var result: Array[ItemGroup] = []
 		for group_id: int in items.keys():
 			var item_group: ItemGroup = items[group_id]
-			var item_amount: int = clampi(local_count, 0, item_group.count)
+			var item_amount: int = mini(local_count, item_group.count)
 			var taken_items: ItemGroup = item_group.take_items(item_amount)
 			total_count -= item_amount
 			local_count -= item_amount
